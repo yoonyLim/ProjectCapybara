@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1ffe5bb9e47c449b91fbeffda75f4a, type: 3}
   m_Name: TestNode2
   m_EditorClassIdentifier: 
-  DialogueText: This is the end.
-  Choices: []
+  DialogueText: U on crack or smth bitch?
+  Choices:
+  - ChoiceText: Yes
+    NextNode: {fileID: 11400000, guid: c2cfea3527411524693dbe5c4d6982eb, type: 2}
+  - ChoiceText: No
+    NextNode: {fileID: 11400000, guid: 951e8f3be03252147a78a81aeedda889, type: 2}
+  - ChoiceText: I dunno
+    NextNode: {fileID: 0}
   NextNode: {fileID: 0}

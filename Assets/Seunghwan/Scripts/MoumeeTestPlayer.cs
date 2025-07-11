@@ -22,6 +22,17 @@ public class MoumeeTestPlayer : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         
+        
+    }
+
+    private void OnEnable()
+    {
+        Dialogue.OnDialogueEnd += EndInteraction;
+    }
+
+    private void OnDisable()
+    {
+        Dialogue.OnDialogueEnd -= EndInteraction;
     }
     
 
@@ -29,23 +40,30 @@ public class MoumeeTestPlayer : MonoBehaviour
     {
         Vector3 input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         characterController.SimpleMove(input *  moveSpeed);
-        
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 20.0f, interactLayer);
-        foreach (Collider collider in colliders)
+
+        if (!IsInteracting)
         {
-            if (collider.TryGetComponent(out IInteractable interactable))
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 20.0f, interactLayer);
+            foreach (Collider collider in colliders)
             {
-                closestInteractable = interactable;
-                break;
+                if (collider.TryGetComponent(out IInteractable interactable))
+                {
+                    closestInteractable = interactable;
+                    break;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.E) && closestInteractable != null)
+            {
+                IsInteracting = true;
+                closestInteractable.Interact();
             }
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.E) && closestInteractable != null && !IsInteracting)
-        {
-            IsInteracting = true;
-            closestInteractable.Interact();
-        }
-        
+    private void EndInteraction()
+    {
+        IsInteracting = false;
     }
 
    
