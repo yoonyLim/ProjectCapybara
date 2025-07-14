@@ -519,6 +519,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   choiceButtonPrefab: {fileID: 7406380183019543669, guid: 10ed9208712cc684abdf611ca13a54dd, type: 3}
   dialogueChoicesContainer: {fileID: 974164534}
+  MidtoneBeeps:
+  - {fileID: 8300000, guid: 04ce09c9a0bc6664d863a99982ccc9d7, type: 3}
+  - {fileID: 8300000, guid: b52f3fce64069ee4a998a41b7ac2d5a9, type: 3}
+  - {fileID: 8300000, guid: 07add4ed1728b404088fa8932be551dc, type: 3}
+  - {fileID: 8300000, guid: 284c14c53f90b6c44ba29f1155d84eed, type: 3}
+  - {fileID: 8300000, guid: 2374490d51836d54487e143a4f7ca7f6, type: 3}
+  - {fileID: 8300000, guid: ec7b05294d178fc4aa0116ad6c550546, type: 3}
+  - {fileID: 8300000, guid: 2aeafbc76a23ce34c925934178a54c1b, type: 3}
+  - {fileID: 8300000, guid: 150bc5772c293b44caeef0f262f17b55, type: 3}
+  - {fileID: 8300000, guid: d0fda9a326380b5439abfdb35eaff596, type: 3}
+  - {fileID: 8300000, guid: 8fdf08140d338d34b9684bdd267ccb11, type: 3}
 --- !u!4 &565878731
 Transform:
   m_ObjectHideFlags: 0
@@ -1252,7 +1263,7 @@ Transform:
   m_LocalRotation: {x: -0.6840504, y: -0.00000026595663, z: 0.00000025012335, w: 0.7294348}
   m_LocalPosition: {x: -7.182307e-10, y: 0.012170448, z: 0.0003267246}
   m_LocalScale: {x: 1, y: 0.99999994, z: 0.99999994}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4002761599894534761}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1876,6 +1887,7 @@ GameObject:
   - component: {fileID: 5800542626789128579}
   - component: {fileID: 5800542626789128584}
   - component: {fileID: 5800542626789128585}
+  - component: {fileID: 5800542626789128586}
   m_Layer: 0
   m_Name: GoldenEagle
   m_TagString: Untagged
@@ -1899,6 +1911,8 @@ MonoBehaviour:
   currentNode: {fileID: 0}
   speechBubbleText: {fileID: 1136083482}
   currentState: 0
+  timeBetweenCharacters: 0.04
+  bodyTransform: {fileID: 4002761599894534761}
 --- !u!114 &5800542626789128585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1911,6 +1925,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adfa72046c6b38644b828943486193a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &5800542626789128586
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5800542626789128583}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &5800542627091929002
 Transform:
   m_ObjectHideFlags: 0

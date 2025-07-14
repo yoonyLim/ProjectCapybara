@@ -12,6 +12,8 @@ public class DialogueManager : MonoBehaviour
 
     [SerializeField] private Transform dialogueChoicesContainer;
 
+	public AudioClip[] MidtoneBeeps;
+
     private void Awake()
     {
         if (Instance == null)
