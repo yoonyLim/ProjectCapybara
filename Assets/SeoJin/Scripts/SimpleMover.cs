@@ -38,8 +38,6 @@ public class SimpleMover : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("isGrounded : " + controller.isGrounded);
-        
         // 1. 입력 받기
         float horizontal = Input.GetAxis("Horizontal"); // A, D 또는 좌우 화살표
         float vertical = Input.GetAxis("Vertical");   // W, S 또는 위아래 화살표

@@ -1,13 +1,14 @@
-using System;
 using System.Collections;
-using Unity.PlasticSCM.Editor.WebApi;
+using Moko;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 
 public class NPCDetector : MonoBehaviour
 {
     [SerializeField] private float detectRadius;
     [SerializeField] private LayerMask NPCLayerMask;
+    [SerializeField] private LayerMask obstacleLayerMask;
     [SerializeField] private float checkInterval = 0.1f;
 
     
@@ -37,7 +38,6 @@ public class NPCDetector : MonoBehaviour
                 // Find Closest Target
                 foreach (Collider collider in colliders)
                 {
-                    Debug.Log("Detect NPC: " + collider.gameObject.name);
                     
                     float squaredDistance = (collider.transform.position - transform.position).sqrMagnitude;
 
@@ -48,7 +48,25 @@ public class NPCDetector : MonoBehaviour
                     }
                 }
                 // allocate closestTarget to currentDetectedNPC
-                CurrentDetectedNPC = closestTarget;
+
+                if (closestTarget)
+                {
+                    Vector3 rayOrigin = transform.position + (Vector3.up * 0.3f);
+                    Vector3 targetPosition = closestTarget.transform.position + (Vector3.up * 0.3f); // 타겟도 약간 위로
+                    Vector3 rayDirection = (targetPosition - rayOrigin).normalized;
+                    float rayDistance = Vector3.Distance(rayOrigin, targetPosition);
+                    
+                    bool isHit = Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, rayDistance, obstacleLayerMask);
+                    if (!isHit || hit.collider.gameObject == closestTarget)
+                    {
+                        CurrentDetectedNPC = closestTarget;
+                        DebugExtension.ColorLog("Detect NPC: " + closestTarget.name, "green");
+                    }
+                    else
+                    {
+                        DebugExtension.ColorLog($"Line of sight blocked by: {hit.collider.gameObject.name}", "red");
+                    }
+                }
             }
             else
             {
