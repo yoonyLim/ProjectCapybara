@@ -52,15 +52,18 @@ public class PlayerCameraController : MonoBehaviour
         {
             if (CurrentCameraMode == CameraViewMode.PlayerCamera)
             {
-                if (npcDetector.currentDetectedNPC)
+                if (npcDetector.CurrentDetectedNPC)
                 {
-                    targetGroup.AddMember(npcDetector.currentDetectedNPC.transform, 1, 1);
+                    player.transform.GetComponent<SimpleMover>().RotateTowards(npcDetector.CurrentDetectedNPC.transform.position);
+                    targetGroup.AddMember(npcDetector.CurrentDetectedNPC.transform, 1, 1);
                     SwitchCameraMode(CameraViewMode.PlayerDialogueCamera);
                 }
             }
             else
             {
-                targetGroup.RemoveMember(npcDetector.currentDetectedNPC.transform);
+                npcDetector.ClearCurrentDetectedNPC();
+                targetGroup.Targets.Clear();
+                targetGroup.AddMember(player.transform, 1,1 );
                 SwitchCameraMode(CameraViewMode.PlayerCamera);
             }
         }

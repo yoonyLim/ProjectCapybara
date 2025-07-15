@@ -1,8 +1,9 @@
+using System.Collections;
 using UnityEngine;
 
 // 이 스크립트를 사용하려면 게임 오브젝트에 CharacterController 컴포넌트가 필요합니다.
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class SimpleMover : MonoBehaviour
 {
     // 이동 속도
     public float moveSpeed = 5.0f;
@@ -21,6 +22,8 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController controller;
     private Vector3 moveDirection = Vector3.zero;
+
+    private Coroutine currentRotationCoroutine;
 
     void Start()
     {
@@ -84,5 +87,32 @@ public class PlayerController : MonoBehaviour
         // 4. 중력 적용 및 이동 실행
         moveDirection.y -= gravity * Time.deltaTime;
         controller.Move(moveDirection * Time.deltaTime);
+    }
+
+
+    public void RotateTowards(Vector3 target)
+    {
+        if (currentRotationCoroutine != null)
+            StopCoroutine(currentRotationCoroutine);
+    
+        currentRotationCoroutine = StartCoroutine(RotateCoroutine(target));
+    }
+
+    private IEnumerator RotateCoroutine(Vector3 target)
+    {
+        Vector3 direction = (target - transform.position).normalized;
+        direction.y = 0;
+    
+        if (direction == Vector3.zero) yield break;
+    
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+    
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            yield return null;
+        }
+    
+        transform.rotation = targetRotation;
     }
 }

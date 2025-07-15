@@ -10,12 +10,11 @@ public class NPCDetector : MonoBehaviour
     [SerializeField] private LayerMask NPCLayerMask;
     [SerializeField] private float checkInterval = 0.1f;
 
-    private GameObject closestTarget;
-    
     
     // Exposed by Getter, Get a CurrentDetectedNPC!!!! 
-    public GameObject currentDetectedNPC { get; private set; }
-
+    public GameObject CurrentDetectedNPC { get; private set; }
+    private GameObject closestTarget;
+    
     private void Start()
     {
         StartCoroutine(DetectNPC());
@@ -32,10 +31,14 @@ public class NPCDetector : MonoBehaviour
 
             if (colliders.Length > 0)
             {
+                float minDistanceSquared = detectRadius * detectRadius;
+                closestTarget = null;
+                
                 // Find Closest Target
                 foreach (Collider collider in colliders)
                 {
-                    float minDistanceSquared = detectRadius;
+                    Debug.Log("Detect NPC: " + collider.gameObject.name);
+                    
                     float squaredDistance = (collider.transform.position - transform.position).sqrMagnitude;
 
                     if (squaredDistance < minDistanceSquared)
@@ -44,15 +47,21 @@ public class NPCDetector : MonoBehaviour
                         closestTarget = collider.gameObject;
                     }
                 }
-                currentDetectedNPC = closestTarget; // allocate closestTarget to currentDetectedNPC
+                // allocate closestTarget to currentDetectedNPC
+                CurrentDetectedNPC = closestTarget;
             }
             else
             {
-                currentDetectedNPC = null; // make sure if nothing detected
+                ClearCurrentDetectedNPC(); // make sure if nothing detected
             }
             
             yield return new WaitForSeconds(checkInterval);
         }
+    }
+
+    public void ClearCurrentDetectedNPC()
+    {
+        CurrentDetectedNPC = null;
     }
     
     
@@ -60,11 +69,9 @@ public class NPCDetector : MonoBehaviour
     #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Gizmos.color = currentDetectedNPC ? Color.red : Color.blue;
+        Gizmos.color = CurrentDetectedNPC ? Color.red : Color.blue;
         
         Gizmos.DrawWireSphere(transform.position, detectRadius);
     }
-    
-    
     #endif
 }
