@@ -127,7 +127,7 @@ public class Dialogue : MonoBehaviour
     }
     
 
-    public void OnChoiceSelected(DialogueChoice choice)
+    private void OnChoiceSelected(DialogueChoice choice)
     {
         DialogueManager.Instance.DeleteChoiceButtons();
         currentNode = choice.NextNode;
