@@ -5,6 +5,7 @@ public class ProgressManager : MonoBehaviour
 {
     public static ProgressManager Instance;
 
+    // Invoked when progress is advanced. e.g) FoundSuckGoat -> RescuedGoat
     public event Action OnProgressAdvance;
 
     public enum ProgressType
@@ -38,7 +39,7 @@ public class ProgressManager : MonoBehaviour
         Ending     
         
     }
-
+    
     private ProgressType currentProgress = ProgressType.GameStart;
     
     private void Awake()
@@ -59,8 +60,10 @@ public class ProgressManager : MonoBehaviour
         return currentProgress;
     }
 
+    // Use this for normal progress advances.
     public void AdvanceProgress()
     {
+        // Instead of comparing with ProgressType.Ending for index range, made a more robust check.
         Array allProgressValues = Enum.GetValues(typeof(ProgressType));
         ProgressType lastProgress = (ProgressType)allProgressValues.GetValue(allProgressValues.Length - 1);
         
@@ -73,6 +76,12 @@ public class ProgressManager : MonoBehaviour
         {
             Debug.LogWarning("Cannot advance progress since currentProgress is at last index");
         }
+    }
+
+    // Setter for current progress. Might be useful when implementing save & load.
+    public void SetCurrentProgress(ProgressType progress)
+    {
+        currentProgress = progress;
     }
     
 }
