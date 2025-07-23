@@ -3,17 +3,22 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-enum DialogueState
-{
-    Inactive,
-    Normal,
-    Choice
-}
+
 
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(Animal))]
 public class Dialogue : MonoBehaviour
 {
-    public static event Action OnDialogueEnd;
+    enum DialogueState
+    {
+        Inactive,
+        Normal,
+        Choice
+    }
+    public event Action OnDialogueStart;
+    public event Action OnDialogueEnd;
+    public event Action OnDialogueAdvance;
+    
     
     [SerializeField]
     private DialogueTree dialogueTree;
@@ -24,23 +29,25 @@ public class Dialogue : MonoBehaviour
 
     [SerializeField]
     private DialogueState currentState;
+    
+    public Animal.FacialAnimationType TargetFacialAnimation;
 
-    [SerializeField] 
-    [Tooltip("Integer value for dialogue body scale effect. For example if set to 4, the character scales up and down every 4 characters of the dialogue.")]
-    private int yScaleCharacterInterval = 4;
+    // [SerializeField] 
+    // [Tooltip("Integer value for dialogue body scale effect. For example if set to 4, the character scales up and down every 4 characters of the dialogue.")]
+    // private int yScaleCharacterInterval = 4;
+    
     [SerializeField]
     [Tooltip("Integer value for playing dialogue beep. For example if set to 2, the character beeps every 2 characters of the dialogue.")]
     private int dialogueBeepCharacterInterval = 2;
     [SerializeField] 
     private float timeBetweenCharacters = 0.05f;
-
-    [SerializeField] 
-    private float playerFacingSpeed = 200f;
+    
+    private float playerFacingSpeed = 150f;
     
     [SerializeField]
     private Transform meshTransform;
 
-    private Vector3 originalScale;
+    // private Vector3 originalScale;
     private Quaternion originalRotation;
     
     private AudioSource dialogueAudioSource;
@@ -51,7 +58,7 @@ public class Dialogue : MonoBehaviour
 
     private void Awake()
     {
-        originalScale = meshTransform.localScale;
+        // originalScale = meshTransform.localScale;
         originalRotation = meshTransform.localRotation;
         currentState = DialogueState.Inactive;
         speechBubbleText.transform.parent.gameObject.SetActive(false);
@@ -60,8 +67,9 @@ public class Dialogue : MonoBehaviour
 
     public void StartDialogue()
     {
+        OnDialogueStart?.Invoke();
+        
         currentNode = dialogueTree.RootNode;
-        speechBubbleText.text = currentNode.DialogueText;
         speechBubbleText.transform.parent.gameObject.SetActive(true);
         currentDialogueCoroutine = StartCoroutine(ProcessDialogue());
         FacePlayer();
@@ -106,8 +114,11 @@ public class Dialogue : MonoBehaviour
 
     public IEnumerator ProcessDialogue()
     {
+        
         if (currentNode)
         {
+            TargetFacialAnimation = currentNode.FacialAnimation;
+            OnDialogueAdvance?.Invoke();
             // Create choice buttons if there are choices. If not, proceed to the next dialogue node.
             if (currentNode.Choices.Count > 0)
             {
@@ -126,12 +137,15 @@ public class Dialogue : MonoBehaviour
         else
         {
             // Dialogue Ended.
+            
             currentState = DialogueState.Inactive;
             speechBubbleText.transform.parent.gameObject.SetActive(false);
             FaceOriginalRotation();
+            StartCoroutine(EndInteractionCoroutine()); // TODO: This is a temporary function. Should create event-based manger later on.
             OnDialogueEnd?.Invoke();
         }
 
+        
         currentDialogueCoroutine = null;
 
     }
@@ -143,10 +157,10 @@ public class Dialogue : MonoBehaviour
 
         for (int i = 0; i < speechBubbleText.text.Length; i++)
         {
-            if (i % yScaleCharacterInterval == 0)
-            {
-                StartCoroutine(ScaleBodyYTransform(1.1f, 4));
-            }
+            // if (i % yScaleCharacterInterval == 0)
+            // {
+            //     StartCoroutine(ScaleBodyYTransform(1.1f, 4));
+            // }
 
             if (i % dialogueBeepCharacterInterval == 0)
             {
@@ -159,30 +173,30 @@ public class Dialogue : MonoBehaviour
         }
     }
 
-    private IEnumerator ScaleBodyYTransform(float yScaleCoefficient, int characterInterval)
-    {
-        float elapsedTime = 0;
-        float halfDuration = timeBetweenCharacters * characterInterval / 2.0f;
-        Vector3 targetScale = new Vector3(originalScale.x, originalScale.y * yScaleCoefficient, originalScale.z);
-        
-        while (elapsedTime < halfDuration)
-        {
-            meshTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / halfDuration);
-            elapsedTime += Time.deltaTime;
-            yield return null; 
-        }
-        
-        elapsedTime = 0;
-        
-        while (elapsedTime < halfDuration)
-        {
-            meshTransform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / halfDuration);
-            elapsedTime += Time.deltaTime;
-            yield return null; 
-        }
-        
-        meshTransform.localScale = originalScale;
-    }
+    // private IEnumerator ScaleBodyYTransform(float yScaleCoefficient, int characterInterval)
+    // {
+    //     float elapsedTime = 0;
+    //     float halfDuration = timeBetweenCharacters * characterInterval / 2.0f;
+    //     Vector3 targetScale = new Vector3(originalScale.x, originalScale.y * yScaleCoefficient, originalScale.z);
+    //     
+    //     while (elapsedTime < halfDuration)
+    //     {
+    //         meshTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / halfDuration);
+    //         elapsedTime += Time.deltaTime;
+    //         yield return null; 
+    //     }
+    //     
+    //     elapsedTime = 0;
+    //     
+    //     while (elapsedTime < halfDuration)
+    //     {
+    //         meshTransform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / halfDuration);
+    //         elapsedTime += Time.deltaTime;
+    //         yield return null; 
+    //     }
+    //     
+    //     meshTransform.localScale = originalScale;
+    // }
     
 
     private void OnChoiceSelected(DialogueChoice choice)
@@ -192,11 +206,20 @@ public class Dialogue : MonoBehaviour
         StartCoroutine(ProcessDialogue());
     }
 
-    
+    /*
+     *  Made this function to delay setting IsInteracting to false by 1 frame to avoid instant interaction restart when
+     *  pressing the interaction key (Currently set to E).
+     */
+    private IEnumerator EndInteractionCoroutine()
+    {
+        yield return new WaitForEndOfFrame();
+        MoumeeTestPlayer.EndInteraction();
+        
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && currentState == DialogueState.Normal)
+        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.E)) && currentState == DialogueState.Normal)
         {
             if (currentDialogueCoroutine == null)
             {

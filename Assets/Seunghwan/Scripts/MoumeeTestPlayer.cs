@@ -6,6 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class MoumeeTestPlayer : MonoBehaviour
 {
+    
     private Collider interactCollider;
     private CharacterController characterController;
     private float moveSpeed = 10.0f;
@@ -15,7 +16,7 @@ public class MoumeeTestPlayer : MonoBehaviour
     
     private IInteractable closestInteractable;
 
-    public bool IsInteracting = false;
+    private static bool IsInteracting = false;
     
 
     private void Awake()
@@ -24,16 +25,7 @@ public class MoumeeTestPlayer : MonoBehaviour
         
         
     }
-
-    private void OnEnable()
-    {
-        Dialogue.OnDialogueEnd += EndInteraction;
-    }
-
-    private void OnDisable()
-    {
-        Dialogue.OnDialogueEnd -= EndInteraction;
-    }
+    
     
 
     private void Update()
@@ -68,10 +60,12 @@ public class MoumeeTestPlayer : MonoBehaviour
         }
     }
 
-    private void EndInteraction()
+    public static void EndInteraction()
     {
         IsInteracting = false;
     }
+    
+    
 
    
 
