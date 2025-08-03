@@ -219,6 +219,7 @@ public class Dialogue : MonoBehaviour
 
     private void Update()
     {
+        // Currently hard coded to keycode values. Should be refactored with New Input System.
         if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.E)) && currentState == DialogueState.Normal)
         {
             if (currentDialogueCoroutine == null)
