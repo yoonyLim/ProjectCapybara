@@ -213,7 +213,7 @@ public class Dialogue : MonoBehaviour
     private IEnumerator EndInteractionCoroutine()
     {
         yield return new WaitForEndOfFrame();
-        MoumeeTestPlayer.EndInteraction();
+        InteractionComponent.EndInteraction();
         
     }
 
