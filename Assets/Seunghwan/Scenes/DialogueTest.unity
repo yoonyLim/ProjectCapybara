@@ -970,7 +970,6 @@ GameObject:
   - component: {fileID: 1034536830}
   - component: {fileID: 1034536829}
   - component: {fileID: 1034536828}
-  - component: {fileID: 1034536827}
   m_Layer: 18
   m_Name: Bridge  (1)
   m_TagString: Untagged
@@ -978,20 +977,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1034536827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1034536826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8800f66261bc02040a145fa3c6b0bda6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultModeMaterial: {fileID: 0}
-  persistModeMaterial: {fileID: 0}
 --- !u!64 &1034536828
 MeshCollider:
   m_ObjectHideFlags: 0
