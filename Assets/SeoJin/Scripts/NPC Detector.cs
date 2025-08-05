@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class NPCDetector : MonoBehaviour
 {
-    [SerializeField] private float detectRadius;
+    [SerializeField] private float detectRadius = 5f;
     [SerializeField] private LayerMask NPCLayerMask;
     [SerializeField] private LayerMask obstacleLayerMask;
     [SerializeField] private float checkInterval = 0.1f;
@@ -19,6 +19,9 @@ public class NPCDetector : MonoBehaviour
     private void Start()
     {
         StartCoroutine(DetectNPC());
+        
+        if (NPCLayerMask.value == 0) Debug.LogError("NPC Layer Mask is 0");
+        if (obstacleLayerMask.value == 0) Debug.LogError("Obstacle Layer Mask is 0");
     }
 
     // NPC Detection via OverlapSphere
