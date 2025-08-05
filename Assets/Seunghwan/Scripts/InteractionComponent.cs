@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class InteractionComponent : MonoBehaviour
@@ -6,23 +7,32 @@ public class InteractionComponent : MonoBehaviour
     [SerializeField] private LayerMask interactLayer;
 
     private IInteractable closestInteractable;
-
-    private static bool IsInteracting = false;
     
+    private static bool IsInteracting = false;
+
+    private Collider[] colliders = new Collider[5];
+
+    private void Awake()
+    {
+        IsInteracting = false;
+    }
+
     void Update()
     {
+        Debug.Log(IsInteracting);
+        
         closestInteractable = null;
         float minDistance = float.PositiveInfinity;
 
         if (!IsInteracting)
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 20.0f, interactLayer);
-            foreach (Collider collider in colliders)
+            int colliderCount = Physics.OverlapSphereNonAlloc(transform.position, 5f, colliders, interactLayer);
+            for (int i = 0; i < colliderCount; i++)
             {
-                IInteractable interactable = collider.GetComponentInParent<IInteractable>();
+                IInteractable interactable = colliders[i].GetComponentInParent<IInteractable>();
                 if (interactable != null)
                 {
-                    float distance = Vector3.Distance(transform.position, collider.transform.position);
+                    float distance = Vector3.Distance(transform.position, colliders[i].transform.position);
                     if (distance < minDistance)
                     {
                         closestInteractable = interactable;
@@ -42,4 +52,12 @@ public class InteractionComponent : MonoBehaviour
     {
         IsInteracting = false;
     }
+    
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, 20f);
+    }
+#endif
 }

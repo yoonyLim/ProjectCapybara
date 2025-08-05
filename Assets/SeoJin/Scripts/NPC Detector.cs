@@ -20,6 +20,7 @@ public class NPCDetector : MonoBehaviour
     {
         StartCoroutine(DetectNPC());
         
+        if (detectRadius == 0) Debug.LogError("DetectRadius is 0");
         if (NPCLayerMask.value == 0) Debug.LogError("NPC Layer Mask is 0");
         if (obstacleLayerMask.value == 0) Debug.LogError("Obstacle Layer Mask is 0");
     }
