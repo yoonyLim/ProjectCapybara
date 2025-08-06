@@ -595,7 +595,7 @@ Animator:
   m_GameObject: {fileID: 9136293648139360599}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0ea9a87c34c3c0b4a8092a453f623c83, type: 2}
+  m_Controller: {fileID: 9100000, guid: 737d44744a3a5314ea4cd0ca350cc5fa, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -676,17 +676,17 @@ MonoBehaviour:
   glideSpeed: 4.5
   glideGravity: 4
   glideLinearDamping: 5
-  glideAngleDamping: 0.5
+  glideAngleDamping: 0.005
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
   waterLayer:
     serializedVersion: 2
     m_Bits: 16
-  constGroundRaycastDistance: 0.5
+  constGroundRaycastDistance: 0.4
   constGravity: 9.81
   constLinearDamping: 0
-  constAngleDamping: 0.1
+  constAngleDamping: 0.001
 --- !u!1 &9136293648575752242
 GameObject:
   m_ObjectHideFlags: 0

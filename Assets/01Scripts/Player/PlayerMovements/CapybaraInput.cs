@@ -118,7 +118,7 @@ namespace Capybara
                     ""id"": ""1c4a97b4-3cca-4448-be05-d003d27e8370"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": """",
+                    ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
                 },
                 {
@@ -127,7 +127,7 @@ namespace Capybara
                     ""id"": ""0772e8c4-7a2b-49ee-8d53-3d3f8b6d05e0"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": """",
+                    ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
                 },
                 {
