@@ -11,9 +11,10 @@ public class SpeechBubble : MonoBehaviour
     }
 
     
-    void Update()
+    void LateUpdate()
     {
-        // Maybe optimize this behavior to be called once upon initialization?..(should consider camera movement state)
-        transform.LookAt(mainCamera.transform);
+        // Maybe optimize this behavior to be called once upon initialization? (If the camera does not move during dialogue)
+        Quaternion cameraRotation = mainCamera.transform.rotation;
+        transform.rotation = cameraRotation;
     }
 }
