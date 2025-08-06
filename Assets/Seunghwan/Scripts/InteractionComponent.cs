@@ -57,7 +57,7 @@ public class InteractionComponent : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, 20f);
+        Gizmos.DrawWireSphere(transform.position, 5f);
     }
 #endif
 }
