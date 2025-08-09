@@ -283,7 +283,7 @@ RectTransform:
   m_GameObject: {fileID: 3473645066787567843}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.13, y: 0.13, z: 0.13}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7214311118952690187}
@@ -398,7 +398,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 3.6}
-  m_SizeDelta: {x: 50, y: 20}
+  m_SizeDelta: {x: 53, y: 23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6723177166750451373
 CanvasRenderer:
@@ -455,12 +455,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 0
+  m_fontSize: 7
+  m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 7
-  m_fontSizeMax: 10
+  m_fontSizeMin: 3
+  m_fontSizeMax: 7
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -696,8 +696,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 5.2}
-  m_SizeDelta: {x: 10, y: 5}
+  m_AnchoredPosition: {x: 0, y: 5.92}
+  m_SizeDelta: {x: 10, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &477452890309286885
 Canvas:
@@ -885,7 +885,7 @@ Animator:
   m_GameObject: {fileID: 7030985676716569937}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d292aab4a219d4d4e8210374330cf08b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1068,10 +1068,9 @@ MonoBehaviour:
   dialogueTree: {fileID: 11400000, guid: 810b3d9aea37f4c47acf7a6cff914276, type: 2}
   speechBubbleText: {fileID: 3866649090236999496}
   currentState: 0
-  yScaleCharacterInterval: 4
+  TargetFacialAnimation: 0
   dialogueBeepCharacterInterval: 2
   timeBetweenCharacters: 0.05
-  playerFacingSpeed: 300
   meshTransform: {fileID: 8849625601677371943}
 --- !u!114 &2958373684666421652
 MonoBehaviour:

@@ -42,19 +42,17 @@ public class PlayerCameraController : MonoBehaviour
 
 
 
-
     // -----------------------test code-----------------------
     #if UNITY_EDITOR
     
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             if (CurrentCameraMode == CameraViewMode.PlayerCamera)
             {
                 if (npcDetector.CurrentDetectedNPC)
                 {
-                    player.transform.GetComponent<SimpleMover>().RotateTowards(npcDetector.CurrentDetectedNPC.transform.position);
                     targetGroup.AddMember(npcDetector.CurrentDetectedNPC.transform, 1, 1);
                     SwitchCameraMode(CameraViewMode.PlayerDialogueCamera);
                 }

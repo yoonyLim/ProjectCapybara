@@ -1,10 +1,10 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Collider))]
 public class MoumeeTestPlayer : MonoBehaviour
 {
-    
-    private Collider interactCollider;
     private CharacterController characterController;
     private float moveSpeed = 10.0f;
     
@@ -34,7 +34,7 @@ public class MoumeeTestPlayer : MonoBehaviour
         float minDistance = float.PositiveInfinity;
 
         if (!IsInteracting)
-        {
+        { 
             Collider[] colliders = Physics.OverlapSphere(transform.position, 20.0f, interactLayer);
             foreach (Collider collider in colliders)
             {
