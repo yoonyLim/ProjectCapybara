@@ -1162,7 +1162,7 @@ Transform:
   m_GameObject: {fileID: 715169041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.008406194, y: 0.0124972705, z: 0}
+  m_LocalPosition: {x: 0.012213898, y: 0.00011369586, z: 0}
   m_LocalScale: {x: 3.6296296, y: 2.074074, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1454,7 +1454,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.5
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1548,7 +1548,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 864620319}
-  screenHeight: 1440
+  screenHeight: 1080
   myScriptSetsOrthoSize: 0
   myScriptSetsOrthoSizeInEditMode: 0
   standardOrthoSize: 5
@@ -1575,7 +1575,7 @@ MonoBehaviour:
   camRotationOffset: {x: 0, y: 0, z: 0}
   snapLocalScale: 0
   snapScaleValue: 0.05
-  lastSnappedPosition: {x: 12.997154, y: 20.90653, z: -29.496315}
+  lastSnappedPosition: {x: 13.165901, y: 20.830929, z: -29.40317}
   skippedSnappedPosition: {x: 0, y: 0, z: 0}
   initialPosition: {x: 0, y: 0, z: 0}
   smoothSnapUI: 1
@@ -1800,6 +1800,10 @@ PrefabInstance:
     - target: {fileID: 7952427212713977155, guid: c51534555901fb44d9233ba0d4baded6, type: 3}
       propertyPath: m_Name
       value: UPixelator - Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7952427212713977155, guid: c51534555901fb44d9233ba0d4baded6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8179030501573641123, guid: c51534555901fb44d9233ba0d4baded6, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3053,7 +3057,7 @@ MonoBehaviour:
   - {fileID: 864620325}
   storedCamRotation: {x: 0.27984816, y: -0.36470518, z: 0.1159169, w: 0.88047624}
   storedPixelMultiplier: 5
-  origOrthoSize: 7.5
+  origOrthoSize: 10
 --- !u!4 &1974917947
 Transform:
   m_ObjectHideFlags: 0
@@ -3064,7 +3068,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 999}
-  m_LocalScale: {x: 7.5, y: 7.5, z: 7.5}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 715169042}
@@ -3163,7 +3167,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 5, y: 7.5, z: -5}
+  FollowOffset: {x: 5, y: 9, z: -5}
 --- !u!4 &2062721587
 Transform:
   m_ObjectHideFlags: 0
@@ -3172,8 +3176,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2062721583}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.21440524, y: -0.28241932, z: 0.064916685, w: 0.9327677}
-  m_LocalPosition: {x: 8.08, y: 18.33, z: -24.49}
+  m_LocalRotation: {x: 0.28570324, y: -0.2765717, z: 0.08650398, w: 0.91345435}
+  m_LocalPosition: {x: 8.08, y: 19.83, z: -24.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3250,7 +3254,7 @@ MonoBehaviour:
   camRotationOffset: {x: 0, y: 0, z: 0}
   snapLocalScale: 0
   snapScaleValue: 0.05
-  lastSnappedPosition: {x: 13.078204, y: 20.832819, z: -29.488977}
+  lastSnappedPosition: {x: 13.080787, y: 20.830929, z: -29.488285}
   skippedSnappedPosition: {x: 0, y: 0, z: 0}
   initialPosition: {x: 0, y: 0, z: 0}
   smoothSnapUI: 1
@@ -3280,7 +3284,7 @@ MonoBehaviour:
   lastScreenSize: {x: 3840, y: 2160}
   screenSize: {x: 3840, y: 2160}
   renderTextureSize: {x: 784, y: 448}
-  screenHeight: 1440
+  screenHeight: 1080
   uPixelatorCam: {fileID: 7965655521489333354}
   autoDetectCameras: 0
   cameraInfos:
@@ -3437,7 +3441,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.5
+  orthographic size: 10
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
