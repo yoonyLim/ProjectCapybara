@@ -1,3 +1,5 @@
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,16 +11,29 @@ public class PlayerMove : MonoBehaviour
     private Animator animator;
     private Vector3 InputKey;
     float Myfloat;
+    private RaycastHit slopeHit;
+    [SerializeField]  private AnimationCurve animCurve;
+    [SerializeField] private float timer = 0.25f;
+
 
     private Vector3 moveDirection;
     public float walkSpeed = 3.5f;
     public float runSpeed = 7f;
     public float glideSpeed = 4.5f;
+    public float maxSlopeAngle = 60;
     bool isRunning;
 
     [Header("레이어 구분")]
     public LayerMask groundLayer;
     public LayerMask waterLayerMask;
+
+    [Header("빙판 설정")]
+    public LayerMask iceLayerMask;
+    public float iceSlideSpeed = 5.0f;       // 빙판에서 최대 속도
+    public float iceFriction = 0.02f;        // 빙판 감속량(낮을수록 오래 미끄러짐)
+    public float iceTurnSmooth = 0.35f; // 빙판에서의 회전 딜레이(더 크게!)
+    [SerializeField] private bool isOnIce = false;
+    private Vector3 slidingVelocity = Vector3.zero;
 
     private float raycastDistance = 0.5f;
     private bool isGrounded;
@@ -31,7 +46,7 @@ public class PlayerMove : MonoBehaviour
   
 
     private float glideGravity = 4.0f; 
-    private float normalGravity = 9.81f;
+    private float normalGravity = 9.0f;
     private float glideDrag = 5f;              
     private float normalDrag = 0f;            
     private bool isGliding = false;
@@ -43,6 +58,9 @@ public class PlayerMove : MonoBehaviour
     private float glideTurnSpeed = 50f; // 초당 최대 회전 각도
     private float targetGlideAngle; // 목표 방향 각도
     private float currentGlideAngle; // 실제 캐릭터가 바라보는 각도
+
+    public bool inWindZone = false;
+    public GameObject windZone;
 
     private void Start()
     {
@@ -61,8 +79,11 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+
+        
+
         if (isGliding)
-            currentSmoothing = glideSmoothing;   // 활강중엔 회전 속도 느리게
+            currentSmoothing = glideSmoothing; 
         else
             currentSmoothing = normalSmoothing;
 
@@ -94,39 +115,57 @@ public class PlayerMove : MonoBehaviour
 
     void FixedUpdate()
     {
+        
+
         bool hasControl = (moveDirection !=  Vector3.zero);
+
+        #region #빙판 이동
+        if (isOnIce)
+        {
+            if (hasControl)
+                slidingVelocity = Vector3.Lerp(slidingVelocity, moveDirection.normalized * iceSlideSpeed, 0.08f);
+            else
+                slidingVelocity = Vector3.Lerp(slidingVelocity, Vector3.zero, iceFriction);
+
+            rb.MovePosition(transform.position + slidingVelocity * Time.fixedDeltaTime);
+
+            if (slidingVelocity.sqrMagnitude > 0.02f)
+            {
+                float targetAngle = Mathf.Atan2(slidingVelocity.x, slidingVelocity.z) * Mathf.Rad2Deg;
+                float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref Myfloat, 0.35f); // 딜레이↑
+                transform.rotation = Quaternion.Euler(0, smooth, 0);
+            }
+
+            animator.SetInteger("Walk", (slidingVelocity.magnitude > 0.2f) ? 1 : 0);
+            return;
+        }
+        #endregion
+
+        #region #글라이딩
         if (isGliding)
         {
             if (moveDirection.sqrMagnitude > 0.01f)
                 targetGlideAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
 
-            // 현재 각도에서 목표 각도로, 부드럽게 Lerp(=관성/딜레이) 처리
             float newAngle = Mathf.MoveTowardsAngle(
                 transform.eulerAngles.y,  
                 targetGlideAngle,          
-                glideTurnSpeed * Time.deltaTime   // 초당 최대 회전
+                glideTurnSpeed * Time.deltaTime 
             );
             transform.rotation = Quaternion.Euler(0, newAngle, 0);
 
-            // 이전처럼 전방 이동
             Vector3 forward = transform.forward;
             rb.MovePosition(transform.position + forward * glideSpeed * Time.deltaTime);
         }
+        #endregion
+
+        #region #그냥 걷기
         else if (hasControl)
         {
-            float speed = isRunning ? runSpeed : walkSpeed;
-            rb.MovePosition(transform.position + moveDirection * speed * Time.deltaTime);
-
-            if (isSwimming)
-                animator.SetBool("isSwim", true);
-            else
-                animator.SetInteger("Walk", isRunning ? 2 : 1);
-
-            float angle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref Myfloat, currentSmoothing);
-            transform.rotation = Quaternion.Euler(0, smooth, 0);
-
+            Move();
+            
         }
+        #endregion
         else
         {
             if (isSwimming)
@@ -142,6 +181,101 @@ public class PlayerMove : MonoBehaviour
             rb.AddForce(glideMove * 7f, ForceMode.Acceleration);
         }
 
+        if(inWindZone)
+        {
+            Vector3 windDirection = windZone.transform.up.normalized;
+            rb.AddForce(windDirection * windZone.GetComponent<WindZone>().strength);
+
+            float maxFallSpeed = -2f;
+            if (rb.linearVelocity.y < maxFallSpeed)
+            {
+                Vector3 vel = rb.linearVelocity;
+                vel.y = maxFallSpeed;
+                rb.linearVelocity = vel;
+            }
+        }
+
+
+    }
+
+    private Quaternion SurfaceAlignment()
+    {
+        Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
+
+        if (IsOnSlope())
+        {
+            Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
+            RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+        }
+        //Ray ray = new Ray(transform.position, -Vector3.up);
+        //RaycastHit info = new RaycastHit();
+        //Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
+
+        //if (Physics.Raycast(ray, out info, 5f, groundLayer))
+        //{
+        //    Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, info.normal).normalized;
+        //    Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, info.normal);
+        //    RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+
+        //    //RotationRef = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(Vector3.up, info.normal), animCurve.Evaluate(timer));
+        //}
+
+        return RotationRef;
+    }
+
+    protected void Move()
+    {
+        Quaternion RotationRef = SurfaceAlignment();
+        float speed = isRunning ? runSpeed : walkSpeed;
+
+        float angle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+        float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref Myfloat, currentSmoothing);
+        transform.rotation = Quaternion.Euler(RotationRef.eulerAngles.x, smooth, RotationRef.eulerAngles.z);
+
+        bool isOnSlope = IsOnSlope();
+        Vector3 velocity = isOnSlope ? AdjustDirectionToSlope(moveDirection) : moveDirection;
+        Vector3 gravity = isOnSlope ? Vector3.zero : Vector3.down * Mathf.Abs(rb.linearVelocity.y);
+        Vector3 counterMovement = new Vector3(-rb.linearVelocity.x, 0, -rb.linearVelocity.z);
+
+        //rb.linearVelocity = velocity * speed + gravity;
+
+        if (isOnSlope)
+        {
+            rb.linearVelocity = new Vector3(velocity.x * speed, rb.linearVelocity.y, velocity.z * speed);
+        }
+        else
+        {
+            rb.linearVelocity = velocity * speed + gravity;
+        }
+
+
+        if (isSwimming)
+            animator.SetBool("isSwim", true);
+        else
+            animator.SetInteger("Walk", isRunning ? 2 : 1);
+
+
+       //rb.MovePosition(transform.position + moveDirection * speed * Time.deltaTime);
+
+    }
+
+    protected Vector3 AdjustDirectionToSlope(Vector3 direction)
+    {
+        return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
+    }
+
+
+    public bool IsOnSlope()
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+
+        if (Physics.Raycast(ray, out slopeHit, raycastDistance, groundLayer))
+        {
+            var angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle != 0f && angle < maxSlopeAngle;
+        }
+        return false;
     }
 
     void OnJump()
@@ -179,7 +313,30 @@ public class PlayerMove : MonoBehaviour
             animator.SetBool("isInWater", true);
             rb.useGravity = false;
         }
+
+        if (other.gameObject.tag == "windZone")
+        {
+            windZone = other.gameObject;
+            inWindZone = true;
+        }
+
     }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (((1 << other.gameObject.layer) & iceLayerMask.value) != 0)
+            isOnIce = true;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (((1 << other.gameObject.layer) & iceLayerMask.value) != 0)
+        {
+            isOnIce = false;
+            slidingVelocity = Vector3.zero;
+        }
+    }
+
     void OnTriggerExit(Collider other)
     {
         if ((waterLayerMask.value & (1 << other.gameObject.layer)) != 0)
@@ -187,6 +344,11 @@ public class PlayerMove : MonoBehaviour
             isSwimming = false;
             animator.SetBool("isInWater", false);
             rb.useGravity = true;
+        }
+
+        if(other.gameObject.tag == "windZone")
+        {
+            inWindZone = false;
         }
     }
 
