@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class TimedPlatform : MonoBehaviour
 {
@@ -19,11 +20,9 @@ public class TimedPlatform : MonoBehaviour
     private ParticleSystem platformParticleSystem;
     
     private PlatformState currentState = PlatformState.Default;
-
-    [SerializeField, Tooltip("The max magnitude shake of the platform.")] 
-    private float shakeMaxMagnitude = 0.15f;
-    [SerializeField, Tooltip("The frequency of the platform shake.")]
-    private float shakeFrequency = 20f;
+    
+    [SerializeField]
+    private float shakeMaxMagnitude = 0.1f;
 
     [SerializeField]
     private float disappearDelay = 2f;
@@ -62,13 +61,13 @@ public class TimedPlatform : MonoBehaviour
 
         while (elapsedTime < disappearDelay)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.fixedDeltaTime;
             float t = Mathf.Clamp01(elapsedTime / disappearDelay);
             float magnitude = Mathf.Lerp(0f, shakeMaxMagnitude, t);
-            float xNoise = (Mathf.PerlinNoise(0f, Time.time * shakeFrequency) - 0.5f) * 2f * magnitude;
-            float zNoise = (Mathf.PerlinNoise(Time.time * shakeFrequency, 0f) - 0.5f) * 2f * magnitude;
+            float xNoise = Random.Range(-1, 1) * magnitude;
+            float zNoise = Random.Range(-1, 1) * magnitude;
             meshTransform.localPosition = initialMeshPosition + new Vector3(xNoise, 0f, zNoise);
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
         
         Disappear();
