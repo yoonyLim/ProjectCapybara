@@ -1548,6 +1548,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2701585945837107392, guid: c4c534d6631ca254cb7ee13f678e582c, type: 3}
+      propertyPath: shakeMaxMagnitude
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3997657808931625100, guid: c4c534d6631ca254cb7ee13f678e582c, type: 3}
       propertyPath: m_Name
       value: TimedPlatform
