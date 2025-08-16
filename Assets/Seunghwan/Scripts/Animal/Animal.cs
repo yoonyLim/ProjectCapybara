@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Dialogue))]
 public class Animal : MonoBehaviour, IInteractable
 {
     public enum FacialAnimationType
