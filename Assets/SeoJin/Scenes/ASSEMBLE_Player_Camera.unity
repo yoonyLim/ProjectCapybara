@@ -615,67 +615,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &305407630
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1147491348865864824, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: dialogueChoicesContainer
-      value: 
-      objectReference: {fileID: 1861933153}
-    - target: {fileID: 3492344958171744119, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_Name
-      value: DialogueManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5102727911483901555, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1e88aa377822e0a40a4f4ebe68e0f045, type: 3}
 --- !u!1 &432619640
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,8 +1132,8 @@ Transform:
   m_GameObject: {fileID: 715169041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.012213898, y: 0.00011369586, z: 0}
-  m_LocalScale: {x: 3.6296296, y: 2.074074, z: 0}
+  m_LocalPosition: {x: 0.024427796, y: 0.00022739172, z: 0}
+  m_LocalScale: {x: 3.7037036, y: 2.148148, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1974917947}
@@ -1662,7 +1601,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2871,8 +2810,8 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 784
-  m_Height: 448
+  m_Width: 400
+  m_Height: 232
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 90
@@ -3296,7 +3235,7 @@ MonoBehaviour:
   - {fileID: 864620325}
   storedCamRotation: {x: 0.27984816, y: -0.36470518, z: 0.1159169, w: 0.88047624}
   storedPixelMultiplier: 5
-  origOrthoSize: 10
+  origOrthoSize: 5
 --- !u!4 &1974917947
 Transform:
   m_ObjectHideFlags: 0
@@ -3307,7 +3246,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 999}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 715169042}
@@ -3520,9 +3459,9 @@ MonoBehaviour:
   graphicsFormat: 8
   pixelMultiplier: 5
   ditherRepeatSize: 8
-  lastScreenSize: {x: 3840, y: 2160}
-  screenSize: {x: 3840, y: 2160}
-  renderTextureSize: {x: 784, y: 448}
+  lastScreenSize: {x: 1920, y: 1080}
+  screenSize: {x: 1920, y: 1080}
+  renderTextureSize: {x: 400, y: 232}
   screenHeight: 1080
   uPixelatorCam: {fileID: 7965655521489333354}
   autoDetectCameras: 0
@@ -3680,7 +3619,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
@@ -3715,7 +3654,6 @@ SceneRoots:
   - {fileID: 554790924}
   - {fileID: 1694950133}
   - {fileID: 440991167}
-  - {fileID: 305407630}
   - {fileID: 1671954772}
   - {fileID: 649520632029314882}
   - {fileID: 1056320868}

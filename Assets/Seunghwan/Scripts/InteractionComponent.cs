@@ -19,8 +19,6 @@ public class InteractionComponent : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(IsInteracting);
-        
         closestInteractable = null;
         float minDistance = float.PositiveInfinity;
 

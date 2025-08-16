@@ -7,8 +7,7 @@ public class DialogueNode : ScriptableObject
     [TextArea]
     public string DialogueText;
     public Animal.FacialAnimationType FacialAnimation;
-    public List<DialogueChoice> Choices;
-    [Header("If there are no choices this is the next dialogue node")] 
+    // public List<DialogueChoice> Choices;
     public DialogueNode NextNode;
     
 }
