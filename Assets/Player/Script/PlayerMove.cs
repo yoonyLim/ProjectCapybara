@@ -17,36 +17,36 @@ public class PlayerMove : MonoBehaviour
 
 
     private Vector3 moveDirection;
-    public float walkSpeed = 3.5f;
-    public float runSpeed = 7f;
-    public float glideSpeed = 4.5f;
-    public float maxSlopeAngle = 60;
+    [SerializeField] private float walkSpeed = 3.5f;
+    [SerializeField] private float runSpeed = 7f;
+    private float glideSpeed = 4.5f;
+    private float maxSlopeAngle = 60;
     bool isRunning;
 
     [Header("레이어 구분")]
     public LayerMask groundLayer;
     public LayerMask waterLayerMask;
 
-    [Header("빙판 설정")]
-    public LayerMask iceLayerMask;
-    public float iceSlideSpeed = 5.0f;       // 빙판에서 최대 속도
-    public float iceFriction = 0.02f;        // 빙판 감속량(낮을수록 오래 미끄러짐)
-    public float iceTurnSmooth = 0.35f; // 빙판에서의 회전 딜레이(더 크게!)
+    
+    private LayerMask iceLayerMask;
+    private float iceSlideSpeed = 5.0f;       // 빙판에서 최대 속도
+    private float iceFriction = 0.02f;        // 빙판 감속량(낮을수록 오래 미끄러짐)
+    private float iceTurnSmooth = 0.35f; // 빙판에서의 회전 딜레이(더 크게!)
     [SerializeField] private bool isOnIce = false;
     private Vector3 slidingVelocity = Vector3.zero;
 
-    private float raycastDistance = 0.5f;
+    private float raycastDistance = 0.4f;
     private bool isGrounded;
 
     private bool isJumping = false;
     private bool wasFalling = false;
-    private float jumpForce = 6f;
+    [SerializeField] private float jumpForce = 6f;
 
     private bool isSwimming = false;
   
 
-    private float glideGravity = 4.0f; 
-    private float normalGravity = 9.0f;
+    private float glideGravity = 4.0f;
+    [SerializeField] private float normalGravity = 9.81f;
     private float glideDrag = 5f;              
     private float normalDrag = 0f;            
     private bool isGliding = false;
@@ -59,8 +59,10 @@ public class PlayerMove : MonoBehaviour
     private float targetGlideAngle; // 목표 방향 각도
     private float currentGlideAngle; // 실제 캐릭터가 바라보는 각도
 
-    public bool inWindZone = false;
-    public GameObject windZone;
+    private bool inWindZone = false;
+    private GameObject windZone;
+
+    private PlatformPositionComposer _currentPlatform;
 
     private void Start()
     {
@@ -99,6 +101,7 @@ public class PlayerMove : MonoBehaviour
             isJumping = false;
             wasFalling = false;
             animator.SetBool("isFall", false);
+            //animator.SetBool("isJump", false);
         }
         else
         {
@@ -208,18 +211,6 @@ public class PlayerMove : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
             RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
         }
-        //Ray ray = new Ray(transform.position, -Vector3.up);
-        //RaycastHit info = new RaycastHit();
-        //Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
-
-        //if (Physics.Raycast(ray, out info, 5f, groundLayer))
-        //{
-        //    Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, info.normal).normalized;
-        //    Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, info.normal);
-        //    RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
-
-        //    //RotationRef = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(Vector3.up, info.normal), animCurve.Evaluate(timer));
-        //}
 
         return RotationRef;
     }
@@ -236,7 +227,6 @@ public class PlayerMove : MonoBehaviour
         bool isOnSlope = IsOnSlope();
         Vector3 velocity = isOnSlope ? AdjustDirectionToSlope(moveDirection) : moveDirection;
         Vector3 gravity = isOnSlope ? Vector3.zero : Vector3.down * Mathf.Abs(rb.linearVelocity.y);
-        Vector3 counterMovement = new Vector3(-rb.linearVelocity.x, 0, -rb.linearVelocity.z);
 
         //rb.linearVelocity = velocity * speed + gravity;
 
@@ -246,7 +236,10 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            rb.linearVelocity = velocity * speed + gravity;
+            Vector3 currentVelocity = rb.linearVelocity;
+            Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed); // y 유지
+
+            rb.linearVelocity = targetVelocity;
         }
 
 
@@ -256,7 +249,7 @@ public class PlayerMove : MonoBehaviour
             animator.SetInteger("Walk", isRunning ? 2 : 1);
 
 
-       //rb.MovePosition(transform.position + moveDirection * speed * Time.deltaTime);
+        //rb.MovePosition(transform.position + moveDirection * speed * Time.deltaTime);
 
     }
 
@@ -318,6 +311,11 @@ public class PlayerMove : MonoBehaviour
         {
             windZone = other.gameObject;
             inWindZone = true;
+        }
+
+        if (other.gameObject.tag == "jumpPad")
+        {
+            rb.AddForce(Vector3.up * 12f, ForceMode.Impulse);
         }
 
     }
