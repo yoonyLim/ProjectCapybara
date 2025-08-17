@@ -1623,7 +1623,7 @@ GameObject:
   - component: {fileID: 1317824696}
   m_Layer: 6
   m_Name: Ice
-  m_TagString: Untagged
+  m_TagString: ice
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2335,7 +2335,7 @@ GameObject:
   - component: {fileID: 1967039997}
   m_Layer: 7
   m_Name: movingPlatform
-  m_TagString: Untagged
+  m_TagString: movingPlatform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2439,11 +2439,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1967039991}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f498e0af170fa34fa4bd372b1cc4ba7, type: 3}
+  m_Script: {fileID: 11500000, guid: c3b74cb7e73ac3649a558a17ba60e6fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start: {fileID: 111723261}
-  end: {fileID: 113699287}
+  start: {fileID: 0}
+  end: {fileID: 0}
   moveTime: 2
   pauseTime: 1
   curve:
