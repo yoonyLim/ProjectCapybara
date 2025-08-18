@@ -28,10 +28,7 @@ public class PlayerMove : MonoBehaviour
     public LayerMask waterLayerMask;
 
     
-    private LayerMask iceLayerMask;
-    private float iceSlideSpeed = 5.0f;       // 빙판에서 최대 속도
-    private float iceFriction = 0.02f;        // 빙판 감속량(낮을수록 오래 미끄러짐)
-    private float iceTurnSmooth = 0.35f; // 빙판에서의 회전 딜레이(더 크게!)
+    public LayerMask iceLayerMask;
     [SerializeField] private bool isOnIce = false;
     private Vector3 slidingVelocity = Vector3.zero;
 
@@ -46,7 +43,7 @@ public class PlayerMove : MonoBehaviour
   
 
     private float glideGravity = 4.0f;
-    [SerializeField] private float normalGravity = 9.81f;
+    [SerializeField] private float normalGravity = 9f;
     private float glideDrag = 5f;              
     private float normalDrag = 0f;            
     private bool isGliding = false;
@@ -81,18 +78,6 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-
-        
-
-        if (isGliding)
-            currentSmoothing = glideSmoothing; 
-        else
-            currentSmoothing = normalSmoothing;
-
-        if (isGliding && isGrounded) StopGlide();
-
-        
-
         // Ground check
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance, groundLayer))
@@ -114,6 +99,15 @@ public class PlayerMove : MonoBehaviour
                 animator.SetBool("isFall", true);
             }
         }
+
+        if (isGliding)
+            currentSmoothing = glideSmoothing;
+        if (isOnIce)
+            currentSmoothing = 0.5f;
+        else
+            currentSmoothing = normalSmoothing;
+
+        if (isGliding && isGrounded) StopGlide();
     }
 
     void FixedUpdate()
@@ -121,30 +115,6 @@ public class PlayerMove : MonoBehaviour
         
 
         bool hasControl = (moveDirection !=  Vector3.zero);
-
-        #region #빙판 이동
-        if (isOnIce)
-        {
-            if (hasControl)
-                slidingVelocity = Vector3.Lerp(slidingVelocity, moveDirection.normalized * iceSlideSpeed, 0.08f);
-            else
-                slidingVelocity = Vector3.Lerp(slidingVelocity, Vector3.zero, iceFriction);
-
-            rb.MovePosition(transform.position + slidingVelocity * Time.fixedDeltaTime);
-
-            if (slidingVelocity.sqrMagnitude > 0.02f)
-            {
-                float targetAngle = Mathf.Atan2(slidingVelocity.x, slidingVelocity.z) * Mathf.Rad2Deg;
-                float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref Myfloat, 0.35f); // 딜레이↑
-                transform.rotation = Quaternion.Euler(0, smooth, 0);
-            }
-
-            animator.SetInteger("Walk", (slidingVelocity.magnitude > 0.2f) ? 1 : 0);
-            return;
-        }
-        #endregion
-
-        #region #글라이딩
         if (isGliding)
         {
             if (moveDirection.sqrMagnitude > 0.01f)
@@ -160,15 +130,11 @@ public class PlayerMove : MonoBehaviour
             Vector3 forward = transform.forward;
             rb.MovePosition(transform.position + forward * glideSpeed * Time.deltaTime);
         }
-        #endregion
-
-        #region #그냥 걷기
         else if (hasControl)
         {
             Move();
             
         }
-        #endregion
         else
         {
             if (isSwimming)
@@ -228,20 +194,26 @@ public class PlayerMove : MonoBehaviour
         Vector3 velocity = isOnSlope ? AdjustDirectionToSlope(moveDirection) : moveDirection;
         Vector3 gravity = isOnSlope ? Vector3.zero : Vector3.down * Mathf.Abs(rb.linearVelocity.y);
 
-        //rb.linearVelocity = velocity * speed + gravity;
-
-        if (isOnSlope)
+        if(isOnIce)
         {
-            rb.linearVelocity = new Vector3(velocity.x * speed, rb.linearVelocity.y, velocity.z * speed);
+            rb.AddForce(velocity * 0.4f, ForceMode.Impulse);
         }
         else
         {
-            Vector3 currentVelocity = rb.linearVelocity;
-            Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed); // y 유지
+            if (isOnSlope)
+            {
+                rb.linearVelocity = new Vector3(velocity.x * speed, rb.linearVelocity.y, velocity.z * speed);
+            }
+            else
+            {
+                Vector3 currentVelocity = rb.linearVelocity;
+                Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed); // y 유지
 
-            rb.linearVelocity = targetVelocity;
+                rb.linearVelocity = targetVelocity;
+            }
         }
 
+        
 
         if (isSwimming)
             animator.SetBool("isSwim", true);
