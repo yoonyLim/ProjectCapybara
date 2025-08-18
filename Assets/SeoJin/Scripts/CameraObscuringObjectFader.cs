@@ -41,7 +41,6 @@ public class CameraObscuringObjectFader : MonoBehaviour
 
             RaycastHit[] hits = new RaycastHit[maxObjetsToFade];
             int hitCount = Physics.RaycastNonAlloc(cam.transform.position, dir.normalized, hits, dir.magnitude, obscuringLayers);
-
             List<ObjectFader> hitFadersThisFrame = new List<ObjectFader>();
             
             for (int i = 0; i < hitCount; i++)

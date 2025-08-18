@@ -39,6 +39,10 @@ public class ObjectFader : MonoBehaviour
             return;
         }
         _materialInstance = renderer.material;
+        if (!_materialInstance.HasProperty("_Color"))
+        {
+            Debug.LogError("Color 컴포넌트를 찾을 수 없습니다.", this);
+        }
         _originalOpacity = _materialInstance.color.a;
     }
     
@@ -59,7 +63,6 @@ public class ObjectFader : MonoBehaviour
         {
             StopCoroutine(_fadeCoroutine);
         }
-
         float targetAlpha = _doFade ? TargetOpacity : _originalOpacity;
         _fadeCoroutine = StartCoroutine(FadeRoutine(targetAlpha));
     }
