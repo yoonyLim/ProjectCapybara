@@ -10,7 +10,7 @@ public class InteractionComponent : MonoBehaviour
     
     private static bool IsInteracting = false;
 
-    private Collider[] colliders = new Collider[5];
+    private Collider[] colliders = new Collider[10];
 
     private void Awake()
     {
@@ -33,6 +33,7 @@ public class InteractionComponent : MonoBehaviour
                     float distance = Vector3.Distance(transform.position, colliders[i].transform.position);
                     if (distance < minDistance)
                     {
+                        minDistance = distance;
                         closestInteractable = interactable;
                     }
                 }

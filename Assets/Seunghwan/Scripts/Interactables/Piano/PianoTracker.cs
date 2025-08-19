@@ -12,26 +12,26 @@ public class PianoTracker : MonoBehaviour
     
     private AudioSource audioSource;
 
+    private static bool canFixPiano = false;
+    
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
     }
 
-    public int GetCollectedKeyCount()
-    {
-        return collectedKeyCount;
-    }
+    public int GetCollectedKeyCount() => collectedKeyCount;
+    public static bool GetCanFixPiano() => canFixPiano;
 
     public void OnKeyCollected()
     {
         collectedKeyCount++;
         if (collectedKeyCount == targetKeyCount)
         {
-            // TODO Quest Completed Logic
+            canFixPiano = true;
         }
         
         audioSource.PlayOneShot(collectSound);
-        
         
     }
     

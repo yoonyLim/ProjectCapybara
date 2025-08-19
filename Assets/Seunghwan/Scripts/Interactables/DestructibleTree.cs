@@ -15,7 +15,6 @@ public class DestructibleTree : MonoBehaviour, IDestructible
     
     private float shakeDuration = 0.2f;
     private float shakeMagnitude = 0.1f;
-    private float shakeTickDuration = 0.1f;
 
     private void Awake()
     {
