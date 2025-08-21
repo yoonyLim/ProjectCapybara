@@ -44,6 +44,7 @@ public class MoumeeTestPlayer : MonoBehaviour
                     float distance = Vector3.Distance(transform.position, collider.transform.position);
                     if (distance < minDistance)
                     {
+                        minDistance = distance;
                         closestInteractable = interactable;
                     }
                 }
