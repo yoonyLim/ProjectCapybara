@@ -10,12 +10,22 @@ public class PlayerMove : MonoBehaviour
     // 카메라
     [SerializeField] private Transform cameraTransform;
 
+    [SerializeField] private float sphereRadius = 0.2f;
+    [SerializeField] private float raycastDistance = 0.5f;
+    [SerializeField] private Transform[] groundCheckPoints; // 앞/중앙/뒤 체크용 포인트
+
+    [Header("최대 경사 각도 검사")]
+    [SerializeField] Transform raycastOrigin;
+    [SerializeField] float maxSlopeAngle;
+
     private PlayerInput defaultAction;
     private Rigidbody rb;
     private Animator animator;
     private Vector3 InputKey;
     float Myfloat;
     private RaycastHit slopeHit;
+
+    [Header("경사로 회전")]
     [SerializeField]  private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
 
@@ -24,7 +34,6 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float walkSpeed = 3.5f;
     [SerializeField] private float runSpeed = 7f;
     private float glideSpeed = 4.5f;
-    private float maxSlopeAngle = 60;
     bool isRunning;
 
     [Header("레이어 구분")]
@@ -35,8 +44,6 @@ public class PlayerMove : MonoBehaviour
     public LayerMask iceLayerMask;
     [SerializeField] private bool isOnIce = false;
     private Vector3 slidingVelocity = Vector3.zero;
-
-    private float raycastDistance = 0.5f;
     private bool isGrounded;
 
     private bool isJumping = false;
@@ -82,30 +89,32 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-
-
-        // Ground check
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance, groundLayer))
-        {
 
-            isGrounded = true;
-            isJumping = false;
-            wasFalling = false;
-            animator.SetBool("isFall", false);
-            animator.SetBool("isJump", false);
-        }
-        else
+        // 여러 포인트에서 체크, 하나라도 바닥에 닿으면 접지!
+        foreach (var point in groundCheckPoints)
         {
-            isGrounded = false;
-
-            if (rb.linearVelocity.y < -0.1f && !wasFalling)
+            if (Physics.SphereCast(point.position, sphereRadius, Vector3.down, out hit, raycastDistance, groundLayer))
             {
-                wasFalling = true;             
-                animator.SetBool("isJump", false);
-                animator.SetBool("isFall", true);
+                isGrounded = true;
+                isJumping = false;
+                wasFalling = false;
+                animator.SetBool("isFall", false);
+                break;
+            }
+            else
+            {
+                isGrounded = false;
+
+                if (rb.linearVelocity.y < -0.1f && !wasFalling)
+                {
+                    wasFalling = true;
+                    animator.SetBool("isJump", false);
+                    animator.SetBool("isFall", true);
+                }
             }
         }
+
 
         if (isGliding)
             currentSmoothing = glideSmoothing;
@@ -117,6 +126,23 @@ public class PlayerMove : MonoBehaviour
         if (isGliding && isGrounded) StopGlide();
     }
 
+
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheckPoints == null) return;
+
+        Gizmos.color = Color.green;
+        foreach (var point in groundCheckPoints)
+        {
+            Vector3 start = point.position;
+            Vector3 end = start + Vector3.down * raycastDistance;
+            // 구의 궤적 그리기
+            Gizmos.DrawWireSphere(start, sphereRadius);
+            Gizmos.DrawWireSphere(end, sphereRadius);
+            // 사이 선으로 연결
+            Gizmos.DrawLine(start, end);
+        }
+    }
 
 
     void FixedUpdate()
@@ -150,7 +176,7 @@ public class PlayerMove : MonoBehaviour
 
             if (isSwimming)
                 animator.SetBool("isSwim", false);
-            else
+            else if(isGrounded)
                 animator.SetInteger("Walk", 0);
 
         }
@@ -218,7 +244,7 @@ public class PlayerMove : MonoBehaviour
         }
 
         bool isOnSlope = IsOnSlope();
-        Vector3 velocity = isOnSlope ? AdjustDirectionToSlope(moveDirection) : moveDirection;
+        Vector3 velocity = CalculateNextFrameGroundAngle(speed) < maxSlopeAngle ? moveDirection : Vector3.zero;
         Vector3 gravity = Vector3.down * Mathf.Abs(rb.linearVelocity.y);
 
         if(isOnIce)
@@ -257,7 +283,7 @@ public class PlayerMove : MonoBehaviour
 
         if (isSwimming)
             animator.SetBool("isSwim", true);
-        else
+        else if(isGrounded)
             animator.SetInteger("Walk", isRunning ? 2 : 1);
 
 
@@ -270,13 +296,26 @@ public class PlayerMove : MonoBehaviour
 
 
 
+    private float CalculateNextFrameGroundAngle(float moveSpeed)
+    {
+        var nextFramePlayerPosition =
+                           raycastOrigin.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
+
+        if (Physics.Raycast(nextFramePlayerPosition, Vector3.down, out RaycastHit hitInfo,
+                            0.5f, groundLayer))
+            return Vector3.Angle(Vector3.up, hitInfo.normal);
+        return 0f;
+    }
+
     void OnJump()
     {
         if(isGrounded)
         {
             isJumping = true;
             animator.SetBool("isJump", true);
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            //rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            Vector3 jumpDirection = slopeHit.normal;
+            rb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         }
 
     }
