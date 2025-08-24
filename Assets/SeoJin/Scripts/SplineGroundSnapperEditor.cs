@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Splines;
@@ -36,3 +38,5 @@ public class SplineGroundSnapperEditor : Editor
         }
     }
 }
+
+#endif
