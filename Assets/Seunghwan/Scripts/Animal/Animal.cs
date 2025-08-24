@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Dialogue))]
 public class Animal : MonoBehaviour, IInteractable
 {
     public enum FacialAnimationType
@@ -25,7 +24,7 @@ public class Animal : MonoBehaviour, IInteractable
     private Animator animator;
 
     private int baseAnimationLayer;
-    private int shapekeyAnimationLayer;
+    private int faceAnimationLayer;
     
     private AnimalState currentState = AnimalState.Idle;
 
@@ -34,7 +33,7 @@ public class Animal : MonoBehaviour, IInteractable
         dialogue = GetComponent<Dialogue>();
         animator = GetComponentInChildren<Animator>();
         baseAnimationLayer = animator.GetLayerIndex("Base Layer");
-        shapekeyAnimationLayer = animator.GetLayerIndex("Shapekey");
+        faceAnimationLayer = animator.GetLayerIndex("Face Layer");
     }
     
     private void OnEnable()
@@ -96,9 +95,9 @@ public class Animal : MonoBehaviour, IInteractable
     {
         string targetStateName = facialAnimation.ToString();
 
-        if (animator.GetCurrentAnimatorStateInfo(shapekeyAnimationLayer).IsName(targetStateName)) return;
+        if (animator.GetCurrentAnimatorStateInfo(faceAnimationLayer).IsName(targetStateName)) return;
         
-        animator.CrossFadeInFixedTime(targetStateName, 0.2f, shapekeyAnimationLayer);
+        animator.CrossFadeInFixedTime(targetStateName, 0.2f, faceAnimationLayer);
 
     }
     

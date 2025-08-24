@@ -4,16 +4,16 @@ using TMPro;
 using UnityEngine;
 
 
-
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Animal))]
 public class Dialogue : MonoBehaviour
 {
+    [SerializeField] 
+    private AudioClip[] speechBeepSounds;
     enum DialogueState
     {
         Inactive,
         Normal,
-        Choice
+        // Choice
     }
     public event Action OnDialogueStart;
     public event Action OnDialogueEnd;
@@ -23,8 +23,7 @@ public class Dialogue : MonoBehaviour
     [SerializeField]
     private DialogueTree dialogueTree;
     private DialogueNode currentNode;
-
-    [SerializeField] 
+    
     private TMP_Text speechBubbleText;
 
     [SerializeField]
@@ -42,10 +41,7 @@ public class Dialogue : MonoBehaviour
     [SerializeField] 
     private float timeBetweenCharacters = 0.05f;
     
-    private float playerFacingSpeed = 150f;
-    
-    [SerializeField]
-    private Transform meshTransform;
+    private float rotateSpeed = 150f;
 
     // private Vector3 originalScale;
     private Quaternion originalRotation;
@@ -58,8 +54,9 @@ public class Dialogue : MonoBehaviour
 
     private void Awake()
     {
+        speechBubbleText = GetComponentInChildren<TMP_Text>();
         // originalScale = meshTransform.localScale;
-        originalRotation = meshTransform.localRotation;
+        originalRotation = transform.rotation;
         currentState = DialogueState.Inactive;
         speechBubbleText.transform.parent.gameObject.SetActive(false);
         dialogueAudioSource = GetComponent<AudioSource>();
@@ -99,15 +96,15 @@ public class Dialogue : MonoBehaviour
 
     private IEnumerator RotateMesh(Quaternion targetRotation)
     {
-        while (meshTransform.rotation != targetRotation)
+        while (transform.rotation != targetRotation)
         {
-            meshTransform.rotation =
-                Quaternion.RotateTowards(meshTransform.rotation, targetRotation, playerFacingSpeed * Time.deltaTime);
+            transform.rotation =
+                Quaternion.RotateTowards(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
             
             yield return null;
         }
-        
-        meshTransform.rotation = targetRotation;
+
+        transform.rotation = targetRotation;
         currentRotationCoroutine = null;
 
     }
@@ -119,20 +116,25 @@ public class Dialogue : MonoBehaviour
         {
             TargetFacialAnimation = currentNode.FacialAnimation;
             OnDialogueAdvance?.Invoke();
+            currentState = DialogueState.Normal;
+            string dialogueText = currentNode.DialogueText;
+            yield return StartCoroutine(TypeText(currentNode.DialogueText));
+            currentNode = currentNode.NextNode;
+            
             // Create choice buttons if there are choices. If not, proceed to the next dialogue node.
-            if (currentNode.Choices.Count > 0)
-            {
-                currentState = DialogueState.Choice;
-                yield return StartCoroutine(TypeText(currentNode.DialogueText));
-                DialogueManager.Instance.CreateChoiceButtons(currentNode.Choices, OnChoiceSelected);
-            }
-            else
-            {
-                currentState = DialogueState.Normal;
-                string dialogueText = currentNode.DialogueText;
-                yield return StartCoroutine(TypeText(currentNode.DialogueText));
-                currentNode = currentNode.NextNode;
-            }
+            // if (currentNode.Choices.Count > 0)
+            // {
+            //     currentState = DialogueState.Choice;
+            //     yield return StartCoroutine(TypeText(currentNode.DialogueText));
+            //     DialogueManager.Instance.CreateChoiceButtons(currentNode.Choices, OnChoiceSelected);
+            // }
+            // else
+            // {
+            //     currentState = DialogueState.Normal;
+            //     string dialogueText = currentNode.DialogueText;
+            //     yield return StartCoroutine(TypeText(currentNode.DialogueText));
+            //     currentNode = currentNode.NextNode;
+            // }
         }
         else
         {
@@ -164,8 +166,9 @@ public class Dialogue : MonoBehaviour
 
             if (i % dialogueBeepCharacterInterval == 0)
             {
-                int randomIndex = UnityEngine.Random.Range(0, DialogueManager.Instance.MidtoneBeeps.Length);
-                dialogueAudioSource.PlayOneShot(DialogueManager.Instance.MidtoneBeeps[randomIndex]);
+                int randomIndex = UnityEngine.Random.Range(0, speechBeepSounds.Length);
+                // TODO: Change playing audio logic to using audio manager
+                dialogueAudioSource.PlayOneShot(speechBeepSounds[randomIndex]);
             }
             
             speechBubbleText.maxVisibleCharacters++;
@@ -199,12 +202,12 @@ public class Dialogue : MonoBehaviour
     // }
     
 
-    private void OnChoiceSelected(DialogueChoice choice)
-    {
-        DialogueManager.Instance.DeleteChoiceButtons();
-        currentNode = choice.NextNode;
-        StartCoroutine(ProcessDialogue());
-    }
+    // private void OnChoiceSelected(DialogueChoice choice)
+    // {
+    //     DialogueManager.Instance.DeleteChoiceButtons();
+    //     currentNode = choice.NextNode;
+    //     StartCoroutine(ProcessDialogue());
+    // }
 
     /*
      *  Made this function to delay setting IsInteracting to false by 1 frame to avoid instant interaction restart when
@@ -213,12 +216,13 @@ public class Dialogue : MonoBehaviour
     private IEnumerator EndInteractionCoroutine()
     {
         yield return new WaitForEndOfFrame();
-        MoumeeTestPlayer.EndInteraction();
+        InteractionComponent.EndInteraction();
         
     }
 
     private void Update()
     {
+        // TODO: Currently hard coded to keycode values. Should be refactored with New Input System.
         if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.E)) && currentState == DialogueState.Normal)
         {
             if (currentDialogueCoroutine == null)
