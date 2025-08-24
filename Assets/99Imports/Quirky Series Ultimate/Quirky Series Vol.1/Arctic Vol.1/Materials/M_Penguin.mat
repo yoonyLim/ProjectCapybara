@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Penguin
-  m_Shader: {fileID: -6465566751694194690, guid: a44401f8b3d263c4e9c2ed62b3f5adff, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: d87ba597b16434f40a42662f6d2e7467, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -41,6 +41,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: ac1df60d296dbfb4aace5eecabf3540c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: ac1df60d296dbfb4aace5eecabf3540c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,10 +59,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Emission: 0.5
+    - _CombineMode: 1
+    - _Emission: 0.2
+    - _In_Max: 1
+    - _In_Min: 0
+    - _Out_Max: 1.11
+    - _Out_Min: 0.605
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Steps: 3
     m_Colors:
+    - _Base_Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
+    - _Shade_Color: {r: 0.42767286, g: 0.42767286, b: 0.42767286, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
