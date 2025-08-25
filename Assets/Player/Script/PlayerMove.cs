@@ -12,7 +12,7 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private float sphereRadius = 0.2f;
     [SerializeField] private float raycastDistance = 0.5f;
-    [SerializeField] private Transform[] groundCheckPoints; // 앞/중앙/뒤 체크용 포인트
+    [SerializeField] private Transform[] groundCheckPoints;
 
     [Header("최대 경사 각도 검사")]
     [SerializeField] Transform raycastOrigin;
@@ -90,8 +90,6 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
-
-        // 여러 포인트에서 체크, 하나라도 바닥에 닿으면 접지!
         foreach (var point in groundCheckPoints)
         {
             if (Physics.SphereCast(point.position, sphereRadius, Vector3.down, out hit, raycastDistance, groundLayer))
@@ -151,6 +149,7 @@ public class PlayerMove : MonoBehaviour
 
         bool hasControl = (moveDirection !=  Vector3.zero);
         Move();
+
         if (isGliding)
         {
             if (moveDirection.sqrMagnitude > 0.01f)
@@ -293,7 +292,6 @@ public class PlayerMove : MonoBehaviour
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
-
 
 
     private float CalculateNextFrameGroundAngle(float moveSpeed)
