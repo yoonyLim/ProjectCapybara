@@ -398,6 +398,7 @@ GameObject:
   - component: {fileID: 3144984066640746846}
   - component: {fileID: 6003072906289740817}
   - component: {fileID: 3377246956868247770}
+  - component: {fileID: 8347144141606994587}
   m_Layer: 6
   m_Name: Capy_SnowyLevel
   m_TagString: Player
@@ -541,6 +542,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
+  constMoveSpeed: 3.5
+  constSprintSpeed: 7
+  constJumpSpeed: 6
+  glideSpeed: 4.5
+  glideGravity: 4
+  glideLinearDamping: 5
+  glideAngleDamping: 0.005
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  waterLayer:
+    serializedVersion: 2
+    m_Bits: 16
+  constGroundRaycastDistance: 0.4
+  constGravity: 9.81
+  constLinearDamping: 0
+  constAngleDamping: 0.001
+--- !u!114 &8347144141606994587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20ef7dddc2a242e488edac085be29c4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
+  VFX: {fileID: 8480759664270016443}
   constMoveSpeed: 3.5
   constSprintSpeed: 7
   constJumpSpeed: 6
