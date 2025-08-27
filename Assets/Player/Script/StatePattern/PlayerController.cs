@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private InputAction moveAction;            // WASD
     private InputAction sprintAction;          // Shift
     private InputAction jumpAction;            // Space
+    private InputAction glideAction;           // Space 홀딩
     #endregion
 
     #region Ground 체크 관련 변수
@@ -64,11 +65,22 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float airAcceleration = 20f;
     #endregion
 
+    #region Ice 관련 변수
     [Header("Ice Layer 체크")]
     public LayerMask iceLayer;
     [HideInInspector] public bool isOnIce;
+    #endregion
 
+    #region Glide 관련 변수
+    [Header("Glide 이동 변수")]
+    public float glideSpeed = 7f;
+    public float glideTurnSpeed = 0.5f;
+    public float glideGravity = 4f;
+    public float glideDrag = 5f;
 
+    [HideInInspector] public float normalGravity = 9.81f;
+    [HideInInspector] public float normalDrag = 0f;
+    #endregion
 
     void Awake()
     {
@@ -81,6 +93,7 @@ public class PlayerController : MonoBehaviour
         moveAction = playerInput.actions["Move"];
         sprintAction = playerInput.actions["Run"];
         jumpAction = playerInput.actions["Jump"];
+        glideAction = playerInput.actions["Glide"];
 
         moveAction.performed += OnMove;
         moveAction.canceled += OnMove;
@@ -90,6 +103,10 @@ public class PlayerController : MonoBehaviour
         sprintAction.canceled += OnSprint; 
 
         jumpAction.performed += OnJump;
+
+        glideAction.started += OnGlide;
+        glideAction.performed += OnGlide;
+        glideAction.canceled += OnGlide;
         #endregion
     }
     void OnDisable()
@@ -100,6 +117,9 @@ public class PlayerController : MonoBehaviour
         sprintAction.performed -= OnSprint;
         sprintAction.canceled -= OnSprint;
         jumpAction.performed -= OnJump;
+        glideAction.started -= OnGlide;
+        glideAction.performed -= OnGlide;
+        glideAction.canceled -= OnGlide;
     }
 
     void Update()
@@ -141,6 +161,29 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
             ChangeState(new JumpState());
     }
+
+    void OnGlide(InputAction.CallbackContext context)
+    {
+        // 시작/유지: 공중에서만 글라이드 진입
+        if (context.performed)
+        {
+            if (!isGrounded)
+            {
+                // 얼음 위 특수상태보다 Glide가 우선인지 정책에 따라 조정 가능
+                ChangeState(new GlideState());
+            }
+            return;
+        }
+
+        // 취소: 상태 해제
+        if (context.canceled)
+        {
+            // 지상이면 달리기, 공중이면 점프/낙하 상태로
+            if (isGrounded) ChangeState(new RunningState());
+            else ChangeState(new JumpState());
+        }
+    }
+
     public bool IsOnIceGround()
     {
         // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
