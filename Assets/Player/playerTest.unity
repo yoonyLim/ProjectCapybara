@@ -1127,8 +1127,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 693372ed263c6fe4d8425d11e5be92e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strength: 18
+  strength: 5
   direction: {x: 0, y: 1, z: 0}
+  isWindZone: 0
 --- !u!23 &577908930
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1252,6 +1253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   strength: 18
   direction: {x: 0, y: 1, z: 0}
+  isWindZone: 0
 --- !u!23 &703157685
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1550,6 +1552,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89421efcc87bdd04086a3f0c9c541037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  strength: 10
+  direction: {x: 0, y: 1, z: 0}
 --- !u!1 &1255037531
 GameObject:
   m_ObjectHideFlags: 0
@@ -3069,9 +3073,29 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
+      propertyPath: jumpForce
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 344232498}
+    - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
+      propertyPath: iceLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 65
+      objectReference: {fileID: 0}
+    - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
+      propertyPath: animCurve.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
+      propertyPath: animCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9086152306701362361, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
       propertyPath: m_Name
       value: PlayerCharacter with StatePattern
@@ -3128,6 +3152,10 @@ PrefabInstance:
     - target: {fileID: 658953161999406169, guid: 2ed5a034cc690814b8c9baaddc18a0a4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2432497035609892465, guid: 2ed5a034cc690814b8c9baaddc18a0a4, type: 3}
+      propertyPath: strength
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7647551621786695565, guid: 2ed5a034cc690814b8c9baaddc18a0a4, type: 3}
       propertyPath: m_Name

@@ -311,7 +311,6 @@ public class PlayerMove : MonoBehaviour
         {
             isJumping = true;
             animator.SetBool("isJump", true);
-            //rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             Vector3 jumpDirection = slopeHit.normal;
             rb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         }

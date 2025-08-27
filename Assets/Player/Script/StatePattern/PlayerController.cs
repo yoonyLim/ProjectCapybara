@@ -19,13 +19,14 @@ public interface IPlayerState
 public class PlayerController : MonoBehaviour
 {
     private IPlayerState currentState;
-    public Transform cameraTransform;
+    [HideInInspector] public Transform cameraTransform;
 
     public Animator animator;
     public Rigidbody rb;
-    public Vector3 moveDirection;
-    public bool isRunning;
-
+    [HideInInspector] public Vector3 moveDirection;
+    [HideInInspector] public bool isRunning;
+    [HideInInspector] public Vector2 LastMoveInput { get; private set; }
+    [HideInInspector] public Vector2 MoveInput { get; private set; }
 
     #region InputAction 변수
     private PlayerInput playerInput;
@@ -40,7 +41,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sphereRadius = 0.2f;
     [SerializeField] private float raycastDistance = 0.5f;
     [SerializeField] private Transform[] groundCheckPoints;
-    public bool isGrounded;
+    [HideInInspector] public bool isGrounded;
     #endregion
 
     #region 경사로 계산 관련 변수
@@ -56,10 +57,18 @@ public class PlayerController : MonoBehaviour
 
     #region 점프 관련 변수
     [Header("Jump Force")]
-    [SerializeField] private float jumpForce = 9f;
+    public float jumpForce = 7f;
     private bool isJumping = false;
     private bool wasFalling = false;
+    [HideInInspector] public float airSpeed = 5f;
+    [HideInInspector] public float airAcceleration = 20f;
     #endregion
+
+    [Header("Ice Layer 체크")]
+    public LayerMask iceLayer;
+    [HideInInspector] public bool isOnIce;
+
+
 
     void Awake()
     {
@@ -95,7 +104,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        CheckGround();
+        MoveInput = moveAction.ReadValue<Vector2>();
         currentState?.Update(this);
+
     }
 
     void FixedUpdate()
@@ -112,6 +124,7 @@ public class PlayerController : MonoBehaviour
 
     void OnMove(InputAction.CallbackContext context)
     {
+        LastMoveInput = context.ReadValue<Vector2>();
         currentState?.HandleInput(this, context);
     }
 
@@ -128,7 +141,11 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
             ChangeState(new JumpState());
     }
-
+    public bool IsOnIceGround()
+    {
+        // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
+        return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
+    }
     /// <summary>
     /// 플레이어가 땅에 닿아있는지 체크하는 함수
     /// 3개의 SphereCast 중 하나라도 땅에 닿아있다면 isGrounde = true
@@ -143,7 +160,7 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 isJumping = false;
                 wasFalling = false;
-                animator.SetBool("isFall", false);
+                Debug.Log("isGrounded");
                 break;
             }
             else
@@ -153,11 +170,12 @@ public class PlayerController : MonoBehaviour
                 if (rb.linearVelocity.y < -0.1f && !wasFalling)
                 {
                     wasFalling = true;
-                    animator.SetBool("isJump", false);
-                    animator.SetBool("isFall", true);
+
                 }
             }
         }
+
+        isOnIce = IsOnIceGround();
     }
 
     //SphereCast Gizmo 그리는 코드
