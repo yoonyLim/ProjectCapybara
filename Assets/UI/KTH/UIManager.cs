@@ -1,84 +1,198 @@
+using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic; // Stack을 사용하기 위해 꼭 필요합니다!
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using DG.Tweening; // DOTween 네임스페이스 추가!
 
 public class UIManager : MonoBehaviour
 {
-    // ... 기존 변수 선언은 그대로 둡니다 ...
+    public static UIManager instance;
+
+    [Header("UI Panels")]
     [SerializeField] private GameObject startMenuUI;
     [SerializeField] private GameObject pauseMenuUI;
     [SerializeField] private GameObject settingsMenuUI;
     [SerializeField] private GameObject controlsMenuUI;
 
-    // 열려있는 UI들의 순서를 기억하기 위한 스택
+    [Header("First Selected Buttons for Controller")]
+    [SerializeField] private GameObject startMenuFirstButton;
+    [SerializeField] private GameObject pauseMenuFirstButton;
+    [SerializeField] private GameObject settingsMenuFirstButton;
+    [SerializeField] private GameObject controlsMenuFirstButton;
+
+    [Header("Animation Settings")]
+    [SerializeField] private float animationDuration = 0.3f; // 애니메이션 속도
+    [SerializeField] private Ease openEase = Ease.OutBack;   // UI가 나타날 때 Ease 효과
+    [SerializeField] private Ease closeEase = Ease.InBack;   // UI가 사라질 때 Ease 효과
+
     private Stack<GameObject> uiStack = new Stack<GameObject>();
+    private Dictionary<GameObject, GameObject> uiFirstButtons = new Dictionary<GameObject, GameObject>();
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
-        // 모든 UI를 끈 상태로 시작
-        if (startMenuUI != null) startMenuUI.SetActive(false);
-        if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
-        if (settingsMenuUI != null) settingsMenuUI.SetActive(false);
-        if (controlsMenuUI != null) controlsMenuUI.SetActive(false);
 
-        // 메인 메뉴 씬이라면 시작 UI를 켠다
+        if (startMenuUI != null) uiFirstButtons[startMenuUI] = startMenuFirstButton;
+        if (pauseMenuUI != null) uiFirstButtons[pauseMenuUI] = pauseMenuFirstButton;
+        if (settingsMenuUI != null) uiFirstButtons[settingsMenuUI] = settingsMenuFirstButton;
+        if (controlsMenuUI != null) uiFirstButtons[controlsMenuUI] = controlsMenuFirstButton;
+
+
+        // 모든 UI를 비활성화 상태로 시작
+        if (startMenuUI != null) CloseUIImmediately(startMenuUI);
+        if (pauseMenuUI != null) CloseUIImmediately(pauseMenuUI);
+        if (settingsMenuUI != null) CloseUIImmediately(settingsMenuUI);
+        if (controlsMenuUI != null) CloseUIImmediately(controlsMenuUI);
+
+        // 시작 메뉴가 있다면 시작 메뉴를 연다
         if (startMenuUI != null)
         {
-            OpenUI(startMenuUI);
+            OpenUI(startMenuUI, startMenuFirstButton);
         }
     }
 
-    // 새로운 UI를 여는 함수 (스택에 쌓는 방식)
-    public void OpenUI(GameObject uiToOpen)
+    // =====  핵심 함수 =====
+
+    public void OpenUI(GameObject uiToOpen, GameObject firstSelected)
     {
-        // 1. 만약 현재 켜져 있는 UI가 있다면, 그 UI를 끈다.
+        // 이전에 열려있던 UI가 있다면 애니메이션으로 닫는다.
         if (uiStack.Count > 0)
         {
-            GameObject topUI = uiStack.Peek(); // 가장 위에 있는 UI를 확인
-            topUI.SetActive(false);
+            GameObject previousUI = uiStack.Peek();
+            AnimateClose(previousUI);
         }
 
-        // 2. 새로 열 UI를 스택의 가장 위에 추가하고 화면에 켠다.
         uiStack.Push(uiToOpen);
-        uiToOpen.SetActive(true);
+        AnimateOpen(uiToOpen); // 애니메이션으로 UI 열기
+
+        // 컨트롤러 포커스 설정
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstSelected);
     }
 
-    public void OpenPauseMenu()
+    public void OpenUI(GameObject uiToOpen)
     {
-        OpenUI(pauseMenuUI);
+        // 단순히 firstSelected 자리에 null을 넣어 기존 함수를 호출해줍니다.
+        OpenUI(uiToOpen, null);
     }
 
-    public void OpenSettingMenu()
-    {
-        OpenUI(settingsMenuUI);
-    }
-
-
-    // UI를 닫고 이전 UI로 돌아가는 함수 (뒤로가기 버튼용)
     public void CloseAndGoBack()
     {
-        // 1. 현재 UI(스택의 가장 위)를 끄고 스택에서 제거한다.
         if (uiStack.Count > 0)
         {
             GameObject topUI = uiStack.Pop();
-            topUI.SetActive(false);
+            AnimateClose(topUI);
         }
 
-        // 2. 스택에 아직 UI가 남아있다면, 그 다음 UI를 다시 켠다.
         if (uiStack.Count > 0)
         {
             GameObject nextUI = uiStack.Peek();
-            nextUI.SetActive(true);
+            AnimateOpen(nextUI);
+
+            // ===== 수정된 부분 =====
+            // Dictionary에서 다음 UI에 맞는 첫 버튼을 찾아 포커스를 설정합니다.
+            if (uiFirstButtons.TryGetValue(nextUI, out GameObject firstSelected))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+                EventSystem.current.SetSelectedGameObject(firstSelected);
+            }
         }
     }
 
-    // 모든 UI를 닫는 함수 (게임으로 복귀할 때 사용)
     public void CloseAllUI()
     {
-        // 스택이 빌 때까지 모든 UI를 끄고 스택에서 제거한다.
         while (uiStack.Count > 0)
         {
             GameObject ui = uiStack.Pop();
-            ui.SetActive(false);
+            AnimateClose(ui); // 모든 UI를 애니메이션으로 닫는다.
+        }
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    // ===== 애니메이션 헬퍼 함수 =====
+
+    private void AnimateOpen(GameObject uiObject)
+    {
+        CanvasGroup canvasGroup = uiObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null) canvasGroup = uiObject.AddComponent<CanvasGroup>();
+
+        uiObject.SetActive(true);
+
+        // 초기 상태: 투명하고 약간 작은 상태
+        canvasGroup.alpha = 0f;
+        uiObject.transform.localScale = Vector3.one * 0.9f;
+
+        // 애니메이션 실행
+        canvasGroup.DOFade(1f, animationDuration).SetUpdate(true);
+        uiObject.transform.DOScale(1f, animationDuration).SetEase(openEase).SetUpdate(true);
+
+        // 애니메이션 시작 시 상호작용 가능하게 설정
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+    }
+
+    private void AnimateClose(GameObject uiObject)
+    {
+        CanvasGroup canvasGroup = uiObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null) return; // CanvasGroup이 없으면 실행 안함
+
+        // 애니메이션 시작 시 상호작용 불가능하게 설정
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        // 애니메이션 실행
+        canvasGroup.DOFade(0f, animationDuration).SetUpdate(true);
+        uiObject.transform.DOScale(0.9f, animationDuration).SetEase(closeEase).SetUpdate(true)
+            .OnComplete(() => {
+                uiObject.SetActive(false); // 애니메이션이 끝나면 비활성화
+            });
+    }
+
+    // 게임 시작 시 UI를 즉시 닫는 함수
+    private void CloseUIImmediately(GameObject uiObject)
+    {
+        CanvasGroup canvasGroup = uiObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null) canvasGroup = uiObject.AddComponent<CanvasGroup>();
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        uiObject.SetActive(false);
+    }
+
+    // ===== 기존 공개 함수 =====
+
+    public void OpenPauseMenu() => OpenUI(pauseMenuUI, pauseMenuFirstButton);
+    public void OpenSettingMenu() => OpenUI(settingsMenuUI, settingsMenuFirstButton);
+    public void OpenControlsMenu() => OpenUI(controlsMenuUI);
+
+    public void OnCancel(InputValue value)
+    {
+        if (uiStack.Count > 0)
+        {
+            // 예: 게임 플레이 중에는 Pause 메뉴를 열고, 메뉴 안에서는 뒤로가기
+            // 현재는 스택에 UI가 하나만 있을 때(일시정지 메뉴)는 닫고 게임으로 복귀하도록 구현
+            if (uiStack.Count == 1)
+            {
+                // 게임으로 돌아가는 로직 (예: ResumeGame())
+                CloseAllUI();
+            }
+            else
+            {
+                CloseAndGoBack();
+            }
         }
     }
 }
