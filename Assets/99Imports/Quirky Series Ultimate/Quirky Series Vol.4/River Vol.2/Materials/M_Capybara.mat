@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Capybara
-  m_Shader: {fileID: -6465566751694194690, guid: d87ba597b16434f40a42662f6d2e7467, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 30a4e15fdc128484bbf373f30ef2018e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -57,6 +57,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Diffuse:
+        m_Texture: {fileID: 2800000, guid: 1e4825dae279e5b4388c111f13880b17, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -69,11 +73,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Roughness:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -152,6 +164,7 @@ Material:
     - _LightmapDirectionYaw: 0
     - _Metallic: 0
     - _NoiseIntensity: 0
+    - _NoiseThreshold: 3000
     - _OcclusionStrength: 1
     - _Out_Max: 1.11
     - _Out_Min: 0.789
@@ -166,12 +179,14 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _RimEnabled: 0
+    - _RimValue: 0
     - _SelfShadingSize: 0.5
     - _SelfShadingSizeExtra: 0.6
     - _ShadowEdgeSize: 0.05
     - _ShadowEdgeSizeExtra: 0.05
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
+    - _SnowBalance: 6.35
     - _SpecularEnabled: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -193,7 +208,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Base_Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.67295593, g: 0.67295593, b: 0.67295593, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color1: {r: 0, g: 0.7, b: 0.74, a: 0}
     - _Color2: {r: 0.96999997, g: 0.67, b: 0.50999993, a: 0}
     - _ColorDim: {r: 1, g: 1, b: 1, a: 1}
