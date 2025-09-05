@@ -1,12 +1,12 @@
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SnowPathDrawer : MonoBehaviour
 {
     public ComputeShader snowComputeShader;
-    public RenderTexture snowRT;
+    private RenderTexture snowRT;
 
     private string snowImageProperty = "snowImage";
     private string colorValueProperty = "colorValueToAdd";
@@ -23,42 +23,63 @@ public class SnowPathDrawer : MonoBehaviour
 
     private SnowController snowController;
     private List<SnowController> snowControllers = new List<SnowController>();
-    
+
+    [SerializeField] private LayerMask groundLayers;
+
+    private Camera mainCamera;
+
+    private void Awake()
+    {
+        mainCamera = Camera.main;
+    }
 
     private void FixedUpdate()
     {
-        if (Vector3.Distance(Camera.main.transform.position, transform.position) > drawDistance) return;
+        if (mainCamera)
+        {
+            if (Vector3.Distance(mainCamera.transform.position, transform.position) > drawDistance) return;
+        }
+        
 
         foreach (var controller in snowControllers)
         {
             snowController = controller;
-            snowRT = snowController.snowRT;
+            snowRT = snowController.SnowRT;
             GetPosition();
             DrawSpot();
         }
-
-        /*for(int i = 0; i < snowControllerObjs.Length; i++)
-        {
-            if (Vector3.Distance(snowControllerObjs[i].transform.position, transform.position) > spotSize * 2f) continue;
-
-            snowController = snowControllerObjs[i].GetComponent<SnowController>();
-            snowRT = snowController.snowRT;
-            GetPosition();
-            DrawSpot();
-        }*/
+        
     }
 
     void GetPosition()
     {
-        float scaleX = snowController.transform.localScale.x;
-        float scaleY = snowController.transform.localScale.z;
+        // float scaleX = snowController.transform.localScale.x;
+        // float scaleY = snowController.transform.localScale.z;
+        //
+        // float snowPosX = snowController.transform.position.x;
+        // float snowPosY = snowController.transform.position.z;
+        //
+        // int posX = snowRT.width / 2 - (int)(((transform.position.x - snowPosX) * snowRT.width / 2) / scaleX);
+        // int posY = snowRT.height / 2 - (int)(((transform.position.z - snowPosY) * snowRT.height / 2) / scaleY); ;
+        // position = new Vector2Int(posX, posY);
 
-        float snowPosX = snowController.transform.position.x;
-        float snowPosY = snowController.transform.position.z;
-
-        int posX = snowRT.width / 2 - (int)(((transform.position.x - snowPosX) * snowRT.width / 2) / scaleX);
-        int posY = snowRT.height / 2 - (int)(((transform.position.z - snowPosY) * snowRT.height / 2) / scaleY); ;
-        position = new Vector2Int(posX, posY);
+        
+        /*
+         * The method below requires a mesh collider.
+         */
+        bool groundHit = Physics.Raycast(transform.position, Vector3.down, out RaycastHit downDirHit, 1f, groundLayers);
+        
+        if (groundHit)
+        {
+            bool groundNormalHit = Physics.Raycast(transform.position, -downDirHit.normal, out RaycastHit normalDirHit, 2f, groundLayers);
+            if (groundNormalHit)
+            {
+                int posX = (int)(normalDirHit.textureCoord.x * snowRT.width);
+                int posY = (int)(normalDirHit.textureCoord.y * snowRT.height);
+                position = new Vector2Int(posX, posY);
+            }
+        }
+        
     }
 
     void DrawSpot()
@@ -66,14 +87,14 @@ public class SnowPathDrawer : MonoBehaviour
         if (snowRT == null) return;
         if (snowComputeShader == null) return;
 
-        int kernel_handle = snowComputeShader.FindKernel(drawSpotKernel);
-        snowComputeShader.SetTexture(kernel_handle, snowImageProperty, snowRT);
+        int kernelHandle = snowComputeShader.FindKernel(drawSpotKernel);
+        snowComputeShader.SetTexture(kernelHandle, snowImageProperty, snowRT);
         snowComputeShader.SetFloat(colorValueProperty, 0);
         snowComputeShader.SetFloat(resolutionProperty, snowRT.width);
         snowComputeShader.SetFloat(positionXProperty, position.x);
         snowComputeShader.SetFloat(positionYProperty, position.y);
         snowComputeShader.SetFloat(spotSizeProperty, spotSize);
-        snowComputeShader.Dispatch(kernel_handle, snowRT.width / 8, snowRT.height / 8, 1);
+        snowComputeShader.Dispatch(kernelHandle, snowRT.width / 8, snowRT.height / 8, 1);
     }
 
     private void OnCollisionEnter(Collision other)

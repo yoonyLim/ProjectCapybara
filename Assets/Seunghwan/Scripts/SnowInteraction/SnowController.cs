@@ -1,9 +1,13 @@
+
+using System.Collections.Generic;
 using UnityEngine;
+
 
 public class SnowController : MonoBehaviour
 {
     public ComputeShader snowComputeShader;
-    public RenderTexture snowRT;
+    private RenderTexture snowRT;
+    public RenderTexture SnowRT => snowRT;
     public float colorValueToAdd = 0.005f;
 
     private string snowImageProperty = "snowImage";
@@ -17,14 +21,19 @@ public class SnowController : MonoBehaviour
     private string fillWhiteKernel = "FillWhite";
 
     private MeshRenderer meshRenderer;
-    private int resolution = 512;
+
+    private int resolution = 1024;
+
+    private Camera mainCamera;
 
     private void Awake()
     {
+        meshRenderer = GetComponent<MeshRenderer>();
+        mainCamera = Camera.main;
         CreateRenderTexture();
         SetRTColorToWhite();
         SetMaterialTexture();
-        InvokeRepeating(nameof(AddSnowLayer), 0f, 0.2f);
+        InvokeRepeating(nameof(AddSnowLayer), 0f, 0.05f);
         ExtendBoundOfMesh();
     }
 
@@ -51,7 +60,6 @@ public class SnowController : MonoBehaviour
 
     private void SetMaterialTexture()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
         meshRenderer.material.SetTexture("_PathTexture", snowRT);
     }
 
@@ -73,4 +81,5 @@ public class SnowController : MonoBehaviour
         bounds.extents = new Vector3(2, 0, 2);
         GetComponent<MeshFilter>().mesh.bounds = bounds;
     }
+
 }

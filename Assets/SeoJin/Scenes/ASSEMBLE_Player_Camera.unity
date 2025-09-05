@@ -408,15 +408,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc8d0ddd7c066054ea406b9717b76862, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  timer: 0.25
   walkSpeed: 3.5
   runSpeed: 7
-  glideSpeed: 2.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
   waterLayerMask:
     serializedVersion: 2
     m_Bits: 16
+  iceLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isOnIce: 0
+  jumpForce: 6
+  normalGravity: 9
 --- !u!54 &205389186
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1315,7 +1327,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.036709595, y: 0.0021240234, z: 0}
-  m_LocalScale: {x: 3.6296296, y: 2.074074, z: 0}
+  m_LocalScale: {x: 3.7037036, y: 2.148148, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1974917947}
@@ -1783,13 +1795,13 @@ Camera:
   far clip plane: 1000
   field of view: 20
   orthographic: 0
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967263
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 1589112019}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -2078,7 +2090,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039931045}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 06d7e21107080b3418773fcd58259c95, type: 3}
   m_Name: 
@@ -2219,11 +2231,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7952427212713977155, guid: c51534555901fb44d9233ba0d4baded6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8179030501573641123, guid: c51534555901fb44d9233ba0d4baded6, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3218,8 +3230,8 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 784
-  m_Height: 448
+  m_Width: 400
+  m_Height: 232
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 90
@@ -3647,7 +3659,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974917945}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 06d7e21107080b3418773fcd58259c95, type: 3}
   m_Name: 
@@ -3670,7 +3682,7 @@ MonoBehaviour:
   - {fileID: 864620325}
   storedCamRotation: {x: 0.27984816, y: -0.36470518, z: 0.1159169, w: 0.88047624}
   storedPixelMultiplier: 5
-  origOrthoSize: 10
+  origOrthoSize: 5
 --- !u!4 &1974917947
 Transform:
   m_ObjectHideFlags: 0
@@ -3681,7 +3693,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 999}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 715169042}
@@ -3823,7 +3835,7 @@ Transform:
   m_GameObject: {fileID: 7965655521489333352}
   serializedVersion: 2
   m_LocalRotation: {x: 0.27984816, y: -0.36470518, z: 0.1159169, w: 0.88047624}
-  m_LocalPosition: {x: -199.3, y: 35.354, z: 141.3}
+  m_LocalPosition: {x: -197.8, y: 35.5, z: 146.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3867,7 +3879,7 @@ MonoBehaviour:
   camRotationOffset: {x: 0, y: 0, z: 0}
   snapLocalScale: 0
   snapScaleValue: 0.05
-  lastSnappedPosition: {x: -199.29828, y: 35.354717, z: 141.30244}
+  lastSnappedPosition: {x: -197.80026, y: 35.496994, z: 146.07674}
   skippedSnappedPosition: {x: 0, y: 0, z: 0}
   initialPosition: {x: 0, y: 0, z: 0}
   smoothSnapUI: 1
@@ -3894,9 +3906,9 @@ MonoBehaviour:
   graphicsFormat: 8
   pixelMultiplier: 5
   ditherRepeatSize: 8
-  lastScreenSize: {x: 3840, y: 2160}
-  screenSize: {x: 3840, y: 2160}
-  renderTextureSize: {x: 784, y: 448}
+  lastScreenSize: {x: 1920, y: 1080}
+  screenSize: {x: 1920, y: 1080}
+  renderTextureSize: {x: 400, y: 232}
   screenHeight: 1080
   uPixelatorCam: {fileID: 7965655521489333354}
   autoDetectCameras: 0
@@ -3974,7 +3986,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &7965655521489333353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4026,7 +4038,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7965655521489333352}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
@@ -4054,7 +4066,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
