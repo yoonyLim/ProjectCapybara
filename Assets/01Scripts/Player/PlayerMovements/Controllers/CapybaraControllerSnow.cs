@@ -2,14 +2,12 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.VFX;
 
 namespace Capybara
 {
     public class CapybaraControllerSnow : MonoBehaviour
     {
         [SerializeField] private CapybaraInputReader inputReader;
-        [SerializeField] private VisualEffect VFX;
         
         [Header("Movement Settings")]
         [SerializeField] private float constMoveSpeed = 3.5f;
@@ -82,8 +80,6 @@ namespace Capybara
         {
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
-
-            originalVFXRate = VFX.GetFloat("Rate");
             
             currentSpeed = constMoveSpeed;
             currentAngleDamping = constAngleDamping;
@@ -132,7 +128,6 @@ namespace Capybara
                 if (Physics.Raycast(transform.position, Vector3.down, out groundHit, constGroundRaycastDistance, groundLayer) && !isInAir)
                 {
                     isGrounded = true;
-                    VFX.SetFloat("Rate", originalVFXRate);
                 
                     if (isGliding)
                         HandleGlideCanceled();
@@ -261,8 +256,6 @@ namespace Capybara
         {
             if ((isGrounded || isSwimming) && !isInAir && !isGliding)
             {
-                VFX.SetFloat("Rate", 0f);
-                
                 isInAir = true;
                 isGrounded = false;
                 anim.SetInteger(Walk, 0);
