@@ -29,7 +29,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses:
@@ -68,6 +68,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTexture:
+        m_Texture: {fileID: 2800000, guid: 4b0ba0058e5c4134ab541129ae4ac9b6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -116,11 +120,16 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _FarDist: 50
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _MaskTessBoost: 1
+    - _MaskThreshold: 0.5
+    - _MaxDisplacement: 0.02
     - _Metallic: 0
-    - _NoiseScale: 0.1
+    - _NearDist: 6
+    - _NoiseScale: 0.28
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -132,6 +141,8 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _TessMax: 1
+    - _TessMin: 1
     - _WorkflowMode: 1
     - _ZTest: 4
     - _ZWrite: 1
@@ -139,10 +150,10 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorBottom: {r: 0.7573869, g: 0.8384478, b: 0.8679245, a: 1}
+    - _ColorBottom: {r: 0.93044674, g: 0.9547123, b: 0.9716981, a: 1}
     - _ColorTop: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SnowHeightRange: {r: 0, g: 0.05, b: 0, a: 0}
+    - _SnowHeightRange: {r: 0, g: 0.03, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
