@@ -11,7 +11,7 @@ public class JumpState : IPlayerState
         if (player.isGrounded && !jumpApplied)
         {
             player.animator.SetInteger("Walk", 0);
-            player.animator.SetBool("isJump", true);
+            player.animator.SetTrigger("jumpTrigger");
             player.isGrounded = false;
 
             // 점프 방향
@@ -27,7 +27,6 @@ public class JumpState : IPlayerState
 
     public void Exit(PlayerController player)
     {
-        player.animator.SetBool("isJump", false); 
         player.animator.SetBool("isFall", false);
     }
 
@@ -46,7 +45,7 @@ public class JumpState : IPlayerState
             // 공중에서 하강 중이면 낙하 플래그만
             if (player.rb.linearVelocity.y < 0f)
             {
-                player.animator.SetBool("isJump", false);
+
                 player.animator.SetBool("isFall", true);
                 jumpApplied = true;
             }

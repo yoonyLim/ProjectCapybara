@@ -72,6 +72,9 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Glide 관련 변수
+    [Header("글라이드 유지 시간")]
+    public float glideDuration = 2.5f;
+
     [Header("Glide 이동 변수")]
     public float glideSpeed = 7f;
     public float glideTurnSpeed = 0.5f;
@@ -80,6 +83,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public float normalGravity = 9.81f;
     [HideInInspector] public float normalDrag = 0f;
+    public bool glideLocked = false;
     #endregion
 
     void Awake()
@@ -167,9 +171,8 @@ public class PlayerController : MonoBehaviour
         // 시작/유지: 공중에서만 글라이드 진입
         if (context.performed)
         {
-            if (!isGrounded)
+            if (!isGrounded && !glideLocked)
             {
-                // 얼음 위 특수상태보다 Glide가 우선인지 정책에 따라 조정 가능
                 ChangeState(new GlideState());
             }
             return;
@@ -178,9 +181,13 @@ public class PlayerController : MonoBehaviour
         // 취소: 상태 해제
         if (context.canceled)
         {
-            // 지상이면 달리기, 공중이면 점프/낙하 상태로
-            if (isGrounded) ChangeState(new RunningState());
-            else ChangeState(new JumpState());
+            if (isGrounded)
+                ChangeState(new RunningState());
+            else
+            {
+                //glideLocked = true; 
+                ChangeState(new JumpState()); // 낙하/점프 상태로
+            }
         }
     }
 
@@ -203,7 +210,7 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 isJumping = false;
                 wasFalling = false;
-                Debug.Log("isGrounded");
+                glideLocked = false;
                 break;
             }
             else
