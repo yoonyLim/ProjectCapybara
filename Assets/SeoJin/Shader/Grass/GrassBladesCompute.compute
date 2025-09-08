@@ -3,8 +3,6 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "NMGGrassBladesComputeHelpers.hlsl"
 
-#define PI 3.14159265359
-
 #define MAX_BLADE_SEGMENTS 5
 #define MAX_BLADE_POINTS MAX_BLADE_SEGMENTS * 2 + 1
 
@@ -171,13 +169,13 @@ void Main(uint3 id : SV_DispatchThreadID)
     vertices[numBladeSegments * 2] = SetUpBladePoint(positionWS, dimensions, tipTransform, float2(0.5,1));
 
     int numTriangles = (numBladeSegments - 1) * 2 + 1;
-    for (int i = 0; i < numTriangles; i++)
+    for (int j = 0; j < numTriangles; j++)
     {
         DrawTriangle tri = (DrawTriangle)0;
         tri.lightingNormalWS = normalWS;
-        tri.vertices[0] = vertices[i];
-        tri.vertices[1] = vertices[i + 1];
-        tri.vertices[2] = vertices[i + 2];
+        tri.vertices[0] = vertices[j];
+        tri.vertices[1] = vertices[j + 1];
+        tri.vertices[2] = vertices[j + 2];
         _DrawTriangles.Append(tri);   
     }
 
