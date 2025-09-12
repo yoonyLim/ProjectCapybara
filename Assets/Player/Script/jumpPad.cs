@@ -2,15 +2,22 @@ using UnityEngine;
 
 public class jumPad : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public float strength;
+    public Vector3 direction;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Player"))
+        {
+            Rigidbody rb = other.attachedRigidbody;
+            if (rb != null)
+            {
+                Vector3 vel = rb.linearVelocity;
+                vel.y = 0;
+                rb.linearVelocity = vel;
+
+                rb.AddForce(direction.normalized * strength, ForceMode.Impulse);
+            }
+        }
     }
 }

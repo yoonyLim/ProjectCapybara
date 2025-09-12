@@ -6,12 +6,26 @@ using UnityEngine.InputSystem;
 
 public class PlayerMove : MonoBehaviour
 {
+
+    // 카메라
+    [SerializeField] private Transform cameraTransform;
+
+    [SerializeField] private float sphereRadius = 0.2f;
+    [SerializeField] private float raycastDistance = 0.5f;
+    [SerializeField] private Transform[] groundCheckPoints;
+
+    [Header("최대 경사 각도 검사")]
+    [SerializeField] Transform raycastOrigin;
+    [SerializeField] float maxSlopeAngle;
+
     private PlayerInput defaultAction;
     private Rigidbody rb;
     private Animator animator;
     private Vector3 InputKey;
     float Myfloat;
     private RaycastHit slopeHit;
+
+    [Header("경사로 회전")]
     [SerializeField]  private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
 
@@ -20,7 +34,6 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float walkSpeed = 3.5f;
     [SerializeField] private float runSpeed = 7f;
     private float glideSpeed = 4.5f;
-    private float maxSlopeAngle = 60;
     bool isRunning;
 
     [Header("레이어 구분")]
@@ -31,13 +44,11 @@ public class PlayerMove : MonoBehaviour
     public LayerMask iceLayerMask;
     [SerializeField] private bool isOnIce = false;
     private Vector3 slidingVelocity = Vector3.zero;
-
-    private float raycastDistance = 0.4f;
     private bool isGrounded;
 
     private bool isJumping = false;
     private bool wasFalling = false;
-    [SerializeField] private float jumpForce = 6f;
+    [SerializeField] private float jumpForce = 9f;
 
     private bool isSwimming = false;
   
@@ -59,10 +70,10 @@ public class PlayerMove : MonoBehaviour
     private bool inWindZone = false;
     private GameObject windZone;
 
-    private PlatformPositionComposer _currentPlatform;
 
     private void Start()
     {
+        cameraTransform = Camera.main.transform;
         defaultAction = GetComponent<PlayerInput>();
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -78,27 +89,30 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-        // Ground check
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance, groundLayer))
+        foreach (var point in groundCheckPoints)
         {
-            isGrounded = true;
-            isJumping = false;
-            wasFalling = false;
-            animator.SetBool("isFall", false);
-            //animator.SetBool("isJump", false);
-        }
-        else
-        {
-            isGrounded = false;
-
-            if (rb.linearVelocity.y < -0.1f && !wasFalling)
+            if (Physics.SphereCast(point.position, sphereRadius, Vector3.down, out hit, raycastDistance, groundLayer))
             {
-                wasFalling = true;             
-                animator.SetBool("isJump", false);
-                animator.SetBool("isFall", true);
+                isGrounded = true;
+                isJumping = false;
+                wasFalling = false;
+                animator.SetBool("isFall", false);
+                break;
+            }
+            else
+            {
+                isGrounded = false;
+
+                if (rb.linearVelocity.y < -0.1f && !wasFalling)
+                {
+                    wasFalling = true;
+                    animator.SetBool("isJump", false);
+                    animator.SetBool("isFall", true);
+                }
             }
         }
+
 
         if (isGliding)
             currentSmoothing = glideSmoothing;
@@ -110,11 +124,32 @@ public class PlayerMove : MonoBehaviour
         if (isGliding && isGrounded) StopGlide();
     }
 
+
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheckPoints == null) return;
+
+        Gizmos.color = Color.green;
+        foreach (var point in groundCheckPoints)
+        {
+            Vector3 start = point.position;
+            Vector3 end = start + Vector3.down * raycastDistance;
+            // 구의 궤적 그리기
+            Gizmos.DrawWireSphere(start, sphereRadius);
+            Gizmos.DrawWireSphere(end, sphereRadius);
+            // 사이 선으로 연결
+            Gizmos.DrawLine(start, end);
+        }
+    }
+
+
     void FixedUpdate()
     {
         
 
         bool hasControl = (moveDirection !=  Vector3.zero);
+        Move();
+
         if (isGliding)
         {
             if (moveDirection.sqrMagnitude > 0.01f)
@@ -132,15 +167,17 @@ public class PlayerMove : MonoBehaviour
         }
         else if (hasControl)
         {
-            Move();
+            
             
         }
         else
         {
+
             if (isSwimming)
                 animator.SetBool("isSwim", false);
-            else
+            else if(isGrounded)
                 animator.SetInteger("Walk", 0);
+
         }
 
         // 글라이딩 시 이동 코드
@@ -167,6 +204,18 @@ public class PlayerMove : MonoBehaviour
 
     }
 
+    public bool IsOnSlope()
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+
+        if (Physics.Raycast(ray, out slopeHit, raycastDistance, groundLayer))
+        {
+            var angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle != 0f && angle < maxSlopeAngle;
+        }
+        return false;
+    }
+
     private Quaternion SurfaceAlignment()
     {
         Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
@@ -186,13 +235,16 @@ public class PlayerMove : MonoBehaviour
         Quaternion RotationRef = SurfaceAlignment();
         float speed = isRunning ? runSpeed : walkSpeed;
 
-        float angle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-        float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref Myfloat, currentSmoothing);
-        transform.rotation = Quaternion.Euler(RotationRef.eulerAngles.x, smooth, RotationRef.eulerAngles.z);
+        if (moveDirection.magnitude > 0.01f)
+        {
+            float angle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+            float smooth = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref Myfloat, currentSmoothing);
+            transform.rotation = Quaternion.Euler(RotationRef.eulerAngles.x, smooth, RotationRef.eulerAngles.z);
+        }
 
         bool isOnSlope = IsOnSlope();
-        Vector3 velocity = isOnSlope ? AdjustDirectionToSlope(moveDirection) : moveDirection;
-        Vector3 gravity = isOnSlope ? Vector3.zero : Vector3.down * Mathf.Abs(rb.linearVelocity.y);
+        Vector3 velocity = CalculateNextFrameGroundAngle(speed) < maxSlopeAngle ? moveDirection : Vector3.zero;
+        Vector3 gravity = Vector3.down * Mathf.Abs(rb.linearVelocity.y);
 
         if(isOnIce)
         {
@@ -200,16 +252,29 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            if (isOnSlope)
+            if (isOnSlope && isGrounded)
             {
-                rb.linearVelocity = new Vector3(velocity.x * speed, rb.linearVelocity.y, velocity.z * speed);
+                
+                velocity = AdjustDirectionToSlope(moveDirection);
+                gravity = Vector3.zero;
+                rb.useGravity = false;
+                if (moveDirection.magnitude < 0.01f)
+                {
+                    // 입력이 없으면 슬로프에서도 고정
+                    rb.linearVelocity = Vector3.zero;
+                }
+                else
+                {
+                    rb.linearVelocity = velocity * speed + gravity;
+                }
             }
             else
             {
+                rb.useGravity = true;
                 Vector3 currentVelocity = rb.linearVelocity;
                 Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed); // y 유지
 
-                rb.linearVelocity = targetVelocity;
+                rb.linearVelocity = targetVelocity;       
             }
         }
 
@@ -217,11 +282,9 @@ public class PlayerMove : MonoBehaviour
 
         if (isSwimming)
             animator.SetBool("isSwim", true);
-        else
+        else if(isGrounded)
             animator.SetInteger("Walk", isRunning ? 2 : 1);
 
-
-        //rb.MovePosition(transform.position + moveDirection * speed * Time.deltaTime);
 
     }
 
@@ -231,16 +294,15 @@ public class PlayerMove : MonoBehaviour
     }
 
 
-    public bool IsOnSlope()
+    private float CalculateNextFrameGroundAngle(float moveSpeed)
     {
-        Ray ray = new Ray(transform.position, Vector3.down);
+        var nextFramePlayerPosition =
+                           raycastOrigin.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
 
-        if (Physics.Raycast(ray, out slopeHit, raycastDistance, groundLayer))
-        {
-            var angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle != 0f && angle < maxSlopeAngle;
-        }
-        return false;
+        if (Physics.Raycast(nextFramePlayerPosition, Vector3.down, out RaycastHit hitInfo,
+                            0.5f, groundLayer))
+            return Vector3.Angle(Vector3.up, hitInfo.normal);
+        return 0f;
     }
 
     void OnJump()
@@ -249,7 +311,8 @@ public class PlayerMove : MonoBehaviour
         {
             isJumping = true;
             animator.SetBool("isJump", true);
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            Vector3 jumpDirection = slopeHit.normal;
+            rb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
         }
 
     }
@@ -257,16 +320,16 @@ public class PlayerMove : MonoBehaviour
     void OnMove(InputValue value)
     {
         Vector2 input = value.Get<Vector2>();
-        if (isGliding)
-        {
-            if (input.magnitude > 0.1f)
-                moveDirection = new Vector3(input.x, 0, input.y).normalized;
-            // 입력이 없을 땐 방향 유지
-        }
-        else
-        {
-            moveDirection = new Vector3(input.x, 0f, input.y);
-        }
+        // 카메라 기준으로 이동 방향 변환
+        Vector3 camForward = cameraTransform.forward;
+        camForward.y = 0;
+        camForward.Normalize();
+        Vector3 camRight = cameraTransform.right;
+        camRight.y = 0;
+        camRight.Normalize();
+
+        Vector3 desiredMove = camForward * input.y + camRight * input.x;
+        moveDirection = desiredMove.normalized;
     }
 
     void OnTriggerEnter(Collider other)
