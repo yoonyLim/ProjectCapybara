@@ -3,6 +3,7 @@ using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Windows;
 
 
@@ -59,7 +60,8 @@ public class PlayerController : MonoBehaviour
     #region 점프 관련 변수
     [Header("Jump Force")]
     public float jumpForce = 7f;
-    private bool isJumping = false;
+    //[HideInInspector]
+    public bool isJumping = false;
     private bool wasFalling = false;
     [HideInInspector] public float airSpeed = 5f;
     [HideInInspector] public float airAcceleration = 20f;
@@ -84,6 +86,12 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float normalGravity = 9.81f;
     [HideInInspector] public float normalDrag = 0f;
     public bool glideLocked = false;
+    #endregion
+
+    #region DustLand 생성 변수
+    [Header("DustLand 생성 속도")]
+    [SerializeField] private float dustSpawnVel = -8.0f;
+    public bool canSpawnDustLand = false;
     #endregion
 
     void Awake()
@@ -132,6 +140,11 @@ public class PlayerController : MonoBehaviour
         MoveInput = moveAction.ReadValue<Vector2>();
         currentState?.Update(this);
 
+        if (rb.linearVelocity.y <= dustSpawnVel)
+        {
+            canSpawnDustLand = true;
+        }
+
     }
 
     void FixedUpdate()
@@ -163,15 +176,18 @@ public class PlayerController : MonoBehaviour
     {
         // 지면에서만 점프 가능
         if (isGrounded)
+        {
             ChangeState(new JumpState());
+        }
+            
     }
 
     void OnGlide(InputAction.CallbackContext context)
     {
         // 시작/유지: 공중에서만 글라이드 진입
-        if (context.performed)
+        if (context.performed && context.interaction is HoldInteraction)
         {
-            if (!isGrounded && !glideLocked)
+            if (!isGrounded)
             {
                 ChangeState(new GlideState());
             }
@@ -185,8 +201,8 @@ public class PlayerController : MonoBehaviour
                 ChangeState(new RunningState());
             else
             {
-                //glideLocked = true; 
-                ChangeState(new JumpState()); // 낙하/점프 상태로
+                glideLocked = true;
+                ChangeState(new JumpState());
             }
         }
     }
@@ -211,12 +227,14 @@ public class PlayerController : MonoBehaviour
                 isJumping = false;
                 wasFalling = false;
                 glideLocked = false;
+                animator.SetBool("isFly", false);
+                animator.SetBool("isGrounded", true);
                 break;
             }
             else
             {
                 isGrounded = false;
-
+                animator.SetBool("isGrounded", false);
                 if (rb.linearVelocity.y < -0.1f && !wasFalling)
                 {
                     wasFalling = true;
@@ -228,6 +246,14 @@ public class PlayerController : MonoBehaviour
         isOnIce = IsOnIceGround();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+        {
+            animator.SetBool("isGrounded", false);
+            animator.SetBool("isFly", true);
+        }
+    }
     //SphereCast Gizmo 그리는 코드
     void OnDrawGizmosSelected()
     {
