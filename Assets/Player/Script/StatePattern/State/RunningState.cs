@@ -68,7 +68,7 @@ public class RunningState : IPlayerState
                 player.transform.rotation = Quaternion.Euler(rotRef.eulerAngles.x, smooth, rotRef.eulerAngles.z);
             }
 
-            Vector3 velocity = player.CalculateNextFrameGroundAngle(speed) < 60f ? player.moveDirection : Vector3.zero;
+            Vector3 velocity = player.CalculateNextFrameGroundAngle(speed) < player.maxSlopeAngle ? player.moveDirection : Vector3.zero;
             Vector3 gravity = Vector3.down * Mathf.Abs(player.rb.linearVelocity.y);
 
             //------------------------------------

@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
     #region 경사로 계산 관련 변수
     [Header("최대 경사 각도 검사")]
     [SerializeField] Transform raycastOrigin;
-    [SerializeField] float maxSlopeAngle;
+    public float maxSlopeAngle;
 
     [Header("경사로 회전")]
     [SerializeField] private AnimationCurve animCurve;
@@ -85,13 +85,13 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public float normalGravity = 9.81f;
     [HideInInspector] public float normalDrag = 0f;
-    public bool glideLocked = false;
+    [HideInInspector] public bool glideLocked = false;
     #endregion
 
     #region DustLand 생성 변수
-    [Header("DustLand 생성 속도")]
+    [Header("DustLand 생성 가능 낙하 속도")]
     [SerializeField] private float dustSpawnVel = -8.0f;
-    public bool canSpawnDustLand = false;
+    [HideInInspector] public bool canSpawnDustLand = false;
     #endregion
 
     void Awake()
@@ -304,7 +304,6 @@ public class PlayerController : MonoBehaviour
         return RotationRef;
     }
 
-    //이거 뭐더라 기억안남
     public Vector3 AdjustDirectionToSlope(Vector3 direction)
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
