@@ -1,3 +1,4 @@
+using Gamekit3D;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.VFX;
@@ -8,10 +9,15 @@ public class DustSpawner : MonoBehaviour
     [SerializeField] private VisualEffect dustLandPrefab;
     private IObjectPool<VisualEffect> dustTrailPool;
     private IObjectPool<VisualEffect> dustLandPool;
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform dustTrailSpawnPoint;
+    [SerializeField] private Transform dustLandSpawnPoint;
+    [SerializeField] private PlayerController playerController;
 
     private void Awake()
     {
+        if (playerController == null)
+            playerController = GetComponent<PlayerController>();
+
         dustTrailPool = new ObjectPool<VisualEffect>(CreateDustTrail, OnDustTrailGet,
             OnDustTrailRelease, OnDustTrailDestroy, true, 10, 20);
         
@@ -22,14 +28,14 @@ public class DustSpawner : MonoBehaviour
     #region Dust Trail
     private VisualEffect CreateDustTrail()
     {
-        VisualEffect instance = Instantiate(dustTrailPrefab, spawnPoint.position, spawnPoint.rotation);
+        VisualEffect instance = Instantiate(dustTrailPrefab, dustTrailSpawnPoint.position, dustTrailSpawnPoint.rotation);
         return instance;
     }
 
     private void OnDustTrailGet(VisualEffect dust)
     {
-        dust.transform.position = spawnPoint.position;
-        dust.transform.rotation = spawnPoint.rotation;
+        dust.transform.position = dustTrailSpawnPoint.position;
+        dust.transform.rotation = dustTrailSpawnPoint.rotation;
         dust.gameObject.SetActive(true);
         dust.Play();
         dust.GetComponent<DustTrail>().Pool = dustTrailPool;
@@ -61,10 +67,12 @@ public class DustSpawner : MonoBehaviour
 
     private void OnDustLandGet(VisualEffect dust)
     {
-        dust.transform.position = transform.position;
+
+        dust.transform.position = dustLandSpawnPoint.position;
         dust.gameObject.SetActive(true);
         dust.Play();
         dust.GetComponent<DustLand>().Pool = dustLandPool;
+
     }
 
     private void OnDustLandRelease(VisualEffect dust)
@@ -79,6 +87,10 @@ public class DustSpawner : MonoBehaviour
 
     public void SpawnDustLand()
     {
+        if (!playerController.canSpawnDustLand)
+            return;
+
+        playerController.canSpawnDustLand = false;
         dustLandPool.Get();
     }
     #endregion Dust Land

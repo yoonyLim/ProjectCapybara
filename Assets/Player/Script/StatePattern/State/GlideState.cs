@@ -18,6 +18,8 @@ public class GlideState : IPlayerState
 
         // 애니메이터 설정
         if (player.animator) player.animator.SetBool("isFly", true);
+        player.animator.SetBool("isGrounded", false);
+
 
         // 물리 캐시 및 적용
         prevLinearDamping = player.rb.linearDamping;
@@ -68,6 +70,7 @@ public class GlideState : IPlayerState
         if (player.isGrounded)
         {
             player.ChangeState(new RunningState());
+            player.animator.SetBool("isGrounded", true);
             return;
         }
 

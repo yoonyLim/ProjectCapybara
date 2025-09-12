@@ -972,6 +972,21 @@ MonoBehaviour:
     m_RotationOrder: 4
   timer: 0.25
   jumpForce: 9
+  isJumping: 0
+  airSpeed: 5
+  airAcceleration: 20
+  iceLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  isOnIce: 0
+  glideDuration: 2.5
+  glideSpeed: 7
+  glideTurnSpeed: 0.5
+  glideGravity: 4
+  glideDrag: 5
+  normalGravity: 9.81
+  normalDrag: 0
+  glideLocked: 0
 --- !u!114 &1509178921662588003
 MonoBehaviour:
   m_ObjectHideFlags: 0
