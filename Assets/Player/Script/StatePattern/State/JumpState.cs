@@ -8,7 +8,7 @@ public class JumpState : IPlayerState
     public void Enter(PlayerController player)
     {
         player.isJumping = true;
-        player.animator.SetBool("isGrounded", false);
+        //player.animator.SetBool("isGrounded", false);
 
         if (player.isGrounded && !jumpApplied)
         {
@@ -41,7 +41,7 @@ public class JumpState : IPlayerState
         {
             player.ChangeState(new RunningState());
             player.animator.SetBool("isFall", false);
-            player.animator.SetBool("isGrounded", true);
+            //player.animator.SetBool("isGrounded", true);
         }
         else
         {

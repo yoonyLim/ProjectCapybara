@@ -5,11 +5,13 @@ public class jumPad : MonoBehaviour
     public float strength;
     public Vector3 direction;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider player)
     {
-        if (other.CompareTag("Player"))
+        if (player.CompareTag("Player"))
         {
-            Rigidbody rb = other.attachedRigidbody;
+            Rigidbody rb = player.attachedRigidbody;
+            var anim = player.GetComponent<Animator>();
+
             if (rb != null)
             {
                 Vector3 vel = rb.linearVelocity;

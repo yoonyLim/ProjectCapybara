@@ -89,12 +89,11 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region DustLand 积己 函荐
+    [Header("DustLand 积己 加档")]
     [SerializeField] private float dustSpawnVel = -8.0f;
     public bool canSpawnDustLand = false;
     #endregion
 
-    private float _nextFallLogTime = 0f;
-    public float fallLogInterval = 0.1f;
     void Awake()
     {
         ChangeState(new RunningState());
@@ -140,15 +139,6 @@ public class PlayerController : MonoBehaviour
         CheckGround();
         MoveInput = moveAction.ReadValue<Vector2>();
         currentState?.Update(this);
-
-        if (!isGrounded && rb.linearVelocity.y < 0f && Time.time >= _nextFallLogTime)
-        {
-            float vy = rb.linearVelocity.y;
-            Debug.Log($"[FALL] vY = {vy:F2} m/s (|vY|={Mathf.Abs(vy):F2})");
-            _nextFallLogTime = Time.time + fallLogInterval;
-
-           
-        }
 
         if (rb.linearVelocity.y <= dustSpawnVel)
         {
@@ -237,12 +227,14 @@ public class PlayerController : MonoBehaviour
                 isJumping = false;
                 wasFalling = false;
                 glideLocked = false;
+                animator.SetBool("isFly", false);
+                animator.SetBool("isGrounded", true);
                 break;
             }
             else
             {
                 isGrounded = false;
-
+                animator.SetBool("isGrounded", false);
                 if (rb.linearVelocity.y < -0.1f && !wasFalling)
                 {
                     wasFalling = true;
@@ -254,6 +246,14 @@ public class PlayerController : MonoBehaviour
         isOnIce = IsOnIceGround();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+        {
+            animator.SetBool("isGrounded", false);
+            animator.SetBool("isFly", true);
+        }
+    }
     //SphereCast Gizmo 弊府绰 内靛
     void OnDrawGizmosSelected()
     {
