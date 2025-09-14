@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class ThrowingEnemy : MonoBehaviour
+
+public class ThrowingEnemy : MonoBehaviour, IDestructible
 {
     [SerializeField] private bool debugSight = true;
     private State currentState;
@@ -17,13 +18,11 @@ public class ThrowingEnemy : MonoBehaviour
     private int deathHash;
     private float lastThrowStartTime;
     [SerializeField] private float throwCooldown = 2f;
-    [SerializeField] private float throwTargetOffset = 0.15f;
+    [SerializeField] private float throwTargetOffset = 0.05f;
 
     [SerializeField] private float rotationSpeed = 2f;
     
     [Header("Inspector Assignment Needed")]
-    [SerializeField] private GameObject projectilePrefab;
-
     [SerializeField] private Transform projectileSpawnPoint;
     
     enum State
@@ -48,13 +47,11 @@ public class ThrowingEnemy : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
     }
     
-
-    
-
     private void Update()
     {
         switch (currentState)
         {
+            // Check distance, angle to player and if condition matches change state to throwing state.
             case State.Idle:
             {
                 float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
@@ -90,6 +87,8 @@ public class ThrowingEnemy : MonoBehaviour
                 currentState = State.Throwing;
                 break;
             }
+            // While the throw animation is playing rotate towards player position.
+            // Throwing state will be set back to idle state by the throw animation event (will be ignored if state is dead).
             case State.Throwing:
             {
                 Vector3 dirToPlayer = (player.transform.position - transform.position).normalized;
@@ -97,9 +96,9 @@ public class ThrowingEnemy : MonoBehaviour
                 Quaternion lookRotation = Quaternion.LookRotation(dirToPlayer, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, rotationSpeed);
                 
-                // TODO: If player headbutts or jumps on top go to Dead state.
                 break;
             }
+            // Disappear after a short interval.
             case State.Dead:
             {
                 break;
@@ -107,31 +106,35 @@ public class ThrowingEnemy : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        if (currentState == State.Dead) return;
-
-        if (collision.collider.CompareTag("Player"))
-        {
-            animator.CrossFadeInFixedTime(deathHash, 0.1f);
-            currentState = State.Dead;
-        }
-    }
-
+    /// <summary>
+    /// Calculates rotation to player and spawns a projectile from projectile pool.
+    /// </summary>
     private void LaunchProjectile()
     {
         Vector3 dirToPlayer = (player.transform.position - projectileSpawnPoint.position).normalized;
         Quaternion rotationToPlayer = Quaternion.LookRotation(dirToPlayer + Vector3.up * throwTargetOffset);
-        Instantiate(projectilePrefab, projectileSpawnPoint.position, rotationToPlayer);
-        
+        EnemyProjectile projectile = ProjectilePool.Instance.GetProjectile();
+        projectile.Initialize(projectileSpawnPoint.position, rotationToPlayer);
     }
 
+    /// <summary>
+    /// This is for resetting back to idle state. It is called by animation event inside throw animation clip.
+    /// </summary>
     private void OnThrowAnimationEnd()
     {
         if (currentState == State.Dead) return;
         
         animator.CrossFadeInFixedTime(idleHash, 0.15f);
         currentState = State.Idle;
+    }
+
+    /// <summary>
+    /// Implementation of IDestructible interface. Player will call this script to make this enemy react to headbutt.
+    /// </summary>
+    public void Hit()
+    {
+        animator.CrossFadeInFixedTime(deathHash, 0.1f);
+        currentState = State.Dead;
     }
 
 #if UNITY_EDITOR
@@ -164,5 +167,6 @@ public class ThrowingEnemy : MonoBehaviour
         UnityEditor.Handles.DrawLine(transform.position, coneBaseCenter - transform.right * coneRadius);
     }
 #endif
+
     
 }
