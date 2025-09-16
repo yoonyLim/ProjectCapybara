@@ -1,14 +1,19 @@
 
+using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 using UnityEngine.Pool;
 
 public class EnemyProjectile : MonoBehaviour
 {
+    private ParticleSystem[] hitParticleSystems;
     private IObjectPool<EnemyProjectile> pool;
+    [SerializeField] private ParticleSystem[] projectileParticleSystems;
+    [SerializeField] private Transform hitEffect;
     [SerializeField] private float projectileSpeed = 3f;
     [SerializeField] private float projectileLifeTime = 2f;
     [SerializeField] private float projectileForceAmount = 5f;
     private Rigidbody rigidBody;
+    private Collider collider;
     private float spawnTime;
 
     // Boolean value to check if the object is released to the pool
@@ -16,12 +21,24 @@ public class EnemyProjectile : MonoBehaviour
 
     private void Awake()
     {
+        collider = GetComponent<Collider>();
         rigidBody = GetComponent<Rigidbody>();
         rigidBody.useGravity = false;
+
+        hitParticleSystems = new ParticleSystem[hitEffect.childCount];
+        for (int i = 0; i < hitEffect.childCount; i++)
+        {
+            hitParticleSystems[i] = hitEffect.GetChild(i).GetComponent<ParticleSystem>();
+        }
     }
 
     private void OnEnable()
     {
+        foreach (var projectileParticleSystem in projectileParticleSystems)
+        {
+            projectileParticleSystem.Play(true);
+        }
+        collider.enabled = true;
         spawnTime = Time.time;
         isReleased = false;
     }
@@ -41,6 +58,12 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        collider.enabled = false;
+        foreach (var projectileParticleSystem in projectileParticleSystems)
+        {
+            projectileParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+        
         if (other.gameObject.CompareTag("Player"))
         {
             Vector3 forceDir = Vector3.Normalize(other.transform.position - transform.position);
@@ -50,8 +73,22 @@ public class EnemyProjectile : MonoBehaviour
         if (!isReleased)
         {
             isReleased = true;
-            pool.Release(this);
+            PlayHitParticles();
+            Invoke(nameof(ReleaseToPool), hitParticleSystems[0].main.duration);
         }
+    }
+
+    private void ReleaseToPool()
+    {
+        pool.Release(this);
+    }
+
+    void PlayHitParticles()
+    {
+        foreach (var hitParticleSystem in hitParticleSystems)
+        {
+            hitParticleSystem.Play();
+        } 
     }
 
     /// <summary>
