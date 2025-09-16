@@ -209,10 +209,11 @@ public class Dialogue : MonoBehaviour
     //     StartCoroutine(ProcessDialogue());
     // }
 
-    /*
-     *  Made this function to delay setting IsInteracting to false by 1 frame to avoid instant interaction restart when
-     *  pressing the interaction key (Currently set to E).
-     */
+    /// <summary>
+    /// Made this function to delay setting IsInteracting to false by 1 frame to avoid instant interaction restart when
+    /// pressing the interaction key (Currently set to E).
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator EndInteractionCoroutine()
     {
         yield return new WaitForEndOfFrame();

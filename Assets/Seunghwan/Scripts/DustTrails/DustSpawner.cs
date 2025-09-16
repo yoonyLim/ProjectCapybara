@@ -50,7 +50,11 @@ public class DustSpawner : MonoBehaviour
     {
         Destroy(dust.gameObject);
     }
-
+    
+    /// <summary>
+    /// The public function wrapper for the internal get from dust trail pool. It is used by the animation event inside
+    /// run animation clip.
+    /// </summary>
     public void SpawnDustTrail()
     {
         dustTrailPool.Get();
@@ -84,7 +88,9 @@ public class DustSpawner : MonoBehaviour
     {
         Destroy(dust.gameObject);
     }
-
+    /// <summary>
+    /// The public function wrapper for internal get from dust land pool.
+    /// </summary>
     public void SpawnDustLand()
     {
         if (!playerController.canSpawnDustLand)
