@@ -54,7 +54,6 @@ Shader "IL3DN/Branch URP"
             TEXTURE2D(_MainTex);        SAMPLER(sampler_MainTex);
             TEXTURE2D(_NoiseTexture);   SAMPLER(sampler_NoiseTexture);
             
-            // Default wind direction, same as before.
             static const float3 WindDirection = float3(-0.7, 0, -0.7);
 
             Varyings vert(Attributes v)
@@ -63,23 +62,23 @@ Shader "IL3DN/Branch URP"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
+                // THE FIX: We calculate the final position in World Space before converting to Clip Space.
+                float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(v.normalOS);
+
                 #if _WIND_ON
-                    float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
                     float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + worldPos.xy;
                     float4 worldNoise = SAMPLE_TEXTURE2D_LOD(_NoiseTexture, sampler_NoiseTexture, (panner * 0.1) / 10.0, 0) * _WindStrenght * 0.8;
                     
-                    // Use vertex color channels to control wind influence, same as the original shader.
                     float windInfluence = (v.color.a * worldNoise.r) + (worldNoise.r * v.color.g);
                     float3 windOffset = WindDirection * windInfluence;
 
-                    v.positionOS.xyz += TransformWorldToObject(windOffset);
+                    // THE FIX: Add the world-space offset directly to the world-space position.
+                    worldPos += windOffset;
                 #endif
 
-                VertexPositionInputs positionInputs = GetVertexPositionInputs(v.positionOS.xyz);
-                VertexNormalInputs normalInputs = GetVertexNormalInputs(v.normalOS);
-
-                o.positionHCS = positionInputs.positionCS;
-                o.normalWS = normalInputs.normalWS;
+                o.positionHCS = TransformWorldToHClip(worldPos);
+                o.normalWS = normalWS;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 
                 return o;
@@ -91,7 +90,6 @@ Shader "IL3DN/Branch URP"
                 
                 half4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv) * _Color;
                 
-                // Since this is an opaque object, we should calculate lighting.
                 Light mainLight = GetMainLight();
                 half3 normalWS = normalize(i.normalWS);
                 half lambert = saturate(dot(normalWS, mainLight.direction));

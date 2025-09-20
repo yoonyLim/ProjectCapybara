@@ -62,9 +62,6 @@ Shader "IL3DN/Pine URP"
             TEXTURE2D(_MainTex);        SAMPLER(sampler_MainTex);
             TEXTURE2D(_NoiseTexture);   SAMPLER(sampler_NoiseTexture);
 
-            // In URP, WindDirection is not a global variable. 
-            // We can simulate it or get it from a script. Here's a default.
-            // For more control, create a MaterialPropertyBlock in a script.
             static const float3 WindDirection = float3(-0.7, 0, -0.7);
 
             Varyings vert(Attributes v)
@@ -73,20 +70,22 @@ Shader "IL3DN/Pine URP"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
+                // THE FIX: We calculate the final position in World Space before converting to Clip Space.
+                float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
+
                 #if _WIND_ON
-                    float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
                     float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + worldPos.xy;
                     float4 worldNoise = SAMPLE_TEXTURE2D_LOD(_NoiseTexture, sampler_NoiseTexture, (panner * 0.1) / 10.0, 0) * _WindStrenght * 0.8;
                     
-                    // The original shader used vertex color channels to control wind influence.
                     float windInfluence = (v.color.a * worldNoise.r) + (worldNoise.r * v.color.g);
                     float3 windOffset = WindDirection * windInfluence;
-
-                    v.positionOS.xyz += TransformWorldToObject(windOffset);
+                    
+                    // THE FIX: Add the world-space offset directly to the world-space position.
+                    worldPos += windOffset;
                 #endif
 
-                o.positionHCS = TransformObjectToHClip(v.positionOS.xyz);
-                o.worldPos = TransformObjectToWorld(v.positionOS.xyz);
+                o.positionHCS = TransformWorldToHClip(worldPos);
+                o.worldPos = worldPos;
                 o.uv = v.uv;
                 o.color = v.color;
                 return o;
@@ -101,14 +100,12 @@ Shader "IL3DN/Pine URP"
                     float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + i.worldPos.xy;
                     float4 worldNoise = SAMPLE_TEXTURE2D(_NoiseTexture, sampler_NoiseTexture, (panner * 0.1) / 10.0);
                     
-                    // The original used vertex color green channel to control wiggle
                     float wiggleAmount = (SAMPLE_TEXTURE2D(_NoiseTexture, sampler_NoiseTexture, worldNoise.rg).r * i.color.g) * _WiggleStrenght;
                     
                     float s, c;
                     sincos(wiggleAmount, s, c);
                     float2x2 rotationMatrix = float2x2(c, -s, s, c);
 
-                    // Pivot the rotation around the center of the UVs
                     finalUV -= float2(0.5, 0.5);
                     finalUV = mul(rotationMatrix, finalUV);
                     finalUV += float2(0.5, 0.5);
@@ -119,7 +116,6 @@ Shader "IL3DN/Pine URP"
 
                 clip(finalColor.a - _AlphaCutoff);
 
-                // For simple, unlit foliage which is common for this style.
                 return finalColor;
             }
             ENDHLSL
