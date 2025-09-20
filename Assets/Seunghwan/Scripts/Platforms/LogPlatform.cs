@@ -1,28 +1,28 @@
+using ExternPropertyAttributes;
 using UnityEngine;
 
 public class LogPlatform : MonoBehaviour
 {
-    [SerializeField] private float startTimeOffset = 0.3f;
-    [SerializeField] private float moveUpDistance = 5f;
-    [SerializeField] private float moveSpeed = 1f;
-    [Header("This should be a curve from (0,0) to (1,1)")]
-    [SerializeField] private AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float startTimeOffset = 3f;
+    [SerializeField] private float moveSpeed = 7f;
+    [SerializeField] private float moveDistanceRatio = 1f;
+    private Collider collider;
     
     
     private Vector3 startPosition;
-    private Vector3 endPosition;
+    private float moveDistance;
 
     private void Awake()
     {
+        collider = GetComponent<Collider>();
         startPosition = transform.position;
-        endPosition = transform.position + Vector3.up * moveUpDistance;
+        moveDistance = collider.bounds.size.y * moveDistanceRatio;
     }
 
     private void FixedUpdate()
     {
-        float timeRatio = Mathf.PingPong(Time.time * moveSpeed + startTimeOffset, 1);
-        float moveRatio = moveCurve.Evaluate(timeRatio);
-        transform.position = Vector3.Lerp(startPosition, endPosition, moveRatio);
+        float currentPositionOffset = Mathf.PingPong(Time.time * moveSpeed + startTimeOffset, moveDistance);
+        transform.position = startPosition - transform.up * currentPositionOffset;
     }
     
 }
