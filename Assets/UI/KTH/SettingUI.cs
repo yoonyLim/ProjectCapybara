@@ -2,23 +2,39 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering.PostProcessing;
-using System.Collections.Generic;
 
 public class SettingsUI : MonoBehaviour
 {
     [Header("DISPLAY")]
-    [SerializeField] private TMP_Dropdown resolutionDropdown;
-    [SerializeField] private Toggle fullscreenToggle;
+    [SerializeField] private TextMeshProUGUI resolutionText;
+    [SerializeField] private Button prevResolutionButton;
+    [SerializeField] private Button nextResolutionButton;
+    [SerializeField] private TextMeshProUGUI screenModeText;
+    [SerializeField] private Button prevScreenModeButton;
+    [SerializeField] private Button nextScreenModeButton;
     [SerializeField] private Slider brightnessSlider;
     [SerializeField] private PostProcessVolume postProcessVolume;
 
     [Header("GRAPHIC")]
-    [SerializeField] private Toggle pixelFilterToggle;
+    [SerializeField] private TextMeshProUGUI pixelFilterText;
+    [SerializeField] private Button prevPixelFilterButton;
+    [SerializeField] private Button nextPixelFilterButton;
 
     [Header("AUDIO")]
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider bgmVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
+
+    [Header("AUDIO ICONS")]
+    [SerializeField] private Image masterVolumeIcon;
+    [SerializeField] private Sprite soundOnSprite;
+    [SerializeField] private Sprite soundOffSprite;
+    [SerializeField] private Image bgmVolumeIcon;
+    [SerializeField] private Sprite bgmSoundOnSprite;
+    [SerializeField] private Sprite bgmSoundOffSprite;
+    [SerializeField] private Image sfxVolumeIcon;
+    [SerializeField] private Sprite sfxSoundOnSprite;
+    [SerializeField] private Sprite sfxSoundOffSprite;
 
     private ColorGrading colorGrading;
 
@@ -26,22 +42,11 @@ public class SettingsUI : MonoBehaviour
     {
         if (postProcessVolume != null)
         {
-            // 런타임용 프로파일 복제본 생성 (원본 에셋을 보호하고 더 안정적)
             postProcessVolume.profile = Instantiate(postProcessVolume.profile);
-
-            // 프로파일에서 ColorGrading 설정을 찾는지 확인
-            if (postProcessVolume.profile.TryGetSettings(out colorGrading))
+            if (!postProcessVolume.profile.TryGetSettings(out colorGrading))
             {
-                Debug.Log("<color=green>성공:</color> Color Grading 설정을 찾았습니다.");
+                Debug.LogError("Color Grading 설정을 찾지 못했습니다!");
             }
-            else
-            {
-                Debug.LogError("<color=red>실패:</color> Post Process Volume 프로파일에서 Color Grading 설정을 찾지 못했습니다! 인스펙터에서 Profile에 Color Grading 효과를 추가했는지 확인해주세요.");
-            }
-        }
-        else
-        {
-            Debug.LogError("<color=red>실패:</color> PostProcessVolume이 SettingsUI 스크립트에 연결되지 않았습니다! 인스펙터 창을 확인해주세요.");
         }
     }
 
@@ -58,9 +63,12 @@ public class SettingsUI : MonoBehaviour
 
     private void AddListeners()
     {
-        resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
-        fullscreenToggle.onValueChanged.AddListener(OnFullscreenChanged);
-        pixelFilterToggle.onValueChanged.AddListener(OnPixelFilterChanged);
+        prevResolutionButton.onClick.AddListener(OnPrevResolutionClicked);
+        nextResolutionButton.onClick.AddListener(OnNextResolutionClicked);
+        prevScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
+        nextScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
+        prevPixelFilterButton.onClick.AddListener(OnPixelFilterButtonClicked);
+        nextPixelFilterButton.onClick.AddListener(OnPixelFilterButtonClicked);
         brightnessSlider.onValueChanged.AddListener(OnBrightnessChanged);
         masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
         bgmVolumeSlider.onValueChanged.AddListener(OnBgmVolumeChanged);
@@ -69,9 +77,12 @@ public class SettingsUI : MonoBehaviour
 
     private void RemoveListeners()
     {
-        resolutionDropdown.onValueChanged.RemoveAllListeners();
-        fullscreenToggle.onValueChanged.RemoveAllListeners();
-        pixelFilterToggle.onValueChanged.RemoveAllListeners();
+        prevResolutionButton.onClick.RemoveAllListeners();
+        nextResolutionButton.onClick.RemoveAllListeners();
+        prevScreenModeButton.onClick.RemoveAllListeners();
+        nextScreenModeButton.onClick.RemoveAllListeners();
+        prevPixelFilterButton.onClick.RemoveAllListeners();
+        nextPixelFilterButton.onClick.RemoveAllListeners();
         brightnessSlider.onValueChanged.RemoveAllListeners();
         masterVolumeSlider.onValueChanged.RemoveAllListeners();
         bgmVolumeSlider.onValueChanged.RemoveAllListeners();
@@ -83,29 +94,53 @@ public class SettingsUI : MonoBehaviour
         if (SettingsManager.instance == null) return;
 
         masterVolumeSlider.value = SettingsManager.instance.MasterVolume;
+        UpdateMasterVolumeIcon(masterVolumeSlider.value);
+
         bgmVolumeSlider.value = SettingsManager.instance.BgmVolume;
+        UpdateBgmVolumeIcon(bgmVolumeSlider.value);
+
         sfxVolumeSlider.value = SettingsManager.instance.SfxVolume;
-        fullscreenToggle.isOn = SettingsManager.instance.IsFullscreen;
-        pixelFilterToggle.isOn = SettingsManager.instance.PixelFilter;
+        UpdateSfxVolumeIcon(sfxVolumeSlider.value);
+
         brightnessSlider.value = SettingsManager.instance.Brightness;
 
-        SetupResolutionDropdown();
+        UpdateResolutionUI();
+        UpdateScreenModeUI();
+        UpdatePixelFilterUI();
         UpdateBrightness();
     }
 
-    private void SetupResolutionDropdown()
+    private void UpdateResolutionUI()
     {
-        resolutionDropdown.ClearOptions();
-        List<string> options = new List<string>();
-        Resolution[] resolutions = SettingsManager.instance.Resolutions;
-        for (int i = 0; i < resolutions.Length; i++)
+        if (SettingsManager.instance == null) return;
+        Resolution currentRes = SettingsManager.instance.Resolutions[SettingsManager.instance.ResolutionIndex];
+        resolutionText.text = $"{currentRes.width}x{currentRes.height}";
+    }
+
+    private void UpdateScreenModeUI()
+    {
+        if (SettingsManager.instance == null) return;
+        if (SettingsManager.instance.IsFullscreen)
         {
-            string option = resolutions[i].width + " x " + resolutions[i].height;
-            options.Add(option);
+            screenModeText.text = "Fullscreen";
         }
-        resolutionDropdown.AddOptions(options);
-        resolutionDropdown.value = SettingsManager.instance.ResolutionIndex;
-        resolutionDropdown.RefreshShownValue();
+        else
+        {
+            screenModeText.text = "Windowed";
+        }
+    }
+
+    private void UpdatePixelFilterUI()
+    {
+        if (SettingsManager.instance == null) return;
+        if (SettingsManager.instance.PixelFilter)
+        {
+            pixelFilterText.text = "ON";
+        }
+        else
+        {
+            pixelFilterText.text = "OFF";
+        }
     }
 
     private void UpdateBrightness()
@@ -114,29 +149,96 @@ public class SettingsUI : MonoBehaviour
         {
             float exposureValue = (SettingsManager.instance.Brightness - 0.5f) * 3f;
             colorGrading.postExposure.value = exposureValue;
-
-            // 슬라이더를 움직일 때마다 현재 적용하려는 값을 콘솔에 출력
-            Debug.Log("밝기 값 적용 시도: " + exposureValue);
-        }
-        else
-        {
-            Debug.LogWarning("밝기 조절 실패: ColorGrading 설정이 없습니다.");
         }
     }
 
-    #region UI Event Handlers
-    private void OnResolutionChanged(int index) => SettingsManager.instance.SetResolution(index);
-    private void OnFullscreenChanged(bool isFull) => SettingsManager.instance.SetFullscreen(isFull);
-    private void OnPixelFilterChanged(bool isActive) => SettingsManager.instance.SetPixelFilter(isActive);
-    private void OnBrightnessChanged(float value)
+    public void OnPrevResolutionClicked()
+    {
+        SettingsManager.instance.CycleResolution(false);
+        UpdateResolutionUI();
+    }
+
+    public void OnNextResolutionClicked()
+    {
+        SettingsManager.instance.CycleResolution(true);
+        UpdateResolutionUI();
+    }
+
+    public void OnScreenModeButtonClicked()
+    {
+        SettingsManager.instance.ToggleFullscreen();
+        UpdateScreenModeUI();
+    }
+
+    public void OnPixelFilterButtonClicked()
+    {
+        if (SettingsManager.instance == null) return;
+        SettingsManager.instance.TogglePixelFilter();
+        UpdatePixelFilterUI();
+    }
+
+    public void OnBrightnessChanged(float value)
     {
         SettingsManager.instance.SetBrightness(value);
         UpdateBrightness();
     }
-    private void OnMasterVolumeChanged(float value) => SettingsManager.instance.SetMasterVolume(value);
-    private void OnBgmVolumeChanged(float value) => SettingsManager.instance.SetBgmVolume(value);
-    private void OnSfxVolumeChanged(float value) => SettingsManager.instance.SetSfxVolume(value);
-    #endregion
+
+    public void OnMasterVolumeChanged(float value)
+    {
+        SettingsManager.instance.SetMasterVolume(value);
+        UpdateMasterVolumeIcon(value);
+    }
+
+    public void OnBgmVolumeChanged(float value)
+    {
+        SettingsManager.instance.SetBgmVolume(value);
+        UpdateBgmVolumeIcon(value);
+    }
+
+    public void OnSfxVolumeChanged(float value)
+    {
+        SettingsManager.instance.SetSfxVolume(value);
+        UpdateSfxVolumeIcon(value);
+    }
+
+    private void UpdateMasterVolumeIcon(float value)
+    {
+        if (masterVolumeIcon == null || soundOnSprite == null || soundOffSprite == null) return;
+        if (value <= 0.01f)
+        {
+            masterVolumeIcon.sprite = soundOffSprite;
+        }
+        else
+        {
+            masterVolumeIcon.sprite = soundOnSprite;
+        }
+    }
+
+    private void UpdateBgmVolumeIcon(float value)
+    {
+        if (bgmVolumeIcon == null || bgmSoundOnSprite == null || bgmSoundOffSprite == null) return;
+        if (value <= 0.01f)
+        {
+            bgmVolumeIcon.sprite = bgmSoundOffSprite;
+        }
+        else
+        {
+            bgmVolumeIcon.sprite = bgmSoundOnSprite;
+        }
+    }
+
+    private void UpdateSfxVolumeIcon(float value)
+    {
+        if (sfxVolumeIcon == null || sfxSoundOnSprite == null || sfxSoundOffSprite == null) return;
+        if (value <= 0.01f)
+        {
+            sfxVolumeIcon.sprite = sfxSoundOffSprite;
+        }
+        else
+        {
+            sfxVolumeIcon.sprite = sfxSoundOnSprite;
+        }
+    }
 
     public void SaveAllSettings()
     {

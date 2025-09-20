@@ -6,9 +6,9 @@ public class SettingsManager : MonoBehaviour
     public static SettingsManager instance;
 
     [Header("Audio")]
-    private float masterVolume = 0.5f;
-    private float bgmVolume = 0.5f;
-    private float sfxVolume = 0.5f;
+    private float masterVolume = 1f;
+    private float bgmVolume = 1f;
+    private float sfxVolume = 1f;
 
     [Header("Graphics")]
     private int resolutionIndex;
@@ -55,13 +55,13 @@ public class SettingsManager : MonoBehaviour
     public void SetBgmVolume(float volume)
     {
         bgmVolume = volume;
-        if (SoundManager.instance != null) SoundManager.instance.SetBGMVolume(bgmVolume);
+        // if (SoundManager.instance != null) SoundManager.instance.SetBGMVolume(bgmVolume);
     }
 
     public void SetSfxVolume(float volume)
     {
         sfxVolume = volume;
-        if (SoundManager.instance != null) SoundManager.instance.SetSFXVolume(sfxVolume);
+        // if (SoundManager.instance != null) SoundManager.instance.SetSFXVolume(sfxVolume);
     }
 
     public void SetResolution(int index)
@@ -70,11 +70,7 @@ public class SettingsManager : MonoBehaviour
         resolutionIndex = index;
         Resolution res = resolutions[index];
         Screen.SetResolution(res.width, res.height, isFullscreen);
-        Debug.Log("요청된 해상도: " + res.width + " x " + res.height +
-              " / 현재 게임 창 크기: " + Screen.width + " x " + Screen.height);
     }
-
-
 
     public void SetFullscreen(bool isFull)
     {
@@ -82,15 +78,32 @@ public class SettingsManager : MonoBehaviour
         Screen.fullScreen = isFullscreen;
     }
 
-    public void SetBrightness(float value)
+    public void SetBrightness(float value) => brightness = value;
+    public void SetPixelFilter(bool isActive) => pixelFilter = isActive;
+    #endregion
+
+    #region Public Helpers for UI
+    public void CycleResolution(bool next)
     {
-        brightness = value;
+        if (next)
+        {
+            resolutionIndex = (resolutionIndex + 1) % resolutions.Length;
+        }
+        else
+        {
+            resolutionIndex = (resolutionIndex - 1 + resolutions.Length) % resolutions.Length;
+        }
+        SetResolution(resolutionIndex);
     }
 
-    public void SetPixelFilter(bool isActive)
+    public void TogglePixelFilter()
     {
-        pixelFilter = isActive;
-        Debug.Log("Pixel Filter state changed to: " + pixelFilter);
+        SetPixelFilter(!PixelFilter);
+    }
+
+    public void ToggleFullscreen()
+    {
+        SetFullscreen(!isFullscreen);
     }
     #endregion
 
@@ -109,12 +122,12 @@ public class SettingsManager : MonoBehaviour
 
     public void LoadSettings()
     {
-        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
-        bgmVolume = PlayerPrefs.GetFloat("BgmVolume", 1f);
-        sfxVolume = PlayerPrefs.GetFloat("SfxVolume", 1f);
-        resolutionIndex = PlayerPrefs.GetInt("ResolutionIndex", resolutions.Length - 1);
+        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 0.5f);
+        bgmVolume = PlayerPrefs.GetFloat("BgmVolume", 0.5f);
+        sfxVolume = PlayerPrefs.GetFloat("SfxVolume", 0.5f);
+        resolutionIndex = PlayerPrefs.GetInt("ResolutionIndex", resolutions.Length > 0 ? resolutions.Length - 1 : 0);
         isFullscreen = PlayerPrefs.GetInt("IsFullscreen", 1) == 1;
-        brightness = PlayerPrefs.GetFloat("Brightness", 1f);
+        brightness = PlayerPrefs.GetFloat("Brightness", 0.5f);
         pixelFilter = PlayerPrefs.GetInt("PixelFilter", 1) == 1;
 
         SetMasterVolume(masterVolume);
