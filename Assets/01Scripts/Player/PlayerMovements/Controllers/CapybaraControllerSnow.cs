@@ -9,16 +9,21 @@ namespace Capybara
     {
         [SerializeField] private CapybaraInputReader inputReader;
         
-        [Header("Movement Settings")]
-        [SerializeField] private float constMoveSpeed = 3.5f;
-        [SerializeField] private float constSprintSpeed = 7f;
+        // SKI CHANGE: We need the camera's orientation for relative controls.
+        [Header("References")]
+        [SerializeField] private Transform cameraTransform;
+
+        // SKI CHANGE: Movement is now controlled by physics forces, not constant speeds.
+        [Header("Skiing Settings")]
+        [SerializeField] private float acceleration = 30f; // How quickly you speed up downhill
+        [SerializeField] private float maxSpeed = 50f; // The maximum speed you can reach
+        [SerializeField] private float turnSpeed = 10f; // How sharply you can steer
+        [SerializeField] private float friction = 0.1f; // How much you slow down on flat ground
+        [SerializeField] private float brakingPower = 25f; // How effectively you can slow down by turning uphill
+        [SerializeField] [Range(0f, 1f)] private float airControl = 0.3f; // How much you can steer while airborne
+
+        [Header("Jump Settings")]
         [SerializeField] private float constJumpSpeed = 6f;
-        
-        [Header("Glide Settings")]
-        [SerializeField] private float glideSpeed = 4.5f;
-        [SerializeField] private float glideGravity = 4.0f;
-        [SerializeField] private float glideLinearDamping = 5f;
-        [SerializeField] private float glideAngleDamping = 0.005f;
         
         [Header("Layer Detection Settings")]
         public LayerMask groundLayer;
@@ -27,40 +32,22 @@ namespace Capybara
         [Header("Default Settings")]
         [SerializeField] private float constGroundRaycastDistance = 0.4f;
         [SerializeField] private float constGravity = 9.81f;
-        [SerializeField] private float constLinearDamping = 0f;
-        [SerializeField] private float constAngleDamping = 0.001f;
-
+        
         private Rigidbody rb;
         private Animator anim;
         
         // Current State Values
         private bool isGrounded = true;
-        private bool isSprinting = false;
         private bool isSwimming = false;
-        private bool isInAir = false;
-        private bool isGliding = false;
-
-        private bool shouldRayCast = true;
         
-        // Current State Float Values
-        private Vector3 currentMoveDirection;
-        private float currentSpeed;
-        private float currentGravity;
-        private float currentLinearDamping;
-        private float currentAngleDamping;
-
-        private float originalVFXRate = 0f;
+        private Vector2 moveInput;
         
-        // Command Pattern Movement
-        private MoveCommand? moveCommand = null;
+        private Vector3 slopeNormal;
+        private Vector3 slopeForward;
         
         // Animation Cached Property Index
         private static readonly int Walk = Animator.StringToHash("Walk");
         private static readonly int IsInAir = Animator.StringToHash("isJump");
-        // private static readonly int IsFall = Animator.StringToHash("isFall");
-        private static readonly int IsInWater = Animator.StringToHash("isInWater");
-        private static readonly int IsSwim = Animator.StringToHash("isSwim");
-        private static readonly int IsFly = Animator.StringToHash("isFly");
 
         private void OnEnable()
         {
@@ -68,12 +55,7 @@ namespace Capybara
             
             inputReader.MoveEvent += HandleMove;
             inputReader.MoveCanceledEvent += HandleMoveCanceled;
-            inputReader.SprintEvent += HandleSprint;
-            inputReader.SprintCanceledEvent += HandleSprintCanceled;
             inputReader.JumpEvent += HandleJump;
-            inputReader.JumpCanceledEvent += HandleJumpCanceled;
-            inputReader.GlideEvent += HandleGlide;
-            inputReader.JumpCanceledEvent += HandleGlideCanceled;
         }
 
         private void Start()
@@ -81,90 +63,88 @@ namespace Capybara
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
             
-            currentSpeed = constMoveSpeed;
-            currentAngleDamping = constAngleDamping;
-        }
-        
-        private void OnTriggerEnter(Collider other)
-        {
-            if ((waterLayer.value & (1 << other.gameObject.layer)) != 0)
+            // SKI CHANGE: If the camera transform isn't assigned, find the main camera.
+            if (cameraTransform == null)
             {
-                // waterLayerMask에 포함된 Layer일 때만 실행
-                isSwimming = true;
-                isInAir = false;
-                isGliding = false;
-                
-                rb.useGravity = false;
-                
-                anim.SetInteger(Walk, 0);
-                // anim.SetBool(IsFall, false);
-                anim.SetBool(IsInAir, false);
-                anim.SetBool(IsFly, false);
-                anim.SetBool(IsInWater, true);
-                
-                rb.linearDamping = constLinearDamping;
-                Physics.gravity = new Vector3(0, -constGravity, 0);
-                
-                if (moveCommand != null)
-                    anim.SetBool(IsSwim, true);
-            }
-        }
-        private void OnTriggerExit(Collider other)
-        {
-            if ((waterLayer.value & (1 << other.gameObject.layer)) != 0)
-            {
-                isSwimming = false;
-                rb.useGravity = true;
-                anim.SetBool(IsSwim, false);
-                anim.SetBool(IsInWater, false);
+                cameraTransform = Camera.main.transform;
             }
         }
         
         private void Update()
         {
-            if (shouldRayCast)
+            // Ground Check
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, constGroundRaycastDistance, groundLayer))
             {
-                RaycastHit groundHit;
-                if (Physics.Raycast(transform.position, Vector3.down, out groundHit, constGroundRaycastDistance, groundLayer) && !isInAir)
-                {
-                    isGrounded = true;
-                
-                    if (isGliding)
-                        HandleGlideCanceled();
-
-                    if (isInAir)
-                        HandleJumpCanceled();
-                    
-                    anim.SetBool(IsInAir, false);
-
-                    // anim.SetBool(IsFall, false);
-
-                    // check if still moving when hitting the ground
-                    if (moveCommand != null)
-                    {
-                        if (isSprinting)
-                            anim.SetInteger(Walk, 2);
-                        else
-                            anim.SetInteger(Walk, 1);   
-                    }
-                }
-                else
-                {
-                    isGrounded = false;
-                    anim.SetInteger(Walk, 0);
-                }
+                isGrounded = true;
+                slopeNormal = hit.normal;
+                anim.SetBool(IsInAir, false);
             }
+            else
+            {
+                isGrounded = false;
+                slopeNormal = Vector3.up; // Assume flat when airborne
+                anim.SetBool(IsInAir, true);
+            }
+            
+            // Animation: Set speed based on the rigidbody's actual velocity magnitude.
+            float currentSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+            anim.SetFloat(Walk, currentSpeed / maxSpeed);
         }
 
         private void FixedUpdate()
         {
-            if (moveCommand.HasValue)
+            // --- SKIING MOVEMENT ---
+            
+            // 1. DETERMINE FORWARD DIRECTION RELATIVE TO CAMERA AND SLOPE
+            Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
+            Vector3 cameraRight = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
+            Vector3 worldInputDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
+            
+            // Project the player's desired direction onto the slope plane
+            slopeForward = Vector3.ProjectOnPlane(transform.forward, slopeNormal).normalized;
+            
+            // 2. APPLY FORCES
+            if (isGrounded)
             {
-                if (moveCommand.Value.rotation.HasValue)
-                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, moveCommand.Value.rotation.Value, 5 * Time.fixedDeltaTime));
+                /*// GRAVITY FORCE: The main force pushing us down the slope.
+                Vector3 gravityForce = Vector3.ProjectOnPlane(new Vector3(0, -constGravity, 0), slopeNormal);
+                rb.AddForce(gravityForce, ForceMode.Acceleration);
+                
+                // STEERING FORCE: Apply force based on player input to turn.
+                float turnAngle = Vector3.SignedAngle(slopeForward, worldInputDirection, Vector3.up);
+                Vector3 steeringForce = transform.right * turnAngle * turnSpeed;
+                rb.AddForce(steeringForce, ForceMode.Acceleration);
 
-                if (moveCommand.Value.direction.HasValue)
-                    rb.MovePosition(transform.position + moveCommand.Value.direction.Value * (moveCommand.Value.speed * Time.fixedDeltaTime));
+                // BRAKING & FRICTION: Slow down if turning uphill or on flat ground.
+                float angleToDownhill = Vector3.Angle(slopeForward, gravityForce.normalized);
+                if (angleToDownhill > 90f) // We are facing uphill
+                {
+                    float brakingForceMagnitude = (angleToDownhill - 90f) / 90f;
+                    rb.AddForce(-rb.velocity.normalized * brakingPower * brakingForceMagnitude, ForceMode.Acceleration);
+                }
+                rb.AddForce(-rb.velocity * friction, ForceMode.Acceleration);*/
+                
+                rb.AddForce(worldInputDirection * acceleration, ForceMode.Acceleration);
+            }
+            else // Air Control
+            {
+                rb.AddForce(worldInputDirection * acceleration * airControl, ForceMode.Acceleration);
+            }
+            
+            // 3. CAP SPEED
+            Vector3 currentVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            if (currentVelocity.magnitude > maxSpeed)
+            {
+                Vector3 cappedVelocity = currentVelocity.normalized * maxSpeed;
+                rb.velocity = new Vector3(cappedVelocity.x, rb.velocity.y, cappedVelocity.z);
+            }
+
+            // 4. ROTATION: Align the character with the slope and direction of movement.
+            if (rb.velocity.magnitude > 0.5f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.velocity, slopeNormal).normalized, slopeNormal);
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f));
             }
         }
 
@@ -172,143 +152,24 @@ namespace Capybara
         {
             inputReader.MoveEvent -= HandleMove;
             inputReader.MoveCanceledEvent -= HandleMoveCanceled;
-            inputReader.SprintEvent -= HandleSprint;
-            inputReader.SprintCanceledEvent -= HandleSprintCanceled;
             inputReader.JumpEvent -= HandleJump;
-            inputReader.JumpCanceledEvent -= HandleJumpCanceled;
-            inputReader.GlideEvent -= HandleGlide;
-            inputReader.JumpCanceledEvent -= HandleGlideCanceled;
         }
 
         private void HandleMove(Vector2 direction)
         {
-            if (isGliding && direction.magnitude > 0.1f)
-                currentMoveDirection = new Vector3(direction.x, 0, direction.y).normalized;
-            else
-                currentMoveDirection = new Vector3(direction.x, 0, direction.y);
-            
-            float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
-            float angleDamping = 0f;
-            angleDamping = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref angleDamping, currentAngleDamping);
-            
-            moveCommand = new MoveCommand
-            {
-                speed = currentSpeed,
-                direction = currentMoveDirection,
-                rotation = Quaternion.Euler(0, angleDamping, 0)
-            };
-            
-            // Handle Animations
-            if (isGrounded)
-                anim.SetInteger(Walk, isSprinting ? 2 : 1);
-            else if (isSwimming)
-                anim.SetBool(IsSwim, true);
+            moveInput = direction;
         }
 
         private void HandleMoveCanceled(Vector2 direction)
         {
-            moveCommand = null;
-            
-            // Handle Animations
-            if (isGrounded)
-                anim.SetInteger(Walk, 0);
-            else if (isSwimming)
-                anim.SetBool(IsSwim, false);
-        }
-
-        private void HandleSprint()
-        {
-            currentSpeed = constSprintSpeed;
-            isSprinting = true;
-
-            if (moveCommand.HasValue)
-            {
-                moveCommand = new MoveCommand
-                {
-                    speed = currentSpeed,
-                    direction = moveCommand.Value.direction,
-                    rotation = moveCommand.Value.rotation
-                };
-                
-                anim.SetInteger(Walk, 2);
-            }
-        }
-        
-        private void HandleSprintCanceled()
-        {
-            currentSpeed = constMoveSpeed;
-            isSprinting = false;
-            
-            if (moveCommand.HasValue)
-            {
-                moveCommand = new MoveCommand
-                {
-                    speed = currentSpeed,
-                    direction = moveCommand.Value.direction,
-                    rotation = moveCommand.Value.rotation
-                };
-                
-                anim.SetInteger(Walk, 1);
-            }
+            moveInput = Vector2.zero;
         }
 
         private void HandleJump()
         {
-            if ((isGrounded || isSwimming) && !isInAir && !isGliding)
+            if (isGrounded)
             {
-                isInAir = true;
-                isGrounded = false;
-                anim.SetInteger(Walk, 0);
-                anim.SetBool(IsInAir, true);
-                
                 rb.AddForce(Vector3.up * constJumpSpeed, ForceMode.Impulse);
-
-                StartCoroutine(DisableGroundRaycast());
-            }
-        }
-
-        IEnumerator DisableGroundRaycast()
-        {
-            shouldRayCast = false;
-            yield return new WaitForSeconds(0.2f);
-            shouldRayCast = true;
-        }
-        
-        private void HandleJumpCanceled()
-        {
-            if (isInAir)
-            {
-                isInAir = false;
-                // anim.SetBool(IsJump, false);
-            }
-        }
-
-        private void HandleGlide()
-        {
-            if (isInAir && !isGliding)
-            {
-                isGliding = true;
-                isInAir = false; // isJumping = false
-                currentAngleDamping = glideAngleDamping;
-                
-                // anim.SetBool(IsFall, false);
-                anim.SetBool(IsFly, true);
-                rb.linearDamping = glideLinearDamping;
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, -2f, rb.linearVelocity.z);
-                Physics.gravity = new Vector3(0, -glideGravity, 0);
-            }
-        }
-
-        private void HandleGlideCanceled()
-        {
-            if (isGliding)
-            {
-                isGliding = false;
-                currentAngleDamping = constAngleDamping;
-                
-                anim.SetBool(IsFly, false);
-                rb.linearDamping = constLinearDamping;
-                Physics.gravity = new Vector3(0, -constGravity, 0);
             }
         }
     }
