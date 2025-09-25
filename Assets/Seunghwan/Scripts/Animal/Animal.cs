@@ -1,5 +1,14 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+[System.Serializable]
+public class WaypointData
+{
+    public Vector3 WaypointPosition;
+    public DialogueTree WaypointDialogueTree;
+    public AnimalWaypointTrigger WaypointTrigger;
+}
 
 public class Animal : MonoBehaviour, IInteractable
 {
@@ -17,8 +26,12 @@ public class Animal : MonoBehaviour, IInteractable
     public enum AnimalState
     {
         Idle,
+        Moving,
         Interacting
     }
+
+    [SerializeField] private List<WaypointData> waypoints;
+    
 
     private Dialogue dialogue;
     private Animator animator;
@@ -34,12 +47,18 @@ public class Animal : MonoBehaviour, IInteractable
         animator = GetComponentInChildren<Animator>();
         baseAnimationLayer = animator.GetLayerIndex("Base Layer");
         faceAnimationLayer = animator.GetLayerIndex("Face Layer");
+        
     }
     
     private void OnEnable()
     {
         dialogue.OnDialogueEnd += HandleDialogueEnd;
         dialogue.OnDialogueAdvance += HandleDialogueAdvance;
+
+        foreach (var waypoint in waypoints)
+        {
+            waypoint.WaypointTrigger.OnPlayerTriggerEnter += HandlePlayerTriggerEnter;
+        }
     }
 
     private void OnDisable()
@@ -100,7 +119,11 @@ public class Animal : MonoBehaviour, IInteractable
         animator.CrossFadeInFixedTime(targetStateName, 0.2f, faceAnimationLayer);
 
     }
-    
+
+    private void HandlePlayerTriggerEnter(AnimalWaypointTrigger trigger)
+    {
+        // waypoints
+    }
     
 
     

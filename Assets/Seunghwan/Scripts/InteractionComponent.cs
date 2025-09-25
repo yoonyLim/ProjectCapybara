@@ -47,6 +47,10 @@ public class InteractionComponent : MonoBehaviour
                 closestInteractable.Interact();
             }
         }
+        else
+        {
+            
+        }
     }
     
     /// <summary>
