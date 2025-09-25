@@ -18,10 +18,15 @@ public class Dialogue : MonoBehaviour
     public event Action OnDialogueStart;
     public event Action OnDialogueEnd;
     public event Action OnDialogueAdvance;
+
+
+    [SerializeField] private DialogueTree dialogueTree;
+    public DialogueTree DialogueTree
+    {
+        get => dialogueTree;
+        set => dialogueTree = value;
+    }
     
-    
-    [SerializeField]
-    private DialogueTree dialogueTree;
     private DialogueNode currentNode;
     
     private TMP_Text speechBubbleText;
