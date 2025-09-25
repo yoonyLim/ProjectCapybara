@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 {
     private IPlayerState currentState;
     [HideInInspector] public Transform cameraTransform;
+    private bool isInWindZone = false;
 
     public Animator animator;
     public Rigidbody rb;
@@ -54,7 +55,7 @@ public class PlayerController : MonoBehaviour
     [Header("경사로 회전")]
     [SerializeField] private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
-    private RaycastHit slopeHit;
+    [HideInInspector] public RaycastHit slopeHit;
     #endregion
 
     #region 점프 관련 변수
@@ -65,6 +66,10 @@ public class PlayerController : MonoBehaviour
     private bool wasFalling = false;
     [HideInInspector] public float airSpeed = 5f;
     [HideInInspector] public float airAcceleration = 20f;
+
+    [Header("Coyote Time")]
+    [SerializeField] private float coyoteTimeDuration = 0.15f; // 코요테 시간 (0.1 ~ 0.2초 추천)
+    public float coyoteTimeCounter;
     #endregion
 
     #region Ice 관련 변수
@@ -145,6 +150,15 @@ public class PlayerController : MonoBehaviour
             canSpawnDustLand = true;
         }
 
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTimeDuration;
+        }
+        else
+        {
+            // 공중에 있으면 코요테 시간 감소
+            coyoteTimeCounter -= Time.deltaTime;
+        }
     }
 
     void FixedUpdate()
@@ -154,6 +168,8 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeState(IPlayerState newState)
     {
+        Debug.Log($"상태 변경: {currentState?.GetType().Name} -> {newState.GetType().Name}");
+
         currentState?.Exit(this);
         currentState = newState;
         currentState.Enter(this);
@@ -174,12 +190,14 @@ public class PlayerController : MonoBehaviour
 
     void OnJump(InputAction.CallbackContext context)
     {
-        // 지면에서만 점프 가능
-        if (isGrounded)
+
+        if (coyoteTimeCounter > 0f && !isJumping)
         {
-            ChangeState(new JumpState());
-        }
             
+            ChangeState(new JumpState());
+            coyoteTimeCounter = 0f; // 점프하면 즉시 시간 초기화
+        }
+
     }
 
     void OnGlide(InputAction.CallbackContext context)
@@ -195,15 +213,16 @@ public class PlayerController : MonoBehaviour
         }
 
         // 취소: 상태 해제
-        if (context.canceled)
+        if (context.canceled && currentState is GlideState)
         {
-            if (isGrounded)
-                ChangeState(new RunningState());
-            else
-            {
-                glideLocked = true;
-                ChangeState(new JumpState());
-            }
+            ChangeState(new RunningState());
+            //if (isGrounded)
+            //    ChangeState(new RunningState());
+            //else
+            //{
+            //    glideLocked = true;
+            //    ChangeState(new JumpState());
+            //}
         }
     }
 
@@ -227,7 +246,12 @@ public class PlayerController : MonoBehaviour
                 isJumping = false;
                 wasFalling = false;
                 glideLocked = false;
-                animator.SetBool("isFly", false);
+
+                if (!isInWindZone)
+                {
+                    animator.SetBool("isFly", false);
+                }
+
                 animator.SetBool("isGrounded", true);
                 break;
             }
@@ -250,10 +274,20 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
         {
+            isInWindZone = true;
             animator.SetBool("isGrounded", false);
             animator.SetBool("isFly", true);
         }
     }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+        {
+            isInWindZone = false;
+        }
+    }
+
     //SphereCast Gizmo 그리는 코드
     void OnDrawGizmosSelected()
     {
