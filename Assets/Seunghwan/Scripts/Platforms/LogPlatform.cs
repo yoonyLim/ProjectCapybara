@@ -7,6 +7,7 @@ public class LogPlatform : MonoBehaviour
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float moveDistanceRatio = 1f;
     private Collider collider;
+    private Rigidbody rigidbody;
     
     
     private Vector3 startPosition;
@@ -14,6 +15,7 @@ public class LogPlatform : MonoBehaviour
 
     private void Awake()
     {
+        rigidbody = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
         startPosition = transform.position;
         moveDistance = collider.bounds.size.y * moveDistanceRatio;
@@ -22,7 +24,7 @@ public class LogPlatform : MonoBehaviour
     private void FixedUpdate()
     {
         float currentPositionOffset = Mathf.PingPong(Time.time * moveSpeed + startTimeOffset, moveDistance);
-        transform.position = startPosition - transform.up * currentPositionOffset;
+        rigidbody.MovePosition(startPosition - transform.up * currentPositionOffset);
     }
     
 }
