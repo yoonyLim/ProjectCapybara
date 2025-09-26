@@ -1,17 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic; // List를 사용하기 위해 추가
 
-public class playSound : MonoBehaviour
+public class PlaySound : MonoBehaviour
 {
-    [Header("재생할 사운드 이름 (SoundManager에 등록된 이름)")]
-    // 인스펙터에서 재생할 BGM 파일의 이름을 입력받습니다.
-    public string bgmNameToPlay;
+    [Header("재생할 사운드 목록")]
+    // 여러 BGM 이름을 담을 수 있는 리스트로 변경
+    public List<string> bgmNameList = new List<string>();
 
-    // 인스펙터에서 재생할 SFX 파일의 이름을 입력받습니다.
-    public string sfxNameToPlay;
+    // 여러 SFX 이름을 담을 수 있는 리스트로 변경
+    public List<string> sfxNameList = new List<string>();
 
-    // 인스펙터에서 재생할 3D SFX 파일의 이름을 입력받습니다.
-    public string sfx3DNameToPlay;
-
+    // 여러 3D SFX 이름을 담을 수 있는 리스트로 변경
+    public List<string> sfx3DNameList = new List<string>();
 
     // SoundManager의 인스턴스를 저장해 둘 변수
     private SoundManager soundManager;
@@ -30,37 +30,48 @@ public class playSound : MonoBehaviour
 
     void Update()
     {
-        // 배경음 재생
+        // 배경음 재생 (Q 키)
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            // 인스펙터에 이름이 지정되었을 경우에만 BGM을 재생합니다.
-            if (!string.IsNullOrEmpty(bgmNameToPlay))
+            // 리스트에 BGM이 하나 이상 등록되어 있을 경우
+            if (bgmNameList.Count > 0)
             {
-                SoundManager.instance.PlayBGM(bgmNameToPlay);
+                // 0부터 리스트 개수 -1 사이의 랜덤한 인덱스를 뽑음
+                int randomIndex = Random.Range(0, bgmNameList.Count);
+                // 해당 인덱스의 BGM 이름을 가져옴
+                string randomBgmName = bgmNameList[randomIndex];
+                // 랜덤하게 선택된 BGM을 재생
+                soundManager.PlayBGM(randomBgmName);
+                Debug.Log("Play BGM: " + randomBgmName);
             }
         }
-        // 배경음 정지
+        // 배경음 정지 (W 키)
         else if (Input.GetKeyDown(KeyCode.W))
         {
-            SoundManager.instance.StopBGM();
+            soundManager.StopBGM();
         }
-        // 효과음 재생
+        // 2D 효과음 재생 (E 키)
         else if (Input.GetKeyDown(KeyCode.E))
         {
-            // 인스펙터에 이름이 지정되었을 경우에만 SFX를 재생합니다.
-            if (!string.IsNullOrEmpty(sfxNameToPlay))
+            // 리스트에 SFX가 하나 이상 등록되어 있을 경우
+            if (sfxNameList.Count > 0)
             {
-                SoundManager.instance.PlaySFX(sfxNameToPlay);
-                Debug.Log("Play SFX: " + sfxNameToPlay);
+                int randomIndex = Random.Range(0, sfxNameList.Count);
+                string randomSfxName = sfxNameList[randomIndex];
+                soundManager.PlaySFX(randomSfxName);
+                Debug.Log("Play SFX: " + randomSfxName);
             }
         }
-        // 3D 효과음 재생
+        // 3D 효과음 재생 (R 키)
         else if (Input.GetKeyDown(KeyCode.R))
         {
-            // 인스펙터에 이름이 지정되었을 경우에만 3D SFX를 재생합니다.
-            if (!string.IsNullOrEmpty(sfx3DNameToPlay))
+            // 리스트에 3D SFX가 하나 이상 등록되어 있을 경우
+            if (sfx3DNameList.Count > 0)
             {
-                SoundManager.instance.PlaySFXAtPoint(sfx3DNameToPlay, transform.position);
+                int randomIndex = Random.Range(0, sfx3DNameList.Count);
+                string randomSfx3dName = sfx3DNameList[randomIndex];
+                soundManager.PlaySFXAtPoint(randomSfx3dName, transform.position);
+                Debug.Log("Play 3D SFX at point: " + randomSfx3dName);
             }
         }
     }
