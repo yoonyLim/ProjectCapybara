@@ -10,7 +10,7 @@ public class InteractionComponent : MonoBehaviour
     
     private static bool IsInteracting = false;
 
-    private Collider[] colliders = new Collider[5];
+    private Collider[] colliders = new Collider[10];
 
     private void Awake()
     {
@@ -19,13 +19,12 @@ public class InteractionComponent : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(IsInteracting);
-        
         closestInteractable = null;
         float minDistance = float.PositiveInfinity;
 
         if (!IsInteracting)
         {
+            // Find the closest object which implements IInteractable interface.
             int colliderCount = Physics.OverlapSphereNonAlloc(transform.position, 5f, colliders, interactLayer);
             for (int i = 0; i < colliderCount; i++)
             {
@@ -35,19 +34,29 @@ public class InteractionComponent : MonoBehaviour
                     float distance = Vector3.Distance(transform.position, colliders[i].transform.position);
                     if (distance < minDistance)
                     {
+                        minDistance = distance;
                         closestInteractable = interactable;
                     }
                 }
             }
-
+            
+            // If closest interactable object is found and interact key is pressed call interact function of the object.
             if (Input.GetKeyDown(KeyCode.E) && closestInteractable != null)
             {
                 IsInteracting = true;
                 closestInteractable.Interact();
             }
         }
+        else
+        {
+            
+        }
     }
-
+    
+    /// <summary>
+    /// This function is used to end interaction to start querying for closest interactable objects again. It will be
+    /// called inside classes such as Animal.cs, Piano.cs when the interaction is complete.
+    /// </summary>
     public static void EndInteraction()
     {
         IsInteracting = false;

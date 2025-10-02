@@ -3,14 +3,22 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - windZone
+  - jumpPad
+  - ice
+  - movingPlatform
+  - SnowGround
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
+  - Ice
+  - MovingPlatform
+  - Particles
   - 
   - 
   - 
@@ -19,10 +27,7 @@ TagManager:
   - Post Processing
   - 
   - 
-  - 
-  - 
-  - 
-  - Animal
+  - Interact
   - Transparent
   - 
   - 

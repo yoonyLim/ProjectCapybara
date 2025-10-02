@@ -6,6 +6,7 @@ public class ScanEffect : MonoBehaviour
     private AudioSource scanAudioSource;
     private Material scanMaterial;
     [SerializeField] private Material invisibleGlowMaterial;
+    [SerializeField] private Material highlightGlowMaterial;
     [SerializeField] private float endScale = 50f;
     [SerializeField] private float startScale = 1.5f;
     [SerializeField] private float lifeTime = 2f;
@@ -58,6 +59,7 @@ public class ScanEffect : MonoBehaviour
         Shader.SetGlobalVector("_ScanCenter", transform.position);
         Shader.SetGlobalFloat("_ScanRadius", transform.localScale.x / 2.0f);
         invisibleGlowMaterial.SetFloat("_Alpha", 1f);
+        highlightGlowMaterial.SetFloat("_Alpha", 1f);
 
         while (elapsedTime < lifeTime)
         {
@@ -110,10 +112,12 @@ public class ScanEffect : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, Mathf.Clamp01(elapsedTime / 1f));
             invisibleGlowMaterial.SetFloat("_Alpha", alpha);
+            highlightGlowMaterial.SetFloat("_Alpha", alpha);
             yield return null;
         }
         
         invisibleGlowMaterial.SetFloat("_Alpha", 0f);
+        highlightGlowMaterial.SetFloat("_Alpha", 0);
         
     }
 }
