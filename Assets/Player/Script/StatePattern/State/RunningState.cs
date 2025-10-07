@@ -94,7 +94,14 @@ public class RunningState : IPlayerState
             {
                 player.rb.useGravity = true;
                 Vector3 currentVelocity = player.rb.linearVelocity;
-                Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed);
+
+                // 목표 속도 = (플레이어 입력 속도) + (플랫폼 속도)
+                Vector3 targetVelocity = new Vector3(
+                    velocity.x * speed + player.platformVelocity.x,
+                    currentVelocity.y,
+                    velocity.z * speed + player.platformVelocity.z
+                );
+
                 player.rb.linearVelocity = targetVelocity;
             }
 

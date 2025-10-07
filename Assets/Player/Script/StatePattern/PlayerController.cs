@@ -26,11 +26,12 @@ public class PlayerController : MonoBehaviour
 
     public Animator animator;
     public Rigidbody rb;
+
     [HideInInspector] public Vector3 moveDirection;
     [HideInInspector] public bool isRunning;
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
-
+    [HideInInspector] public Vector3 platformVelocity;
     #region InputAction 변수
     private PlayerInput playerInput;
     private InputAction moveAction;            // WASD
@@ -103,8 +104,11 @@ public class PlayerController : MonoBehaviour
     #region 리스폰 변수
     [SerializeField] private float fallDeathYLevel = -50f;
     #endregion
+
+    private MountController mountController;
     void Awake()
     {
+        mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -177,9 +181,24 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log($"상태 변경: {currentState?.GetType().Name} -> {newState.GetType().Name}");
 
+        if (currentState is GlideState && !(newState is GlideState))
+        {
+            // Glide 상태에서 벗어나는 경우
+            mountController?.OnPlayerGlide(false);
+        }
+
         currentState?.Exit(this);
         currentState = newState;
         currentState.Enter(this);
+
+        if (newState is JumpState)
+        {
+            mountController?.OnPlayerJump();
+        }
+        else if (newState is GlideState)
+        {
+            mountController?.OnPlayerGlide(true);
+        }
     }
 
     void OnMove(InputAction.CallbackContext context)
