@@ -12,8 +12,8 @@ public class EnemyProjectile : MonoBehaviour
     [SerializeField] private float projectileSpeed = 3f;
     [SerializeField] private float projectileLifeTime = 2f;
     [SerializeField] private float projectileForceAmount = 5f;
-    private Rigidbody rigidBody;
-    private Collider collider;
+    private Rigidbody projectileRigidbody;
+    private Collider projectileCollider;
     private float spawnTime;
 
     // Boolean value to check if the object is released to the pool
@@ -21,9 +21,9 @@ public class EnemyProjectile : MonoBehaviour
 
     private void Awake()
     {
-        collider = GetComponent<Collider>();
-        rigidBody = GetComponent<Rigidbody>();
-        rigidBody.useGravity = false;
+        projectileCollider = GetComponent<Collider>();
+        projectileRigidbody = GetComponent<Rigidbody>();
+        projectileRigidbody.useGravity = false;
 
         hitParticleSystems = new ParticleSystem[hitEffect.childCount];
         for (int i = 0; i < hitEffect.childCount; i++)
@@ -38,7 +38,7 @@ public class EnemyProjectile : MonoBehaviour
         {
             projectileParticleSystem.Play(true);
         }
-        collider.enabled = true;
+        GetComponent<Collider>().enabled = true;
         spawnTime = Time.time;
         isReleased = false;
     }
@@ -58,7 +58,7 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        collider.enabled = false;
+        GetComponent<Collider>().enabled = false;
         foreach (var projectileParticleSystem in projectileParticleSystems)
         {
             projectileParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -110,6 +110,6 @@ public class EnemyProjectile : MonoBehaviour
     {
         transform.position = position;
         transform.rotation = rotation;
-        rigidBody.linearVelocity = transform.forward * projectileSpeed;
+        projectileRigidbody.linearVelocity = transform.forward * projectileSpeed;
     }
 }

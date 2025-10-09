@@ -88,7 +88,7 @@ namespace Capybara
             }
             
             // Animation: Set speed based on the rigidbody's actual velocity magnitude.
-            float currentSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+            float currentSpeed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
             anim.SetFloat(Walk, currentSpeed / maxSpeed);
         }
 
@@ -133,17 +133,17 @@ namespace Capybara
             }
             
             // 3. CAP SPEED
-            Vector3 currentVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             if (currentVelocity.magnitude > maxSpeed)
             {
                 Vector3 cappedVelocity = currentVelocity.normalized * maxSpeed;
-                rb.velocity = new Vector3(cappedVelocity.x, rb.velocity.y, cappedVelocity.z);
+                rb.linearVelocity = new Vector3(cappedVelocity.x, rb.linearVelocity.y, cappedVelocity.z);
             }
 
             // 4. ROTATION: Align the character with the slope and direction of movement.
-            if (rb.velocity.magnitude > 0.5f)
+            if (rb.linearVelocity.magnitude > 0.5f)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.velocity, slopeNormal).normalized, slopeNormal);
+                Quaternion targetRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.linearVelocity, slopeNormal).normalized, slopeNormal);
                 rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f));
             }
         }

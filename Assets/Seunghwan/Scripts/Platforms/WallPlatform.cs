@@ -5,7 +5,7 @@ public class WallPlatform : MonoBehaviour
     [SerializeField] private float startTimeOffset = 0.3f;
     [SerializeField] private float moveSpeed = 5f;
     private BoxCollider boxCollider;
-    private Rigidbody rigidbody;
+    private Rigidbody platformRigidbody;
 
 
     private Vector3 startPosition;
@@ -14,7 +14,7 @@ public class WallPlatform : MonoBehaviour
     private void Awake()
     {
         boxCollider = GetComponent<BoxCollider>();
-        rigidbody = GetComponent<Rigidbody>();
+        platformRigidbody = GetComponent<Rigidbody>();
         startPosition = transform.position;
         moveDistance = boxCollider.size.z * transform.lossyScale.z;
     }
@@ -22,6 +22,6 @@ public class WallPlatform : MonoBehaviour
     private void FixedUpdate()
     {
         float currentPositionOffset = Mathf.PingPong(moveSpeed * Time.time + startTimeOffset, moveDistance);
-        rigidbody.MovePosition(startPosition - transform.forward * currentPositionOffset);
+       platformRigidbody.MovePosition(startPosition - transform.forward * currentPositionOffset);
     }
 }

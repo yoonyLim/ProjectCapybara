@@ -1,9 +1,17 @@
+using System;
 using UnityEngine;
 
 public class jumPad : MonoBehaviour
 {
     public float strength;
     public Vector3 direction;
+    private Animator jumpPadAnimator;
+    private readonly int springAnimTrigger = Animator.StringToHash("Spring");
+    
+    private void Awake()
+    {
+        jumpPadAnimator = GetComponent<Animator>();
+    }
 
     private void OnTriggerEnter(Collider player)
     {
@@ -20,6 +28,8 @@ public class jumPad : MonoBehaviour
 
                 rb.AddForce(direction.normalized * strength, ForceMode.Impulse);
             }
+            
+            jumpPadAnimator.SetTrigger(springAnimTrigger);
         }
     }
 }
