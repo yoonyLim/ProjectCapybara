@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1074516826883445403
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Lv4_Skybox
+  m_Shader: {fileID: -6465566751694194690, guid: 09925b1aebcef124d8e6908caa047571, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AuroraBlend: 1.08
+    - _AuroraPower: 1.2
+    - _DistortionSpeed: 0.02
+    - _GradientOffset: 0.242
+    - _HorizonBlend: 20
+    - _Intensity: 1.1
+    - _NadirBlend: 1.5
+    - _NoiseScale: 22.4
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _StarHeight: 300
+    - _StarIntensity: 200
+    - _StarPower: 40
+    - _TwirlStrength: 1
+    - _ZenithBlend: 3
+    m_Colors:
+    - _DistortionMinMax: {r: 2, g: 7, b: 0, a: 0}
+    - _GroundColor: {r: 0.41731027, g: 0.2318618, b: 0.6301887, a: 0}
+    - _HorizonColor: {r: 0.16032563, g: 0.12156863, b: 0.54509807, a: 0}
+    - _ScrollSpeed: {r: 0, g: 0.05, b: 0, a: 0}
+    - _SkyColor: {r: 0.0039215744, g: 0.0047226925, b: 0.3647059, a: 0}
+    - _Tiling: {r: 3, g: 3, b: 0, a: 0}
+    - _TwirlOffset: {r: 0, g: 0.98, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

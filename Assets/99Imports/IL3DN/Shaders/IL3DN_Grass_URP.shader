@@ -68,21 +68,21 @@ Shader "IL3DN/Grass URP"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
+                float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
+
                 #if _WIND_ON
-                    float3 worldPos = TransformObjectToWorld(v.positionOS.xyz);
-                    // The original shader used .xz for grass panner
-                    float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + worldPos.xz;
+                    float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + worldPos.xy;
                     float4 worldNoise = SAMPLE_TEXTURE2D_LOD(_NoiseTexture, sampler_NoiseTexture, (panner * 0.1) / 10.0, 0) * _WindStrenght * 0.8;
                     
-                    // Wind is controlled by the vertex alpha channel
-                    float windInfluence = v.color.a * worldNoise.r;
+                    float windInfluence = (v.color.a * worldNoise.r) + (worldNoise.r * v.color.g);
                     float3 windOffset = WindDirection * windInfluence;
-
-                    v.positionOS.xyz += TransformWorldToObject(windOffset);
+                    
+                    // THE FIX: Add the world-space offset directly to the world-space position.
+                    worldPos += windOffset;
                 #endif
 
-                o.positionHCS = TransformObjectToHClip(v.positionOS.xyz);
-                o.worldPos = TransformObjectToWorld(v.positionOS.xyz);
+                o.positionHCS = TransformObjectToHClip(worldPos);
+                o.worldPos = worldPos;
                 o.uv = v.uv;
                 o.color = v.color;
                 return o;
@@ -94,16 +94,15 @@ Shader "IL3DN/Grass URP"
                 float2 finalUV = i.uv;
 
                 #if _WIGGLE_ON
-                    float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + i.worldPos.xz;
+                    float2 panner = (_Time.y * WindDirection.xz * 0.4 * 10.0) + i.worldPos.xy;
                     float4 worldNoise = SAMPLE_TEXTURE2D(_NoiseTexture, sampler_NoiseTexture, (panner * 0.1) / 10.0);
                     
-                    // Wiggle is controlled by the vertex alpha channel
-                    float wiggleAmount = (SAMPLE_TEXTURE2D(_NoiseTexture, sampler_NoiseTexture, worldNoise.rg).r * i.color.a) * 0.5 * _WiggleStrenght;
+                    float wiggleAmount = (SAMPLE_TEXTURE2D(_NoiseTexture, sampler_NoiseTexture, worldNoise.rg).r * i.color.g) * _WiggleStrenght;
                     
                     float s, c;
                     sincos(wiggleAmount, s, c);
                     float2x2 rotationMatrix = float2x2(c, -s, s, c);
-                    
+
                     finalUV -= float2(0.5, 0.5);
                     finalUV = mul(rotationMatrix, finalUV);
                     finalUV += float2(0.5, 0.5);
