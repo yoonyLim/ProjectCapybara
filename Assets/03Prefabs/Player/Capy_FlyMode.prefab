@@ -770,6 +770,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6211537526955751128}
+  - component: {fileID: 6844136529938749793}
   m_Layer: 0
   m_Name: Capybara_LOD0
   m_TagString: Untagged
@@ -794,6 +795,28 @@ Transform:
   - {fileID: 8479094178087066456}
   m_Father: {fileID: 3912317341708315555}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &6844136529938749793
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4663906900912810820}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: a9bfc0c6b40d33f478c09f7d24940d5d, type: 3}
+  m_Controller: {fileID: 9100000, guid: 8b23fab129863d344ae8b5088cc66108, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4784832555563742573
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,7 +826,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4945733660293684241}
-  - component: {fileID: 900105154386263713}
   - component: {fileID: 2395104454493151952}
   - component: {fileID: 2410790185796540173}
   - component: {fileID: 280600691330549272}
@@ -831,28 +853,6 @@ Transform:
   - {fileID: 4468911878752032254}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &900105154386263713
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4784832555563742573}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: a9bfc0c6b40d33f478c09f7d24940d5d, type: 3}
-  m_Controller: {fileID: 9100000, guid: 8b23fab129863d344ae8b5088cc66108, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!54 &2395104454493151952
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -916,6 +916,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshTransform: {fileID: 3912317341708315555}
+  capyAnimator: {fileID: 6844136529938749793}
+  birdAnimator: {fileID: 2467879016728466631}
 --- !u!1 &5253941383591097977
 GameObject:
   m_ObjectHideFlags: 0
