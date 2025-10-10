@@ -218,7 +218,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 259da2b5a2e829949babfea7403be932, type: 2}
+  - {fileID: 2100000, guid: 0eb63dba3a7330244baf275b61678eab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -418,24 +418,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
-  VFX: {fileID: 0}
-  constMoveSpeed: 3.5
-  constSprintSpeed: 7
+  cameraTransform: {fileID: 0}
+  acceleration: 30
+  maxSpeed: 50
+  turnSpeed: 10
+  friction: 0.1
+  brakingPower: 25
+  airControl: 0.3
   constJumpSpeed: 6
-  glideSpeed: 4.5
-  glideGravity: 4
-  glideLinearDamping: 5
-  glideAngleDamping: 0.005
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
-  waterLayer:
-    serializedVersion: 2
-    m_Bits: 16
   constGroundRaycastDistance: 0.4
   constGravity: 9.81
-  constLinearDamping: 0
-  constAngleDamping: 0.001
 --- !u!114 &2389531717837984836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -540,7 +535,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 259da2b5a2e829949babfea7403be932, type: 2}
+  - {fileID: 2100000, guid: 0eb63dba3a7330244baf275b61678eab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -668,7 +663,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 259da2b5a2e829949babfea7403be932, type: 2}
+  - {fileID: 2100000, guid: 0eb63dba3a7330244baf275b61678eab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -859,7 +854,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 259da2b5a2e829949babfea7403be932, type: 2}
+  - {fileID: 2100000, guid: 0eb63dba3a7330244baf275b61678eab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
