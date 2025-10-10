@@ -1,4 +1,5 @@
 //using Gamekit3D;
+using Capybara;
 using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,9 +17,11 @@ public interface IPlayerState
     void FixedUpdate(PlayerController player);
 }
 
-
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private CapybaraInputReader inputReader;
+
+
     private IPlayerState currentState;
     [HideInInspector] public Transform cameraTransform;
     private bool isInWindZone = false;
@@ -32,13 +35,6 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
     [HideInInspector] public Vector3 platformVelocity;
-    #region InputAction 변수
-    private PlayerInput playerInput;
-    private InputAction moveAction;            // WASD
-    private InputAction sprintAction;          // Shift
-    private InputAction jumpAction;            // Space
-    private InputAction glideAction;           // Space 홀딩
-    #endregion
 
     #region Ground 체크 관련 변수
     [Header("Check isGrounded")]
@@ -112,45 +108,41 @@ public class PlayerController : MonoBehaviour
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
-        #region PlayerInput
-        playerInput = GetComponent<PlayerInput>();
-        moveAction = playerInput.actions["Move"];
-        sprintAction = playerInput.actions["Run"];
-        jumpAction = playerInput.actions["Jump"];
-        glideAction = playerInput.actions["Glide"];
-
-        moveAction.performed += OnMove;
-        moveAction.canceled += OnMove;
-
-        sprintAction.started += OnSprint;
-        sprintAction.performed += OnSprint; 
-        sprintAction.canceled += OnSprint; 
-
-        jumpAction.performed += OnJump;
-
-        glideAction.started += OnGlide;
-        glideAction.performed += OnGlide;
-        glideAction.canceled += OnGlide;
-        #endregion
     }
+    void OnEnable()
+    {
+        if (inputReader != null)
+        {
+            inputReader.MoveEvent += HandleMove;
+            inputReader.MoveCanceledEvent += HandleMoveCanceled;
+            inputReader.SprintEvent += HandleSprint;
+            inputReader.SprintCanceledEvent += HandleSprintCanceled;
+            inputReader.JumpEvent += HandleJump;
+            // Glide, Interact 등 다른 이벤트들도 필요에 따라 여기에 추가합니다.
+            // 예: inputReader.GlideEvent += HandleGlide;
+
+            // 게임플레이 입력 활성화
+            inputReader.EnableGamePlayActionInputs();
+        }
+    }
+
     void OnDisable()
     {
-        moveAction.performed -= OnMove;
-        moveAction.canceled -= OnMove;
-        sprintAction.started -= OnSprint;
-        sprintAction.performed -= OnSprint;
-        sprintAction.canceled -= OnSprint;
-        jumpAction.performed -= OnJump;
-        glideAction.started -= OnGlide;
-        glideAction.performed -= OnGlide;
-        glideAction.canceled -= OnGlide;
+        // OnEnable에서 구독한 모든 이벤트를 반드시 해지해야 합니다.
+        if (inputReader != null)
+        {
+            inputReader.MoveEvent -= HandleMove;
+            inputReader.MoveCanceledEvent -= HandleMoveCanceled;
+            inputReader.SprintEvent -= HandleSprint;
+            inputReader.SprintCanceledEvent -= HandleSprintCanceled;
+            inputReader.JumpEvent -= HandleJump;
+            // 예: inputReader.GlideEvent -= HandleGlide;
+        }
     }
 
     void Update()
     {
         CheckGround();
-        MoveInput = moveAction.ReadValue<Vector2>();
         currentState?.Update(this);
 
         if (rb.linearVelocity.y <= dustSpawnVel)
@@ -167,7 +159,6 @@ public class PlayerController : MonoBehaviour
             // 공중에 있으면 코요테 시간 감소
             coyoteTimeCounter -= Time.deltaTime;
         }
-
 
         CheckForFallDeath();
     }
@@ -200,57 +191,60 @@ public class PlayerController : MonoBehaviour
             mountController?.OnPlayerGlide(true);
         }
     }
-
-    void OnMove(InputAction.CallbackContext context)
+    private void HandleMove(Vector2 moveInput)
     {
-        LastMoveInput = context.ReadValue<Vector2>();
-        currentState?.HandleInput(this, context);
+        // MoveInput 변수에 직접 값을 넣어줍니다. Update에서 이미 ReadValue를 하고 있으므로
+        // 해당 부분을 지우거나, 이 방식으로 통일합니다.
+        // Update()의 MoveInput = moveAction.ReadValue<Vector2>(); 줄을 삭제하는 것을 추천합니다.
+        MoveInput = moveInput;
+        LastMoveInput = moveInput;
+
+        // 상태 머신에 입력을 전달해야 한다면 아래 코드를 유지할 수 있습니다.
+        //currentState?.HandleInput(this, context); // 이 부분은 구조에 따라 달라집니다.
     }
 
-    void OnSprint(InputAction.CallbackContext context)
+    private void HandleMoveCanceled(Vector2 moveInput)
     {
-        // Shift 누르면 달리기, 떼면 해제
-        if (context.canceled) isRunning = false;
-        else isRunning = true;
+        MoveInput = Vector2.zero;
     }
 
-    void OnJump(InputAction.CallbackContext context)
+    private void HandleSprint()
     {
+        isRunning = true;
+    }
 
+    private void HandleSprintCanceled()
+    {
+        isRunning = false;
+    }
+
+    private void HandleJump()
+    {
         if (coyoteTimeCounter > 0f && !isJumping)
         {
-            
             ChangeState(new JumpState());
+            playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
             coyoteTimeCounter = 0f; // 점프하면 즉시 시간 초기화
         }
-
     }
 
-    void OnGlide(InputAction.CallbackContext context)
+    // 글라이드 예시
+    private void HandleGlide()
     {
-        // 시작/유지: 공중에서만 글라이드 진입
-        if (context.performed && context.interaction is HoldInteraction)
+        if (!isGrounded)
         {
-            if (!isGrounded)
-            {
-                ChangeState(new GlideState());
-            }
-            return;
+            ChangeState(new GlideState());
         }
+    }
 
-        // 취소: 상태 해제
-        if (context.canceled && currentState is GlideState)
+    private void HandleGlideCanceled()
+    {
+        if (currentState is GlideState)
         {
             ChangeState(new RunningState());
-            //if (isGrounded)
-            //    ChangeState(new RunningState());
-            //else
-            //{
-            //    glideLocked = true;
-            //    ChangeState(new JumpState());
-            //}
         }
     }
+
 
     public bool IsOnIceGround()
     {
@@ -272,6 +266,11 @@ public class PlayerController : MonoBehaviour
                 isJumping = false;
                 wasFalling = false;
                 glideLocked = false;
+
+                if (canSpawnDustLand)
+                {
+                    playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Landed);
+                }
 
                 if (!isInWindZone)
                 {
