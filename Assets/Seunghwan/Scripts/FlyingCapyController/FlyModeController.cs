@@ -6,7 +6,7 @@ using UnityEngine;
 public class FlyModeController : MonoBehaviour
 {
     private Rigidbody capyRigidBody;
-    private readonly float forwardFlightStrength = 100f;
+    private readonly float forwardFlightStrength = 150f;
     private readonly float yawRotationSpeed = 100f;
     private readonly float maxMeshRoll = 25f;
     private readonly float maxMeshPitch = 35f;
@@ -20,10 +20,12 @@ public class FlyModeController : MonoBehaviour
 
     private readonly int hitAnimTrigger = Animator.StringToHash("Hit");
     
+    [SerializeField] private CinemachineOrbitalFollow cmOrbitalFollow;
+    
     private void Awake()
     {
         capyRigidBody = GetComponent<Rigidbody>();
-        capyRigidBody.maxLinearVelocity = 30f;
+        capyRigidBody.maxLinearVelocity = 100f;
         capyRigidBody.linearDamping = 1f;
     }
 
@@ -32,6 +34,9 @@ public class FlyModeController : MonoBehaviour
         moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         
         ApplyMeshLocalRotation();
+
+        float targetY = -1f * moveInput.y * 3f;
+        cmOrbitalFollow.TargetOffset.y = FInterpTo(cmOrbitalFollow.TargetOffset.y, targetY, Time.deltaTime, 2f);
     }
 
     private void FixedUpdate()
@@ -46,6 +51,7 @@ public class FlyModeController : MonoBehaviour
         if (Mathf.Abs(moveInput.y) > Mathf.Epsilon)
         {
             capyRigidBody.AddForce(Vector3.up * (moveInput.y * forwardFlightStrength), ForceMode.Acceleration);
+            
         }
 
         if (Math.Abs(moveInput.x) > Mathf.Epsilon)
@@ -88,5 +94,14 @@ public class FlyModeController : MonoBehaviour
         
         return Quaternion.Slerp(current, target, Mathf.Clamp01(interpSpeed * deltaTime));
     }
-    
+
+    private float FInterpTo(float current, float target, float deltaTime, float interpSpeed)
+    {
+        if (interpSpeed <= 0f) return target;
+
+        float dist = target - current;
+        if (Mathf.Abs(dist) < 0.01f) return target;
+        float deltaMove = dist * Mathf.Clamp01(deltaTime * interpSpeed);
+        return current + deltaMove;
+    }
 }
