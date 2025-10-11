@@ -27,7 +27,7 @@ namespace Capybara
         
         [Header("Layer Detection Settings")]
         public LayerMask groundLayer;
-        public LayerMask waterLayer;
+        // public LayerMask waterLayer;
         
         [Header("Default Settings")]
         [SerializeField] private float constGroundRaycastDistance = 0.4f;
@@ -43,7 +43,7 @@ namespace Capybara
         private Vector2 moveInput;
         
         private Vector3 slopeNormal;
-        private Vector3 slopeForward;
+        // private Vector3 slopeForward;
         
         // Animation Cached Property Index
         private static readonly int Walk = Animator.StringToHash("Walk");
@@ -102,7 +102,7 @@ namespace Capybara
             Vector3 worldInputDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
             
             // Project the player's desired direction onto the slope plane
-            slopeForward = Vector3.ProjectOnPlane(transform.forward, slopeNormal).normalized;
+            // slopeForward = Vector3.ProjectOnPlane(transform.forward, slopeNormal).normalized;
             
             // 2. APPLY FORCES
             if (isGrounded)
