@@ -2,6 +2,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Splines;
 
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(SplineGroundSnapper))] // 이 에디터가 어떤 컴포넌트를 대상으로 할지 지정
 public class SplineGroundSnapperEditor : Editor
 {
@@ -36,3 +38,4 @@ public class SplineGroundSnapperEditor : Editor
         }
     }
 }
+#endif

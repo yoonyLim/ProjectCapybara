@@ -29,15 +29,15 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
 
-    #region InputAction º¯¼ö
+    #region InputAction ë³€ìˆ˜
     private PlayerInput playerInput;
     private InputAction moveAction;            // WASD
     private InputAction sprintAction;          // Shift
     private InputAction jumpAction;            // Space
-    private InputAction glideAction;           // Space È¦µù
+    private InputAction glideAction;           // Space í™€ë”©
     #endregion
 
-    #region Ground Ã¼Å© °ü·Ã º¯¼ö
+    #region Ground ì²´í¬ ê´€ë ¨ ë³€ìˆ˜
     [Header("Check isGrounded")]
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float sphereRadius = 0.2f;
@@ -46,18 +46,18 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool isGrounded;
     #endregion
 
-    #region °æ»ç·Î °è»ê °ü·Ã º¯¼ö
-    [Header("ÃÖ´ë °æ»ç °¢µµ °Ë»ç")]
+    #region ê²½ì‚¬ë¡œ ê³„ì‚° ê´€ë ¨ ë³€ìˆ˜
+    [Header("ìµœëŒ€ ê²½ì‚¬ ê°ë„ ê²€ì‚¬")]
     [SerializeField] Transform raycastOrigin;
     [SerializeField] float maxSlopeAngle;
 
-    [Header("°æ»ç·Î È¸Àü")]
+    [Header("ê²½ì‚¬ë¡œ íšŒì „")]
     [SerializeField] private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
     private RaycastHit slopeHit;
     #endregion
 
-    #region Á¡ÇÁ °ü·Ã º¯¼ö
+    #region ì í”„ ê´€ë ¨ ë³€ìˆ˜
     [Header("Jump Force")]
     public float jumpForce = 7f;
     //[HideInInspector]
@@ -67,17 +67,17 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float airAcceleration = 20f;
     #endregion
 
-    #region Ice °ü·Ã º¯¼ö
-    [Header("Ice Layer Ã¼Å©")]
+    #region Ice ê´€ë ¨ ë³€ìˆ˜
+    [Header("Ice Layer ì²´í¬")]
     public LayerMask iceLayer;
     [HideInInspector] public bool isOnIce;
     #endregion
 
-    #region Glide °ü·Ã º¯¼ö
-    [Header("±Û¶óÀÌµå À¯Áö ½Ã°£")]
+    #region Glide ê´€ë ¨ ë³€ìˆ˜
+    [Header("ê¸€ë¼ì´ë“œ ìœ ì§€ ì‹œê°„")]
     public float glideDuration = 2.5f;
 
-    [Header("Glide ÀÌµ¿ º¯¼ö")]
+    [Header("Glide ì´ë™ ë³€ìˆ˜")]
     public float glideSpeed = 7f;
     public float glideTurnSpeed = 0.5f;
     public float glideGravity = 4f;
@@ -88,8 +88,8 @@ public class PlayerController : MonoBehaviour
     public bool glideLocked = false;
     #endregion
 
-    #region DustLand »ı¼º º¯¼ö
-    [Header("DustLand »ı¼º ¼Óµµ")]
+    #region DustLand ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    [Header("DustLand ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½")]
     [SerializeField] private float dustSpawnVel = -8.0f;
     public bool canSpawnDustLand = false;
     #endregion
@@ -167,14 +167,14 @@ public class PlayerController : MonoBehaviour
 
     void OnSprint(InputAction.CallbackContext context)
     {
-        // Shift ´©¸£¸é ´Ş¸®±â, ¶¼¸é ÇØÁ¦
+        // Shift ëˆ„ë¥´ë©´ ë‹¬ë¦¬ê¸°, ë–¼ë©´ í•´ì œ
         if (context.canceled) isRunning = false;
         else isRunning = true;
     }
 
     void OnJump(InputAction.CallbackContext context)
     {
-        // Áö¸é¿¡¼­¸¸ Á¡ÇÁ °¡´É
+        // ì§€ë©´ì—ì„œë§Œ ì í”„ ê°€ëŠ¥
         if (isGrounded)
         {
             ChangeState(new JumpState());
@@ -184,8 +184,8 @@ public class PlayerController : MonoBehaviour
 
     void OnGlide(InputAction.CallbackContext context)
     {
-        // ½ÃÀÛ/À¯Áö: °øÁß¿¡¼­¸¸ ±Û¶óÀÌµå ÁøÀÔ
-        if (context.performed && context.interaction is HoldInteraction)
+        // ì‹œì‘/ìœ ì§€: ê³µì¤‘ì—ì„œë§Œ ê¸€ë¼ì´ë“œ ì§„ì…
+        if (context.performed)
         {
             if (!isGrounded)
             {
@@ -194,27 +194,27 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Ãë¼Ò: »óÅÂ ÇØÁ¦
+        // ì·¨ì†Œ: ìƒíƒœ í•´ì œ
         if (context.canceled)
         {
             if (isGrounded)
                 ChangeState(new RunningState());
             else
             {
-                glideLocked = true;
-                ChangeState(new JumpState());
+                //glideLocked = true; 
+                ChangeState(new JumpState()); // ë‚™í•˜/ì í”„ ìƒíƒœë¡œ
             }
         }
     }
 
     public bool IsOnIceGround()
     {
-        // ÇÃ·¹ÀÌ¾î ¹ß¹ØÀ¸·Î ·¹ÀÌ½÷¼­ iceLayer¸¸ ¸Â´ÂÁö È®ÀÎ
+        // í”Œë ˆì´ì–´ ë°œë°‘ìœ¼ë¡œ ë ˆì´ì´ì„œ iceLayerë§Œ ë§ëŠ”ì§€ í™•ì¸
         return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
     }
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ ¶¥¿¡ ´ê¾ÆÀÖ´ÂÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö
-    /// 3°³ÀÇ SphereCast Áß ÇÏ³ª¶óµµ ¶¥¿¡ ´ê¾ÆÀÖ´Ù¸é isGrounde = true
+    /// í”Œë ˆì´ì–´ê°€ ë•…ì— ë‹¿ì•„ìˆëŠ”ì§€ ì²´í¬í•˜ëŠ” í•¨ìˆ˜
+    /// 3ê°œì˜ SphereCast ì¤‘ í•˜ë‚˜ë¼ë„ ë•…ì— ë‹¿ì•„ìˆë‹¤ë©´ isGrounde = true
     /// </summary>
     public void CheckGround()
     {
@@ -254,7 +254,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("isFly", true);
         }
     }
-    //SphereCast Gizmo ±×¸®´Â ÄÚµå
+    //SphereCast Gizmo ï¿½×¸ï¿½ï¿½ï¿½ ï¿½Úµï¿½
     void OnDrawGizmosSelected()
     {
         if (groundCheckPoints == null) return;
@@ -264,18 +264,18 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 start = point.position;
             Vector3 end = start + Vector3.down * raycastDistance;
-            // ±¸ÀÇ ±ËÀû ±×¸®±â
+            // êµ¬ì˜ ê¶¤ì  ê·¸ë¦¬ê¸°
             Gizmos.DrawWireSphere(start, sphereRadius);
             Gizmos.DrawWireSphere(end, sphereRadius);
-            // »çÀÌ ¼±À¸·Î ¿¬°á
+            // ì‚¬ì´ ì„ ìœ¼ë¡œ ì—°ê²°
             Gizmos.DrawLine(start, end);
         }
     }
 
-    #region °æ»ç °è»ê ÇÔ¼ö
+    #region ê²½ì‚¬ ê³„ì‚° í•¨ìˆ˜
 
-    // ÇÃ·¹ÀÌ¾î°¡ °æ»ç À§¿¡ ÀÖ´Â Áö È®ÀÎÇÏ´Â ÄÚµå
-    // ÇÃ·¹ÀÌ¾î ¾Æ·¡·Î rayCast¸¦ ½÷¼­ angleÀÌ 0ÀÌ ¾Æ´Ï¸é isOnSlope = true
+    // í”Œë ˆì´ì–´ê°€ ê²½ì‚¬ ìœ„ì— ìˆëŠ” ì§€ í™•ì¸í•˜ëŠ” ì½”ë“œ
+    // í”Œë ˆì´ì–´ ì•„ë˜ë¡œ rayCastë¥¼ ì´ì„œ angleì´ 0ì´ ì•„ë‹ˆë©´ isOnSlope = true
     public bool IsOnSlope()
     {
         Ray ray = new Ray(transform.position, Vector3.down);
@@ -288,8 +288,8 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    // °æ»ç À§¿¡¼­ÀÇ °¢µµ¸¦ °è»êÇÏ´Â ÄÚµå
-    // ÆòÁö¿¡¼­´Â Quaternion.Euler(0, 0, 0)·Î ¼³Á¤
+    // ê²½ì‚¬ ìœ„ì—ì„œì˜ ê°ë„ë¥¼ ê³„ì‚°í•˜ëŠ” ì½”ë“œ
+    // í‰ì§€ì—ì„œëŠ” Quaternion.Euler(0, 0, 0)ë¡œ ì„¤ì •
     public Quaternion SurfaceAlignment()
     {
         Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
@@ -304,13 +304,13 @@ public class PlayerController : MonoBehaviour
         return RotationRef;
     }
 
-    //ÀÌ°Å ¹¹´õ¶ó ±â¾ï¾È³²
+    //ì´ê±° ë­ë”ë¼ ê¸°ì–µì•ˆë‚¨
     public Vector3 AdjustDirectionToSlope(Vector3 direction)
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
 
-    // °æ»ç °¢µµ Ã¼Å© ÇÔ¼ö
+    // ê²½ì‚¬ ê°ë„ ì²´í¬ í•¨ìˆ˜
     public float CalculateNextFrameGroundAngle(float moveSpeed)
     {
         var nextFramePlayerPosition =

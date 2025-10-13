@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEditor;
 
+
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(RiverController))]
 public class RiverControllerEditor : Editor
 {
@@ -153,3 +156,5 @@ public class RiverControllerEditor : Editor
         }
     }
 }
+
+#endif
