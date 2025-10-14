@@ -1,5 +1,6 @@
 using System.Collections;
 using Moko;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlatformPositionComposer : MonoBehaviour
@@ -16,6 +17,9 @@ public class PlatformPositionComposer : MonoBehaviour
     [Tooltip("이동 시 이용할 애니메이션 커브")]
     public AnimationCurve curve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Tooltip("시작 위치")] 
+    [SerializeField] private bool startFromEndPos = false;
+    
     private Rigidbody rb;
 
     private void Awake()
@@ -27,10 +31,13 @@ public class PlatformPositionComposer : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(MovePlatform());
+        if (startFromEndPos)
+            StartCoroutine(MovePlatformFromEndPos());
+        else 
+            StartCoroutine(MovePlatformFromStartPos());
     }
 
-    IEnumerator MovePlatform()
+    IEnumerator MovePlatformFromStartPos()
     {
         Vector3 startPos = start.position;
         Vector3 endPos = end.position;
@@ -42,6 +49,23 @@ public class PlatformPositionComposer : MonoBehaviour
             yield return new WaitForSeconds(pauseTime);
             
             yield return StartCoroutine(MoveToTarget(endPos, startPos));
+
+            yield return new WaitForSeconds(pauseTime);
+        }
+    }
+    
+    IEnumerator MovePlatformFromEndPos()
+    {
+        Vector3 startPos = start.position;
+        Vector3 endPos = end.position;
+        
+        while (true)
+        {
+            yield return StartCoroutine(MoveToTarget(endPos, startPos));
+            
+            yield return new WaitForSeconds(pauseTime);
+            
+            yield return StartCoroutine(MoveToTarget(startPos, endPos));
 
             yield return new WaitForSeconds(pauseTime);
         }
