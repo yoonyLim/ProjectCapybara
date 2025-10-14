@@ -34,7 +34,7 @@ public class DynamicCamera : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(1f, 0.0f, 1f, 0.5f);
+        Gizmos.color = new Color(1f, 0.0f, 1f, 0.05f);
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.DrawCube(Vector3.zero, Vector3.one);
 
