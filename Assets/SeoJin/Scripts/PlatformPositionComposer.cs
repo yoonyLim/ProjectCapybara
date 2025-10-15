@@ -22,6 +22,9 @@ public class PlatformPositionComposer : MonoBehaviour
     
     private Rigidbody rb;
 
+    private Vector3 lastPosition;
+    public Vector3 DeltaPosition { get; private set; }
+
     private void Awake()
     {
         if (start == null) DebugExtension.Log(this, "Start Transform not set");
@@ -35,6 +38,17 @@ public class PlatformPositionComposer : MonoBehaviour
             StartCoroutine(MovePlatformFromEndPos());
         else 
             StartCoroutine(MovePlatformFromStartPos());
+       
+        lastPosition = transform.position;
+    }
+
+    void FixedUpdate()
+    {
+        // 이전 프레임과 현재 프레임의 위치 차이를 계산합니다.
+        DeltaPosition = transform.position - lastPosition;
+
+        // 다음 프레임을 위해 현재 위치를 저장합니다.
+        lastPosition = transform.position;
     }
 
     IEnumerator MovePlatformFromStartPos()

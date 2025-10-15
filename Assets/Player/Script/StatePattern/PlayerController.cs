@@ -1,4 +1,5 @@
 //using Gamekit3D;
+using Capybara;
 using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,26 +17,24 @@ public interface IPlayerState
     void FixedUpdate(PlayerController player);
 }
 
-
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private CapybaraInputReader inputReader;
+
+
     private IPlayerState currentState;
     [HideInInspector] public Transform cameraTransform;
+    private bool isInWindZone = false;
+    [SerializeField] private PlayerHapticEvent playerHapticEvent;
 
     public Animator animator;
     public Rigidbody rb;
+
     [HideInInspector] public Vector3 moveDirection;
     [HideInInspector] public bool isRunning;
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
-
-    #region InputAction 변수
-    private PlayerInput playerInput;
-    private InputAction moveAction;            // WASD
-    private InputAction sprintAction;          // Shift
-    private InputAction jumpAction;            // Space
-    private InputAction glideAction;           // Space 홀딩
-    #endregion
+    [HideInInspector] public Vector3 platformVelocity;
 
     #region Ground 체크 관련 변수
     [Header("Check isGrounded")]
@@ -54,7 +53,7 @@ public class PlayerController : MonoBehaviour
     [Header("경사로 회전")]
     [SerializeField] private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
-    private RaycastHit slopeHit;
+    [HideInInspector] public RaycastHit slopeHit;
     #endregion
 
     #region 점프 관련 변수
@@ -65,6 +64,10 @@ public class PlayerController : MonoBehaviour
     private bool wasFalling = false;
     [HideInInspector] public float airSpeed = 5f;
     [HideInInspector] public float airAcceleration = 20f;
+
+    [Header("Coyote Time")]
+    [SerializeField] private float coyoteTimeDuration = 0.15f; // 코요테 시간 (0.1 ~ 0.2초 추천)
+    public float coyoteTimeCounter;
     #endregion
 
     #region Ice 관련 변수
@@ -83,61 +86,64 @@ public class PlayerController : MonoBehaviour
     public float glideGravity = 4f;
     public float glideDrag = 5f;
 
-    [HideInInspector] public float normalGravity = 9.81f;
+    public float normalGravity = 9.81f;
     [HideInInspector] public float normalDrag = 0f;
     public bool glideLocked = false;
     #endregion
 
-    #region DustLand ���� ����
-    [Header("DustLand ���� �ӵ�")]
+    #region DustLand 생성 변수
+    [Header("DustLand 생성 속도")]
     [SerializeField] private float dustSpawnVel = -8.0f;
     public bool canSpawnDustLand = false;
     #endregion
 
+    #region 리스폰 변수
+    [SerializeField] private float fallDeathYLevel = -50f;
+    #endregion
+
+    private MountController mountController;
     void Awake()
     {
+        mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
-        #region PlayerInput
-        playerInput = GetComponent<PlayerInput>();
-        moveAction = playerInput.actions["Move"];
-        sprintAction = playerInput.actions["Run"];
-        jumpAction = playerInput.actions["Jump"];
-        glideAction = playerInput.actions["Glide"];
-
-        moveAction.performed += OnMove;
-        moveAction.canceled += OnMove;
-
-        sprintAction.started += OnSprint;
-        sprintAction.performed += OnSprint; 
-        sprintAction.canceled += OnSprint; 
-
-        jumpAction.performed += OnJump;
-
-        glideAction.started += OnGlide;
-        glideAction.performed += OnGlide;
-        glideAction.canceled += OnGlide;
-        #endregion
     }
+    void OnEnable()
+    {
+        if (inputReader != null)
+        {
+            inputReader.MoveEvent += HandleMove;
+            inputReader.MoveCanceledEvent += HandleMoveCanceled;
+            inputReader.SprintEvent += HandleSprint;
+            inputReader.SprintCanceledEvent += HandleSprintCanceled;
+            inputReader.JumpEvent += HandleJump;
+            inputReader.HeadbuttEvent += HandleHeadbutt;
+
+
+            // 게임플레이 입력 활성화
+            inputReader.EnableGamePlayActionInputs();
+        }
+    }
+
     void OnDisable()
     {
-        moveAction.performed -= OnMove;
-        moveAction.canceled -= OnMove;
-        sprintAction.started -= OnSprint;
-        sprintAction.performed -= OnSprint;
-        sprintAction.canceled -= OnSprint;
-        jumpAction.performed -= OnJump;
-        glideAction.started -= OnGlide;
-        glideAction.performed -= OnGlide;
-        glideAction.canceled -= OnGlide;
+        // OnEnable에서 구독한 모든 이벤트를 반드시 해지해야 합니다.
+        if (inputReader != null)
+        {
+            inputReader.MoveEvent -= HandleMove;
+            inputReader.MoveCanceledEvent -= HandleMoveCanceled;
+            inputReader.SprintEvent -= HandleSprint;
+            inputReader.SprintCanceledEvent -= HandleSprintCanceled;
+            inputReader.JumpEvent -= HandleJump;
+            inputReader.HeadbuttEvent -= HandleHeadbutt;
+            // 예: inputReader.GlideEvent -= HandleGlide;
+        }
     }
 
     void Update()
     {
         CheckGround();
-        MoveInput = moveAction.ReadValue<Vector2>();
         currentState?.Update(this);
 
         if (rb.linearVelocity.y <= dustSpawnVel)
@@ -145,6 +151,17 @@ public class PlayerController : MonoBehaviour
             canSpawnDustLand = true;
         }
 
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTimeDuration;
+        }
+        else
+        {
+            // 공중에 있으면 코요테 시간 감소
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        CheckForFallDeath();
     }
 
     void FixedUpdate()
@@ -154,64 +171,88 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeState(IPlayerState newState)
     {
+        Debug.Log($"상태 변경: {currentState?.GetType().Name} -> {newState.GetType().Name}");
+
+        if (currentState is GlideState && !(newState is GlideState))
+        {
+            // Glide 상태에서 벗어나는 경우
+            mountController?.OnPlayerGlide(false);
+        }
+
         currentState?.Exit(this);
         currentState = newState;
         currentState.Enter(this);
+
+        if (newState is JumpState)
+        {
+            mountController?.OnPlayerJump();
+        }
+        else if (newState is GlideState)
+        {
+            mountController?.OnPlayerGlide(true);
+        }
+    }
+    private void HandleMove(Vector2 moveInput)
+    {
+        // MoveInput 변수에 직접 값을 넣어줍니다. Update에서 이미 ReadValue를 하고 있으므로
+        // 해당 부분을 지우거나, 이 방식으로 통일합니다.
+        // Update()의 MoveInput = moveAction.ReadValue<Vector2>(); 줄을 삭제하는 것을 추천합니다.
+        MoveInput = moveInput;
+        LastMoveInput = moveInput;
+
     }
 
-    void OnMove(InputAction.CallbackContext context)
+    private void HandleHeadbutt()
     {
-        LastMoveInput = context.ReadValue<Vector2>();
-        currentState?.HandleInput(this, context);
+        //박치기 State ㄱㄱ혓
+        ChangeState(new HeadbuttState());
+    }
+    private void HandleMoveCanceled(Vector2 moveInput)
+    {
+        MoveInput = Vector2.zero;
     }
 
-    void OnSprint(InputAction.CallbackContext context)
+    private void HandleSprint()
     {
-        // Shift 누르면 달리기, 떼면 해제
-        if (context.canceled) isRunning = false;
-        else isRunning = true;
+        isRunning = true;
     }
 
-    void OnJump(InputAction.CallbackContext context)
+    private void HandleSprintCanceled()
     {
-        // 지면에서만 점프 가능
-        if (isGrounded)
+        isRunning = false;
+    }
+
+    private void HandleJump()
+    {
+        if (coyoteTimeCounter > 0f && !isJumping)
         {
             ChangeState(new JumpState());
+            playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
+            coyoteTimeCounter = 0f; // 점프하면 즉시 시간 초기화
         }
-            
     }
 
-    void OnGlide(InputAction.CallbackContext context)
+    // 글라이드 
+    private void HandleGlide()
     {
-        // 시작/유지: 공중에서만 글라이드 진입
-        if (context.performed)
-        {
-            if (!isGrounded)
-            {
-                ChangeState(new GlideState());
-            }
-            return;
-        }
+        ChangeState(new GlideState());
+    }
 
-        // 취소: 상태 해제
-        if (context.canceled)
+    private void HandleGlideCanceled()
+    {
+        if (currentState is GlideState)
         {
-            if (isGrounded)
-                ChangeState(new RunningState());
-            else
-            {
-                //glideLocked = true; 
-                ChangeState(new JumpState()); // 낙하/점프 상태로
-            }
+            ChangeState(new RunningState());
         }
     }
+
 
     public bool IsOnIceGround()
-    {
-        // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
-        return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
-    }
+        {
+            // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
+            return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
+        }
+
     /// <summary>
     /// 플레이어가 땅에 닿아있는지 체크하는 함수
     /// 3개의 SphereCast 중 하나라도 땅에 닿아있다면 isGrounde = true
@@ -227,7 +268,17 @@ public class PlayerController : MonoBehaviour
                 isJumping = false;
                 wasFalling = false;
                 glideLocked = false;
-                animator.SetBool("isFly", false);
+
+                if (canSpawnDustLand)
+                {
+                    playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Landed);
+                }
+
+                if (!isInWindZone)
+                {
+                    animator.SetBool("isFly", false);
+                }
+
                 animator.SetBool("isGrounded", true);
                 break;
             }
@@ -250,11 +301,21 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
         {
+            isInWindZone = true;
             animator.SetBool("isGrounded", false);
             animator.SetBool("isFly", true);
         }
     }
-    //SphereCast Gizmo �׸��� �ڵ�
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+        {
+            isInWindZone = false;
+        }
+    }
+
+    //SphereCast Gizmo 그리는 코드
     void OnDrawGizmosSelected()
     {
         if (groundCheckPoints == null) return;
@@ -320,6 +381,36 @@ public class PlayerController : MonoBehaviour
                             0.5f, groundLayer))
             return Vector3.Angle(Vector3.up, hitInfo.normal);
         return 0f;
+    }
+
+    #endregion
+
+    #region 리스폰 함수
+    private void CheckForFallDeath()
+    {
+        if (transform.position.y < fallDeathYLevel)
+        {
+            Respawn();
+        }
+    }
+
+    // 리스폰을 처리하는 함수
+    public void Respawn()
+    {
+        Debug.Log("플레이어가 마지막 체크포인트에서 리스폰됩니다.");
+
+        // Rigidbody의 속도를 초기화하여 떨어지던 가속도를 없애줍니다.
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        // Checkpoint 스크립트에 저장된 마지막 활성 위치로 플레이어를 즉시 이동시킵니다.
+        // 순간이동 시 발생할 수 있는 물리적 오류를 방지하기 위해 잠시 CharacterController나 Rigidbody를 비활성화했다가 켜는 것이 더 안정적일 수 있습니다.
+        transform.position = RespawnPoint.LastActivatedRespawnPpointPosition;
+
+        // 여기에 체력 초기화 등 리스폰 시 필요한 다른 로직을 추가할 수 있습니다.
     }
 
     #endregion
