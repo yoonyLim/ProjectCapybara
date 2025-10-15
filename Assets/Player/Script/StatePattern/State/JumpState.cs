@@ -5,54 +5,69 @@ public class JumpState : IPlayerState
 {
     private bool jumpApplied = false;
     private float smoothVel;
+    private float entryTime;
+
     public void Enter(PlayerController player)
     {
-        player.isJumping = true;
-        //player.animator.SetBool("isGrounded", false);
-
-        if (player.isGrounded && !jumpApplied)
+        if(!jumpApplied)
         {
+            entryTime = Time.time;
+            Debug.Log("Jump Enter");
+            player.isJumping = true;
+
             player.animator.SetInteger("Walk", 0);
             player.animator.SetTrigger("jumpTrigger");
-            player.isGrounded = false;
+            //player.isGrounded = false;
 
-            // 점프 방향
-            Vector3 jumpDirection = player.transform.up;
-            if (player.IsOnSlope())
-                jumpDirection = player.SurfaceAlignment() * Vector3.up;
+            // --- 수정 ---
+            // y축 속도를 먼저 0으로 만들어, 하강 중 점프해도 일정한 높이를 보장 (선택 사항)
+            player.rb.linearVelocity = new Vector3(player.rb.linearVelocity.x, 0, player.rb.linearVelocity.z);
 
-            player.rb.useGravity = true; // 혹시 모를 플래그 꼬임 방지
-            player.rb.AddForce(jumpDirection * player.jumpForce, ForceMode.Impulse);
+            // 경사면과 상관없이 항상 위쪽으로 힘을 가함
+            player.rb.AddForce(Vector3.up * player.jumpForce, ForceMode.Impulse);
+            // --- 수정 끝 ---
+
+            player.rb.useGravity = true;
         }
-        
     }
 
     public void Exit(PlayerController player)
     {
         player.animator.SetBool("isFall", false);
+        Debug.Log("Jump Exit");
     }
 
     public void HandleInput(PlayerController player, InputAction.CallbackContext context) { }
 
     public void Update(PlayerController player)
     {
-        // 착지하면 달리기 상태로 복귀 (착지 애니 처리도 Running에서)
-        if (player.isGrounded && jumpApplied)
+        player.isJumping = true;
+        if (player.isGrounded && jumpApplied && Time.time > entryTime + 0.1f)
         {
             player.ChangeState(new RunningState());
             player.animator.SetBool("isFall", false);
-            //player.animator.SetBool("isGrounded", true);
         }
         else
         {
-            // 공중에서 하강 중이면 낙하 플래그만
-            if (player.rb.linearVelocity.y < 0f)
+            // 착지하면 달리기 상태로 복귀 (착지 애니 처리도 Running에서)
+            if (player.isGrounded && jumpApplied)
             {
+                player.ChangeState(new RunningState());
+                player.animator.SetBool("isFall", false);
+                //player.animator.SetBool("isGrounded", true);
+            }
+            else
+            {
+                // 공중에서 하강 중이면 낙하 플래그만
+                if (player.rb.linearVelocity.y < 0f)
+                {
 
-                player.animator.SetBool("isFall", true);
-                jumpApplied = true;
+                    player.animator.SetBool("isFall", true);
+                    jumpApplied = true;
+                }
             }
         }
+        
     }
 
     public void FixedUpdate(PlayerController player)
