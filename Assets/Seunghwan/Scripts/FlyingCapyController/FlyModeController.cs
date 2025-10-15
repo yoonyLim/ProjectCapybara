@@ -10,7 +10,7 @@ public class FlyModeController : MonoBehaviour
     private readonly float yawRotationSpeed = 100f;
     private readonly float maxMeshRoll = 25f;
     private readonly float maxMeshPitch = 35f;
-    private readonly float bounceStrength = 200f;
+    private readonly float bounceStrength = 50f;
     
     private Vector2 moveInput;
 
@@ -26,7 +26,7 @@ public class FlyModeController : MonoBehaviour
     {
         capyRigidBody = GetComponent<Rigidbody>();
         capyRigidBody.maxLinearVelocity = 100f;
-        capyRigidBody.linearDamping = 1f;
+        capyRigidBody.linearDamping = 3f;
     }
 
     private void Update()
