@@ -231,206 +231,182 @@ public class PlayerController : MonoBehaviour
     // 글라이드 예시
     private void HandleGlide()
     {
-        // 시작/유지: 공중에서만 글라이드 진입
-        if (context.performed)
-        {
-            if (!isGrounded)
-            {
-                ChangeState(new GlideState());
-            }
-            return;
-        }
+    }
 
-        // 취소: 상태 해제
-        if (context.canceled)
+        private void HandleGlideCanceled()
         {
-            if (isGrounded)
+            if (currentState is GlideState)
+            {
                 ChangeState(new RunningState());
-            else
-            {
-                //glideLocked = true; 
-                ChangeState(new JumpState()); // 낙하/점프 상태로
             }
-        if (!isGrounded)
-        {
-            ChangeState(new GlideState());
         }
-    }
 
-    private void HandleGlideCanceled()
-    {
-        if (currentState is GlideState)
+
+        public bool IsOnIceGround()
         {
-            ChangeState(new RunningState());
+            // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
+            return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
         }
-    }
-
-
-    public bool IsOnIceGround()
-    {
-        // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
-        return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
-    }
-    /// <summary>
-    /// 플레이어가 땅에 닿아있는지 체크하는 함수
-    /// 3개의 SphereCast 중 하나라도 땅에 닿아있다면 isGrounde = true
-    /// </summary>
-    public void CheckGround()
-    {
-        RaycastHit hit;
-        foreach (var point in groundCheckPoints)
+        /// <summary>
+        /// 플레이어가 땅에 닿아있는지 체크하는 함수
+        /// 3개의 SphereCast 중 하나라도 땅에 닿아있다면 isGrounde = true
+        /// </summary>
+        public void CheckGround()
         {
-            if (Physics.SphereCast(point.position, sphereRadius, Vector3.down, out hit, raycastDistance, groundLayer))
+            RaycastHit hit;
+            foreach (var point in groundCheckPoints)
             {
-                isGrounded = true;
-                isJumping = false;
-                wasFalling = false;
-                glideLocked = false;
-
-                if (canSpawnDustLand)
+                if (Physics.SphereCast(point.position, sphereRadius, Vector3.down, out hit, raycastDistance, groundLayer))
                 {
-                    playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Landed);
-                }
+                    isGrounded = true;
+                    isJumping = false;
+                    wasFalling = false;
+                    glideLocked = false;
 
-                if (!isInWindZone)
+                    if (canSpawnDustLand)
+                    {
+                        playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Landed);
+                    }
+
+                    if (!isInWindZone)
+                    {
+                        animator.SetBool("isFly", false);
+                    }
+
+                    animator.SetBool("isGrounded", true);
+                    break;
+                }
+                else
                 {
-                    animator.SetBool("isFly", false);
-                }
+                    isGrounded = false;
+                    animator.SetBool("isGrounded", false);
+                    if (rb.linearVelocity.y < -0.1f && !wasFalling)
+                    {
+                        wasFalling = true;
 
-                animator.SetBool("isGrounded", true);
-                break;
+                    }
+                }
             }
-            else
+
+            isOnIce = IsOnIceGround();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
             {
-                isGrounded = false;
+                isInWindZone = true;
                 animator.SetBool("isGrounded", false);
-                if (rb.linearVelocity.y < -0.1f && !wasFalling)
-                {
-                    wasFalling = true;
-
-                }
+                animator.SetBool("isFly", true);
             }
         }
 
-        isOnIce = IsOnIceGround();
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+        private void OnTriggerExit(Collider other)
         {
-            isInWindZone = true;
-            animator.SetBool("isGrounded", false);
-            animator.SetBool("isFly", true);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
-        {
-            isInWindZone = false;
-        }
-    }
-
-    //SphereCast Gizmo 그리는 코드
-    void OnDrawGizmosSelected()
-    {
-        if (groundCheckPoints == null) return;
-
-        Gizmos.color = Color.green;
-        foreach (var point in groundCheckPoints)
-        {
-            Vector3 start = point.position;
-            Vector3 end = start + Vector3.down * raycastDistance;
-            // 구의 궤적 그리기
-            Gizmos.DrawWireSphere(start, sphereRadius);
-            Gizmos.DrawWireSphere(end, sphereRadius);
-            // 사이 선으로 연결
-            Gizmos.DrawLine(start, end);
-        }
-    }
-
-    #region 경사 계산 함수
-
-    // 플레이어가 경사 위에 있는 지 확인하는 코드
-    // 플레이어 아래로 rayCast를 쏴서 angle이 0이 아니면 isOnSlope = true
-    public bool IsOnSlope()
-    {
-        Ray ray = new Ray(transform.position, Vector3.down);
-
-        if (Physics.Raycast(ray, out slopeHit, raycastDistance, groundLayer))
-        {
-            var angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle != 0f && angle < maxSlopeAngle;
-        }
-        return false;
-    }
-
-    // 경사 위에서의 각도를 계산하는 코드
-    // 평지에서는 Quaternion.Euler(0, 0, 0)로 설정
-    public Quaternion SurfaceAlignment()
-    {
-        Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
-
-        if (IsOnSlope())
-        {
-            Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
-            RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+            if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
+            {
+                isInWindZone = false;
+            }
         }
 
-        return RotationRef;
-    }
-
-    //이거 뭐더라 기억안남
-    public Vector3 AdjustDirectionToSlope(Vector3 direction)
-    {
-        return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
-    }
-
-    // 경사 각도 체크 함수
-    public float CalculateNextFrameGroundAngle(float moveSpeed)
-    {
-        var nextFramePlayerPosition =
-                           raycastOrigin.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
-
-        if (Physics.Raycast(nextFramePlayerPosition, Vector3.down, out RaycastHit hitInfo,
-                            0.5f, groundLayer))
-            return Vector3.Angle(Vector3.up, hitInfo.normal);
-        return 0f;
-    }
-
-    #endregion
-
-    #region 리스폰 함수
-    private void CheckForFallDeath()
-    {
-        if (transform.position.y < fallDeathYLevel)
+        //SphereCast Gizmo 그리는 코드
+        void OnDrawGizmosSelected()
         {
-            Respawn();
-        }
-    }
+            if (groundCheckPoints == null) return;
 
-    // 리스폰을 처리하는 함수
-    public void Respawn()
-    {
-        Debug.Log("플레이어가 마지막 체크포인트에서 리스폰됩니다.");
-
-        // Rigidbody의 속도를 초기화하여 떨어지던 가속도를 없애줍니다.
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            Gizmos.color = Color.green;
+            foreach (var point in groundCheckPoints)
+            {
+                Vector3 start = point.position;
+                Vector3 end = start + Vector3.down * raycastDistance;
+                // 구의 궤적 그리기
+                Gizmos.DrawWireSphere(start, sphereRadius);
+                Gizmos.DrawWireSphere(end, sphereRadius);
+                // 사이 선으로 연결
+                Gizmos.DrawLine(start, end);
+            }
         }
 
-        // Checkpoint 스크립트에 저장된 마지막 활성 위치로 플레이어를 즉시 이동시킵니다.
-        // 순간이동 시 발생할 수 있는 물리적 오류를 방지하기 위해 잠시 CharacterController나 Rigidbody를 비활성화했다가 켜는 것이 더 안정적일 수 있습니다.
-        transform.position = RespawnPoint.LastActivatedRespawnPpointPosition;
+        #region 경사 계산 함수
 
-        // 여기에 체력 초기화 등 리스폰 시 필요한 다른 로직을 추가할 수 있습니다.
+        // 플레이어가 경사 위에 있는 지 확인하는 코드
+        // 플레이어 아래로 rayCast를 쏴서 angle이 0이 아니면 isOnSlope = true
+        public bool IsOnSlope()
+        {
+            Ray ray = new Ray(transform.position, Vector3.down);
+
+            if (Physics.Raycast(ray, out slopeHit, raycastDistance, groundLayer))
+            {
+                var angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                return angle != 0f && angle < maxSlopeAngle;
+            }
+            return false;
+        }
+
+        // 경사 위에서의 각도를 계산하는 코드
+        // 평지에서는 Quaternion.Euler(0, 0, 0)로 설정
+        public Quaternion SurfaceAlignment()
+        {
+            Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
+
+            if (IsOnSlope())
+            {
+                Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+                Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
+                RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+            }
+
+            return RotationRef;
+        }
+
+        //이거 뭐더라 기억안남
+        public Vector3 AdjustDirectionToSlope(Vector3 direction)
+        {
+            return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
+        }
+
+        // 경사 각도 체크 함수
+        public float CalculateNextFrameGroundAngle(float moveSpeed)
+        {
+            var nextFramePlayerPosition =
+                               raycastOrigin.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
+
+            if (Physics.Raycast(nextFramePlayerPosition, Vector3.down, out RaycastHit hitInfo,
+                                0.5f, groundLayer))
+                return Vector3.Angle(Vector3.up, hitInfo.normal);
+            return 0f;
+        }
+
+        #endregion
+
+        #region 리스폰 함수
+        private void CheckForFallDeath()
+        {
+            if (transform.position.y < fallDeathYLevel)
+            {
+                Respawn();
+            }
+        }
+
+        // 리스폰을 처리하는 함수
+        public void Respawn()
+        {
+            Debug.Log("플레이어가 마지막 체크포인트에서 리스폰됩니다.");
+
+            // Rigidbody의 속도를 초기화하여 떨어지던 가속도를 없애줍니다.
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            // Checkpoint 스크립트에 저장된 마지막 활성 위치로 플레이어를 즉시 이동시킵니다.
+            // 순간이동 시 발생할 수 있는 물리적 오류를 방지하기 위해 잠시 CharacterController나 Rigidbody를 비활성화했다가 켜는 것이 더 안정적일 수 있습니다.
+            transform.position = RespawnPoint.LastActivatedRespawnPpointPosition;
+
+            // 여기에 체력 초기화 등 리스폰 시 필요한 다른 로직을 추가할 수 있습니다.
+        }
+
+        #endregion
     }
-
-    #endregion
-}
 

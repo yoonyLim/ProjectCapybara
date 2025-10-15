@@ -38,7 +38,7 @@ public class PlatformPositionComposer : MonoBehaviour
             StartCoroutine(MovePlatformFromEndPos());
         else 
             StartCoroutine(MovePlatformFromStartPos());
-        StartCoroutine(MovePlatform());
+       
         lastPosition = transform.position;
     }
 
