@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 535451149110437901}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.59, y: 0.342, z: -0.124}
+  m_LocalPosition: {x: 1.59, y: -0.018, z: -0.124}
   m_LocalScale: {x: 39.999996, y: 39.999996, z: 39.999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -122,7 +122,7 @@ Transform:
   m_GameObject: {fileID: 1471326444202922901}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.26200008, z: -0.284}
+  m_LocalPosition: {x: 0, y: 0.24300003, z: -0.284}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -247,7 +247,7 @@ Transform:
   m_GameObject: {fileID: 2607208451043573832}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.018, z: 0}
   m_LocalScale: {x: 39.999996, y: 39.999996, z: 39.999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -343,7 +343,7 @@ Transform:
   m_GameObject: {fileID: 3135262973264747940}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.262, z: 0.308}
+  m_LocalPosition: {x: 0, y: 0.243, z: 0.308}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -405,7 +405,7 @@ Transform:
   m_GameObject: {fileID: 4284647556490971776}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.018, z: 0}
   m_LocalScale: {x: 39.999996, y: 39.999992, z: 39.999992}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -437,7 +437,7 @@ Transform:
   m_GameObject: {fileID: 4320902802431182995}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.26200008, z: 0.015}
+  m_LocalPosition: {x: 0, y: 0.24300003, z: 0.015}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -600,7 +600,7 @@ Transform:
   m_GameObject: {fileID: 5935729663247150083}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -160, y: 0, z: 93.9}
+  m_LocalPosition: {x: -160, y: -0.018, z: 93.9}
   m_LocalScale: {x: 39.999996, y: 39.999996, z: 39.999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -696,7 +696,7 @@ Transform:
   m_GameObject: {fileID: 6265392011638109304}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.0755, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -737,6 +737,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 59752493820490254}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7083035130479553441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4667274017938505215}
+  m_Layer: 2
+  m_Name: DustLandSpawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4667274017938505215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7083035130479553441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.021, y: -0.007, z: -0.133}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3760446635963301269}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8694503564005402290
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,6 +800,37 @@ Transform:
   - {fileID: 10192951736523710}
   m_Father: {fileID: 7285526186880880343}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8799474638680499167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1447053305011472912}
+  m_Layer: 2
+  m_Name: DustTrailSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1447053305011472912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8799474638680499167}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.021, y: 0.014, z: -0.34}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3760446635963301269}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9086152306701362361
 GameObject:
   m_ObjectHideFlags: 0
@@ -783,9 +845,14 @@ GameObject:
   - component: {fileID: 4963353252173075973}
   - component: {fileID: 3556351321233705271}
   - component: {fileID: 6986465247500084549}
+  - component: {fileID: 8920901677471519106}
+  - component: {fileID: 3125213298402918609}
+  - component: {fileID: 2298758772987174170}
+  - component: {fileID: 7229323551377299364}
   - component: {fileID: 1509178921662588003}
   - component: {fileID: 9173524220579911053}
   - component: {fileID: 4864583055283112748}
+  - component: {fileID: 1143199871953527958}
   m_Layer: 2
   m_Name: PlayerCharacter with StatePattern
   m_TagString: Player
@@ -806,6 +873,8 @@ Transform:
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 1447053305011472912}
+  - {fileID: 4667274017938505215}
   - {fileID: 59752493820490254}
   - {fileID: 7285526186880880343}
   - {fileID: 5392141135489386077}
@@ -915,7 +984,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 2
 --- !u!114 &6986465247500084549
 MonoBehaviour:
@@ -930,13 +999,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 0}
+  playerHapticEvent: {fileID: 0}
   animator: {fileID: 1007627176710783147}
   rb: {fileID: 3556351321233705271}
   moveDirection: {x: 0, y: 0, z: 0}
   isRunning: 0
   groundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 193
   sphereRadius: 0.2
   raycastDistance: 0.5
   groundCheckPoints:
@@ -971,22 +1041,97 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   timer: 0.25
-  jumpForce: 9
+  jumpForce: 7
   isJumping: 0
   airSpeed: 5
   airAcceleration: 20
+  coyoteTimeDuration: 0.2
+  coyoteTimeCounter: 0
   iceLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   isOnIce: 0
-  glideDuration: 2.5
+  glideDuration: 2
   glideSpeed: 7
   glideTurnSpeed: 0.5
   glideGravity: 4
   glideDrag: 5
-  normalGravity: 9.81
+  normalGravity: 15
   normalDrag: 0
   glideLocked: 0
+  dustSpawnVel: -8
+  canSpawnDustLand: 0
+  fallDeathYLevel: -30
+--- !u!114 &8920901677471519106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9086152306701362361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35cf132437be5b46bc7009c8cc74a30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3125213298402918609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9086152306701362361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6d40919ca9b5484ba2cf174831c0873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2298758772987174170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9086152306701362361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83d38db6289bf3246ba57f485f2c7888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerEvents:
+  - eventType: 0
+    onEventTriggered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3125213298402918609}
+          m_TargetAssemblyTypeName: DualSenseFeedbackHandler, Assembly-CSharp
+          m_MethodName: OnPlayerSwim
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &7229323551377299364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9086152306701362361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccf15d2e7a5e7814d81adcaaa4a40002, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dustTrailPrefab: {fileID: 4325451779739202331, guid: 793164a724aaedb459cf6f6060acea1d, type: 3}
+  dustLandPrefab: {fileID: 4864117026307715271, guid: 79f62ac6d9fd2f54f9858d0092bd052d, type: 3}
+  dustTrailSpawnPoint: {fileID: 1447053305011472912}
+  dustLandSpawnPoint: {fileID: 4667274017938505215}
+  playerController: {fileID: 6986465247500084549}
 --- !u!114 &1509178921662588003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1052,6 +1197,18 @@ MonoBehaviour:
   interactLayer:
     serializedVersion: 2
     m_Bits: 131072
+--- !u!114 &1143199871953527958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9086152306701362361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf1fade91c9ff4439a6b12cbb1a38cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9177116403787183143
 GameObject:
   m_ObjectHideFlags: 0
@@ -1078,7 +1235,7 @@ Transform:
   m_GameObject: {fileID: 9177116403787183143}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.018, z: 0}
   m_LocalScale: {x: 39.999996, y: 39.999996, z: 39.999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
