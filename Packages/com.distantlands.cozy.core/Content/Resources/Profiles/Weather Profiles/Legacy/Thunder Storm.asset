@@ -15,60 +15,13 @@ MonoBehaviour:
   minWeatherTime: 0
   maxWeatherTime: 1
   likelihood: 0
-  forecastNext:
-  - {fileID: 11400000, guid: 134d60bbf3db4074599790ce6df65c88, type: 2}
-  - {fileID: 11400000, guid: f2d3f1cb4e3d78a4fb7f9853c2ec899a, type: 2}
-  forecastModifierMethod: 2
-  chances:
-  - limitType: 0
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.3
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.35
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    customChanceEffector: {fileID: 0}
+  forecastNext: []
+  forecastModifierMethod: 1
+  chances: []
   FX:
   - {fileID: 11400000, guid: 37958e75fc835c242a6ab218c3f7c868, type: 2}
   - {fileID: 11400000, guid: 5818af68d3b1bdd47ad057e03bb5f10e, type: 2}
   - {fileID: 11400000, guid: f1060915b42a4094eb4db8e67b27e8f4, type: 2}
-  - {fileID: 11400000, guid: 3ca682fa89b9e784087c74f4b948d1d7, type: 2}
   - {fileID: 11400000, guid: ca58f4622d4c4954dac92a21699c672d, type: 2}
   - {fileID: 11400000, guid: 75c6c556a1ea30c4baec9dce115052e1, type: 2}
   - {fileID: 11400000, guid: 4505d67b062b37240b5906993b1fab90, type: 2}
