@@ -681,7 +681,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.25
+  m_Time: 0.1
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -918,6 +918,12 @@ MonoBehaviour:
   meshTransform: {fileID: 3912317341708315555}
   capyAnimator: {fileID: 6844136529938749793}
   birdAnimator: {fileID: 2467879016728466631}
+  cmOrbitalFollow: {fileID: 0}
+  cmPerlin: {fileID: 0}
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  capybaraInputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
 --- !u!1 &5253941383591097977
 GameObject:
   m_ObjectHideFlags: 0
@@ -1058,7 +1064,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.25
+  m_Time: 0.1
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3

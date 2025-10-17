@@ -86,7 +86,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FlyModeBird_Fly
-  m_Speed: 0.4
+  m_Speed: 0.85
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -3100242835957856753}
@@ -333,28 +333,28 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -9085263638319891168}
-    m_Position: {x: 310, y: 0, z: 0}
+    m_Position: {x: 310, y: 340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4540590044449727117}
-    m_Position: {x: 310, y: -60, z: 0}
+    m_Position: {x: 310, y: 10, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6241850557468163038}
-    m_Position: {x: 310, y: 50, z: 0}
+    m_Position: {x: 80, y: 330, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1832244894933164408}
-    m_Position: {x: 310, y: 110, z: 0}
+    m_Position: {x: 80, y: 230, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5443549756060553126}
-    m_Position: {x: 310, y: 180, z: 0}
+    m_Position: {x: 80, y: 280, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2467446612111989870}
-    m_Position: {x: 310, y: 230, z: 0}
+    m_Position: {x: 310, y: 220, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4236834724929542121}
-    m_Position: {x: 310, y: 280, z: 0}
+    m_Position: {x: 310, y: 80, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6509167293741449253}
-    m_Position: {x: 310, y: 330, z: 0}
+    m_Position: {x: 310, y: 280, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []

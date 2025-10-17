@@ -131,7 +131,10 @@ public class DualSenseInputManager : MonoBehaviour
 
     private void Update()
     {
+        if (DualSenseControllers.Count == 0) return;
+        
         var controllerToUse = DualSenseControllers[0];
+        
         var inputState = controllerToUse.GetInputState();
         
         // interact with DualSense logic

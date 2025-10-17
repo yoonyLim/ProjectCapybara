@@ -85,14 +85,14 @@
                     "id": "87bd773c-f951-4660-8b0a-9f6bdca1cb10",
                     "path": "2DVector",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "DeltaTimeScale",
                     "groups": "",
                     "action": "Move",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "up",
+                    "name": "Up",
                     "id": "c4af4ffa-cd97-42eb-b2ee-653341bf6828",
                     "path": "<Keyboard>/w",
                     "interactions": "",
@@ -103,7 +103,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "down",
+                    "name": "Down",
                     "id": "6554f812-ec91-4672-bf46-437c4eea57e7",
                     "path": "<Keyboard>/s",
                     "interactions": "",
@@ -114,8 +114,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "left",
-                    "id": "bc12d2e5-423e-4c65-a48e-e04b9e17e1ed",
+                    "name": "Left",
+                    "id": "d1e46007-1354-4ff4-9d36-fde20f7eaaeb",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
@@ -125,8 +125,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
-                    "id": "b2162b8b-5fc2-4c5f-9dc4-6749214e494a",
+                    "name": "Right",
+                    "id": "7826bf20-2381-40c0-b62f-df0457f15bbc",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",

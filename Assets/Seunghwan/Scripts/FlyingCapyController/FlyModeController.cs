@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections;
+using Capybara;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -12,14 +13,14 @@ public class FlyModeController : MonoBehaviour
     private readonly float yawRotationSpeed = 100f;
     private readonly float obstacleHitRotationSpeed = 800f;
     private readonly float maxMeshRoll = 25f;
-    private readonly float maxMeshPitch = 35f;
+    private readonly float maxMeshPitch = 40f;
     private readonly float bounceStrength = 40f;
     private readonly float maxSpeed = 100f;
     private readonly float gravityStrength = 10f;
 
     private readonly float normalLinearDamping = 3f;
     private readonly float obstacleHitLinearDamping = 1f;
-    private readonly float obstacleHitDuration = 1.5f;
+    private readonly float obstacleHitDuration = 1f;
     private readonly float camShakeDuration = 0.175f;
 
     private bool shouldSpinLeft = false;
@@ -27,6 +28,7 @@ public class FlyModeController : MonoBehaviour
 
     private FlyModeState state = FlyModeState.Normal;
     private float obstacleHitEnterTime = 0f;
+    private bool blockForwardAcceleration = false;
     
     private Vector2 moveInput;
 
@@ -35,10 +37,13 @@ public class FlyModeController : MonoBehaviour
     [SerializeField] private Animator birdAnimator;
 
     private readonly int hitAnimTrigger = Animator.StringToHash("Hit");
+    private readonly int eyesSpinAnimState = Animator.StringToHash("Eyes_Spin");
+    private readonly int eyesIdleAnimState = Animator.StringToHash("Eyes_Idle");
     
     [SerializeField] private CinemachineOrbitalFollow cmOrbitalFollow;
     [SerializeField] private CinemachineBasicMultiChannelPerlin cmPerlin;
     [SerializeField] private LayerMask obstacleLayerMask;
+    [SerializeField] private CapybaraInputReader capybaraInputReader;
 
     enum FlyModeState
     {
@@ -53,17 +58,35 @@ public class FlyModeController : MonoBehaviour
         capyRigidBody.linearDamping = normalLinearDamping;
     }
 
+    private void OnEnable()
+    {
+        capybaraInputReader.EnableGamePlayActionInputs();
+        capybaraInputReader.MoveEvent += OnMove;
+        capybaraInputReader.MoveCanceledEvent += OnMoveCanceled;
+    }
+
+    private void OnDisable()
+    {
+        capybaraInputReader.MoveEvent -= OnMove;
+        capybaraInputReader.MoveCanceledEvent -= OnMoveCanceled;
+    }
+
+    private void OnMove(Vector2 input)
+    {
+        moveInput = input;
+    }
+
+    private void OnMoveCanceled(Vector2 input)
+    {
+        moveInput = Vector2.zero;
+    }
+
     private void Update()
     {
-        moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        
         ApplyMeshLocalRotation();
 
-        float targetY = -1f * moveInput.y * 3f;
-        cmOrbitalFollow.TargetOffset.y = FInterpTo(cmOrbitalFollow.TargetOffset.y, targetY, Time.deltaTime, 2f);
-        
-        
-        
+        float targetY = 25f - moveInput.y * 30f;
+        cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 2f);
     }
 
     private void FixedUpdate()
@@ -79,7 +102,6 @@ public class FlyModeController : MonoBehaviour
             default:
                 break;
         }
-        
     }
 
     void NormalStateFixedUpdate()
@@ -87,21 +109,20 @@ public class FlyModeController : MonoBehaviour
         Vector3 rbYawForward = capyRigidBody.transform.forward;
         rbYawForward.y = 0;
         rbYawForward.Normalize();
-
-        Vector3 forwardForce = rbYawForward * forwardFlightStrength;
-        capyRigidBody.AddForce(forwardForce, ForceMode.Acceleration);
+        
+        if (!blockForwardAcceleration)
+        {
+            Vector3 forwardForce = rbYawForward * forwardFlightStrength;
+            capyRigidBody.AddForce(forwardForce, ForceMode.Acceleration);
+        }
         
         if (Mathf.Abs(moveInput.y) > Mathf.Epsilon)
         {
             capyRigidBody.AddForce(Vector3.up * (moveInput.y * upwardFlightStrength), ForceMode.Acceleration);
-
         }
 
-        if (Math.Abs(moveInput.x) > Mathf.Epsilon)
-        {
-            Quaternion yawDelta = Quaternion.Euler(0, moveInput.x * yawRotationSpeed * Time.fixedDeltaTime, 0);
-            capyRigidBody.MoveRotation(capyRigidBody.rotation * yawDelta);
-        }
+        Quaternion yawDelta = Quaternion.Euler(0f , moveInput.x * yawRotationSpeed * Time.fixedDeltaTime, 0f);
+        capyRigidBody.MoveRotation(capyRigidBody.rotation * yawDelta);
     }
 
     void ObstacleHitStateFixedUpdate()
@@ -136,6 +157,7 @@ public class FlyModeController : MonoBehaviour
         
         if (other.gameObject.CompareTag("FlyingObstacle"))
         {
+            DualSenseInputManager.Instance.RumbleControllerForDuration(1f, 0.1f);
             Vector3 currentVelocityDir = capyRigidBody.linearVelocity.normalized;
             Vector3 impulseDir = other.impulse.normalized;
 
@@ -149,6 +171,8 @@ public class FlyModeController : MonoBehaviour
         }
         else
         {
+            StartCoroutine(BlockForwardAccelerationCoroutine(1f));
+            DualSenseInputManager.Instance.RumbleControllerForDuration(0.3f, 0.1f);
             capyRigidBody.AddForce(meanNormal * bounceStrength, ForceMode.Impulse);
         }
         
@@ -156,11 +180,15 @@ public class FlyModeController : MonoBehaviour
 
     private void NormalStateEnter()
     {
+        capyAnimator.CrossFadeInFixedTime("Eyes_Idle", 0.15f, capyAnimator.GetLayerIndex("Face Layer"));
+        birdAnimator.CrossFadeInFixedTime(eyesIdleAnimState, 0.15f, birdAnimator.GetLayerIndex("Face Layer"));
         capyRigidBody.linearDamping = normalLinearDamping;
     }
 
     private void ObstacleHitStateEnter()
     {
+        capyAnimator.CrossFadeInFixedTime("Eyes_Spin", 0.15f, capyAnimator.GetLayerIndex("Face Layer"));
+        birdAnimator.CrossFadeInFixedTime(eyesSpinAnimState, 0.15f, birdAnimator.GetLayerIndex("Face Layer"));
         StartCoroutine(ShakeCameraCoroutine());
         capyRigidBody.linearDamping = obstacleHitLinearDamping;
         currentHitRotationSpeed = obstacleHitRotationSpeed;
@@ -198,6 +226,13 @@ public class FlyModeController : MonoBehaviour
                 break;
         }
         
+    }
+
+    IEnumerator BlockForwardAccelerationCoroutine(float duration)
+    {
+        blockForwardAcceleration = true;
+        yield return new WaitForSeconds(duration);
+        blockForwardAcceleration = false;
     }
 
     private void OnStateEnter(FlyModeState inState)
