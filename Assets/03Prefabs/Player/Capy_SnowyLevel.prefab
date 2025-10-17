@@ -311,6 +311,10 @@ GameObject:
   - component: {fileID: 6532797307014902446}
   - component: {fileID: 5108938071256839049}
   - component: {fileID: 6541344766148251037}
+  - component: {fileID: 3716466491889281152}
+  - component: {fileID: 4839707528481259751}
+  - component: {fileID: 3303812663063716169}
+  - component: {fileID: 1011717938326663016}
   m_Layer: 0
   m_Name: Capy_SnowyLevel
   m_TagString: Player
@@ -332,6 +336,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4367977816612844873}
+  - {fileID: 3583981905204150051}
   - {fileID: 4733989320052780879}
   - {fileID: 6542929166689578024}
   - {fileID: 4215890238031679023}
@@ -442,7 +447,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 2
 --- !u!114 &8347144141606994587
 MonoBehaviour:
@@ -458,6 +463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
   cameraTransform: {fileID: 0}
+  windSpeedParticles: {fileID: 0}
   acceleration: 30
   maxSpeed: 50
   turnSpeed: 10
@@ -467,7 +473,10 @@ MonoBehaviour:
   constJumpSpeed: 6
   groundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 9
+  snowRampLayer:
+    serializedVersion: 2
+    m_Bits: 0
   constGroundRaycastDistance: 0.4
   constGravity: 9.81
 --- !u!114 &2389531717837984836
@@ -500,14 +509,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a7d9d106b0ee834ba10bcb0697558c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
   cameraTransform: {fileID: 0}
+  playerHapticEvent: {fileID: 3303812663063716169}
   animator: {fileID: 430744752823893686}
   rb: {fileID: 6003072906289740817}
   moveDirection: {x: 0, y: 0, z: 0}
   isRunning: 0
+  platformVelocity: {x: 0, y: 0, z: 0}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 193
+    m_Bits: 200
   sphereRadius: 0.2
   raycastDistance: 0.5
   groundCheckPoints:
@@ -546,6 +558,8 @@ MonoBehaviour:
   isJumping: 0
   airSpeed: 5
   airAcceleration: 20
+  coyoteTimeDuration: 0.2
+  coyoteTimeCounter: 0
   iceLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -555,11 +569,12 @@ MonoBehaviour:
   glideTurnSpeed: 0.5
   glideGravity: 4
   glideDrag: 5
-  normalGravity: 9.81
+  normalGravity: 15
   normalDrag: 0
   glideLocked: 0
   dustSpawnVel: -8
   canSpawnDustLand: 0
+  fallDeathYLevel: -30
 --- !u!114 &8567395690160405000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -642,6 +657,92 @@ MonoBehaviour:
   interactLayer:
     serializedVersion: 2
     m_Bits: 131072
+--- !u!114 &3716466491889281152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf1fade91c9ff4439a6b12cbb1a38cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4839707528481259751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6d40919ca9b5484ba2cf174831c0873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3303812663063716169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83d38db6289bf3246ba57f485f2c7888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerEvents:
+  - eventType: 1
+    onEventTriggered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4839707528481259751}
+          m_TargetAssemblyTypeName: DualSenseFeedbackHandler, Assembly-CSharp
+          m_MethodName: OnPlayerJumped
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventType: 2
+    onEventTriggered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4839707528481259751}
+          m_TargetAssemblyTypeName: DualSenseFeedbackHandler, Assembly-CSharp
+          m_MethodName: OnPlayerLanded
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &1011717938326663016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35cf132437be5b46bc7009c8cc74a30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mountPoint: {fileID: 3583981905204150051}
+  interactionRadius: 2
+  ridableLayer:
+    serializedVersion: 2
+    m_Bits: 2147483648
 --- !u!1 &3972661914928401711
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,7 +799,7 @@ Transform:
   m_GameObject: {fileID: 4843086168371106846}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.54, y: 1.8030001, z: -0.5500001}
+  m_LocalPosition: {x: 0, y: 0.082, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -764,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 5736827052763150535}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.561, y: 1.817, z: -0.89}
+  m_LocalPosition: {x: 0, y: 0.009, z: -0.277}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -892,7 +993,7 @@ Transform:
   m_GameObject: {fileID: 6191296864705030024}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.561, y: 1.7960001, z: -0.68299997}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1144,7 +1245,7 @@ Transform:
   m_GameObject: {fileID: 8282942090781327190}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.26200008, z: 0.451}
+  m_LocalPosition: {x: 0, y: 0.336, z: 0.488}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1181,6 +1282,37 @@ Transform:
   m_Children:
   - {fileID: 8614945835418343609}
   m_Father: {fileID: 4215890238031679023}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9189671877213746676
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3583981905204150051}
+  m_Layer: 2
+  m_Name: MountPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3583981905204150051
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9189671877213746676}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5419, z: -0.1666}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7480630780415206328}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9216636198878843435
 GameObject:
