@@ -55,8 +55,6 @@ public class LoadingManager : MonoBehaviour
             yield return new WaitForSeconds(1);
                 
             loadingOperation.allowSceneActivation = true;
-            
-            // if player exists in the scene, add Noah to the game manager
         }
 
         anim.SetTrigger(LoadingEnd);

@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
 
 
     private IPlayerState currentState;
-    [HideInInspector] public Transform cameraTransform;
+    public Transform cameraTransform;
     private bool isInWindZone = false;
     [SerializeField] private PlayerHapticEvent playerHapticEvent;
 
