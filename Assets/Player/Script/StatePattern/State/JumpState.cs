@@ -27,7 +27,7 @@ public class JumpState : IPlayerState
             player.rb.AddForce(Vector3.up * player.jumpForce, ForceMode.Impulse);
             // --- ¼öÁ¤ ³¡ ---
 
-            player.rb.useGravity = true;
+            //player.rb.useGravity = true;
         }
     }
 
@@ -85,6 +85,7 @@ public class JumpState : IPlayerState
         Vector3 v = player.rb.linearVelocity;
         Vector3 hv = new Vector3(v.x, 0f, v.z);
         Vector3 hvNew = Vector3.MoveTowards(hv, desiredVel, player.airAcceleration * Time.fixedDeltaTime);
+        float newVerticalVelocity = player.rb.linearVelocity.y - player.gravity * Time.fixedDeltaTime;
 
         Quaternion RotationRef = player.SurfaceAlignment();
 
@@ -97,7 +98,7 @@ public class JumpState : IPlayerState
             player.transform.rotation = Quaternion.Euler(rotRef.eulerAngles.x, smooth, rotRef.eulerAngles.z);
         }
 
-        player.rb.linearVelocity = new Vector3(hvNew.x, v.y, hvNew.z);
+        player.rb.linearVelocity = new Vector3(hvNew.x, newVerticalVelocity, hvNew.z);
         #endregion
     }
 }
