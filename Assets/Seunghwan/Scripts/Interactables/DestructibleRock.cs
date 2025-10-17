@@ -9,7 +9,7 @@ public class DestructibleRock : MonoBehaviour, IDestructible
     private Collider rockCollider;
     private MeshRenderer rockMeshRenderer;
     [SerializeField] private Transform brokenRock;
-    [SerializeField] Vector3 brokenPosition;
+    public Vector3 brokenPosition;
     private void Awake()
     {
         //rockParticleSystem = GetComponent<ParticleSystem>();
@@ -26,12 +26,11 @@ public class DestructibleRock : MonoBehaviour, IDestructible
         {
             if (child.TryGetComponent<Rigidbody>(out Rigidbody childRigidbody))
             {
-                childRigidbody.AddExplosionForce(60f, brokenPosition, 5f);
-                Destroy(brokenRock.gameObject, 5f);
+                childRigidbody.AddExplosionForce(200f, brokenPosition, 2f);
             }
+
             Destroy(gameObject, 5f);
         }
-        //transform.GetChild(0).gameObject.SetActive(false);
     }
 
     
