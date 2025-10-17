@@ -37,26 +37,25 @@ public class HeadbuttState : IPlayerState
             Vector3 origin = player.transform.position + Vector3.up * headHeight;
             Vector3 dir = player.transform.forward;
 
-            // 기본: 트리거 무시. (대상이 Trigger라면 마지막 파라미터를 Collide로 바꾸세요)
             if (Physics.Raycast(origin, dir, out RaycastHit hit, hitRange, ~0, QueryTriggerInteraction.Ignore))
             {
                 // Tag = Obstacle 인 것만 타격
                 if (hit.collider.CompareTag(obstacleTag))
                 {
-                    // IDestructible 찾고 Hit()
-                    if (hit.collider.TryGetComponent<IDestructible>(out var d))
-                        d.Hit();
-                    //else
-                    //    hit.collider.GetComponentInParent<IDestructible>()?.Hit();
+                    if (hit.collider.TryGetComponent<DestructibleRock>(out var rock))
+                    {
+                        rock.brokenPosition = hit.point; // ★ 먼저 세팅
+                        rock.Hit();                      // ★ 그 다음에 터뜨리기
+                    }
                 }
             }
 
-            // 디버그용 레이(씬뷰에서 확인)
+            // 디버그용 레이
             Debug.DrawRay(origin, dir * hitRange, Color.red, 0.3f);
         }
 
         timer += Time.deltaTime;
-        // 정해진 시간이 지나면 기본 상태(RunningState)로 돌아갑니다.
+        // 정해진 시간이 지나면 기본 상태(RunningState)로
         if (timer >= stateDuration)
         {
             player.ChangeState(new RunningState());
@@ -66,18 +65,14 @@ public class HeadbuttState : IPlayerState
 
     public void FixedUpdate(PlayerController player)
     {
-        // 박치기 중에는 물리적인 움직임을 주지 않습니다.
     }
 
     public void HandleInput(PlayerController player, InputAction.CallbackContext context)
     {
-        // 박치기 중에는 다른 입력을 받지 않습니다.
     }
 
     public void Exit(PlayerController player)
     {
-        Debug.Log("HeadbuttState 탈출");
-        // 다른 상태로 넘어갈 때 혹시 모를 트리거를 리셋해줄 수 있습니다.
-        // player.animator.ResetTrigger("Headbutt");
+
     }
 }
