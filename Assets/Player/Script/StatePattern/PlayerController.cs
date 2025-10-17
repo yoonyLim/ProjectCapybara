@@ -19,22 +19,35 @@ public interface IPlayerState
 
 public class PlayerController : MonoBehaviour
 {
+    // input reader
     [SerializeField] private CapybaraInputReader inputReader;
-
-
-    private IPlayerState currentState;
-    public Transform cameraTransform;
-    private bool isInWindZone = false;
     [SerializeField] private PlayerHapticEvent playerHapticEvent;
 
+    // State 관련
+    private IPlayerState currentState;
+
+    // main camera 위치
+    public Transform cameraTransform;
+    private bool isInWindZone = false;
+    
     public Animator animator;
     public Rigidbody rb;
 
-    [HideInInspector] public Vector3 moveDirection;
-    [HideInInspector] public bool isRunning;
+    
+
+    
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
     [HideInInspector] public Vector3 platformVelocity;
+
+    #region 이동 관련 변수
+    [Header("이동속도 & 중력")]
+    public float walkSpeed = 3f;
+    public float sprintSpeed = 7f;
+    public float gravity = 9.81f;
+    [HideInInspector] public Vector3 moveDirection;
+    [HideInInspector] public bool isRunning;
+    #endregion
 
     #region Ground 체크 관련 변수
     [Header("Check isGrounded")]
@@ -99,6 +112,12 @@ public class PlayerController : MonoBehaviour
 
     #region 리스폰 변수
     [SerializeField] private float fallDeathYLevel = -50f;
+    #endregion
+
+    #region 충돌 관련 변수
+    [Header("Hit 설정")]
+    [SerializeField] private float knockbackForce = 15f; // 뒤로 밀려나는 힘의 크기
+    [SerializeField] private string obstacleTag = "Obstacle"; // 장애물에 사용할 태그
     #endregion
 
     private MountController mountController;
@@ -195,8 +214,6 @@ public class PlayerController : MonoBehaviour
     private void HandleMove(Vector2 moveInput)
     {
         // MoveInput 변수에 직접 값을 넣어줍니다. Update에서 이미 ReadValue를 하고 있으므로
-        // 해당 부분을 지우거나, 이 방식으로 통일합니다.
-        // Update()의 MoveInput = moveAction.ReadValue<Vector2>(); 줄을 삭제하는 것을 추천합니다.
         MoveInput = moveInput;
         LastMoveInput = moveInput;
 
@@ -267,7 +284,7 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 isJumping = false;
                 wasFalling = false;
-                glideLocked = false;
+                //glideLocked = false;
 
                 if (canSpawnDustLand)
                 {
@@ -312,6 +329,23 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("jumpPad") || other.CompareTag("windZone"))
         {
             isInWindZone = false;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // 장애물 태그를 가진 오브젝트와 충돌했는지, 그리고 현재 HitState가 아닌지 확인합니다.
+        if (currentState is HitState) return;
+
+        if (collision.gameObject.CompareTag(obstacleTag))
+        {
+            ChangeState(new HitState());
+            // 2. 충돌 지점의 반대 방향으로 밀려날 방향을 계산
+            Vector3 knockbackDirection = (transform.position - collision.contacts[0].point).normalized;
+            knockbackDirection.y = 0;
+
+            rb.linearVelocity = Vector3.zero;
+            rb.AddForce(knockbackDirection * knockbackForce, ForceMode.Impulse);
         }
     }
 
