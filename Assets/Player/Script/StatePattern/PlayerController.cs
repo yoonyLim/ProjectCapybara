@@ -118,7 +118,6 @@ public class PlayerController : MonoBehaviour
 
     #region 충돌 관련 변수
     [Header("Hit 설정")]
-    [SerializeField] private float knockbackForce = 15f; // 뒤로 밀려나는 힘의 크기
     [SerializeField] private string obstacleTag = "Obstacle"; // 장애물에 사용할 태그
     #endregion
 
@@ -347,7 +346,6 @@ public class PlayerController : MonoBehaviour
             knockbackDirection.y = 0;
 
             rb.linearVelocity = Vector3.zero;
-            rb.AddForce(knockbackDirection * knockbackForce, ForceMode.Impulse);
         }
     }
 
