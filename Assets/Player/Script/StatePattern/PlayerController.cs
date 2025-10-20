@@ -20,7 +20,9 @@ public interface IPlayerState
 public class PlayerController : MonoBehaviour
 {
     private IPlayerState currentState;
-    [HideInInspector] public Transform cameraTransform;
+    //public PlayerCamera playerCam; // fucked up
+    //public Transform cameraTransform; // fucked up
+    public Transform cameraTransform;
 
     public Animator animator;
     public Rigidbody rb;
@@ -28,6 +30,10 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool isRunning;
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
+
+    private Vector2 cameraInput;
+    [HideInInspector] public float cameraHorizontalInput => cameraInput.x;
+    [HideInInspector] public float cameraVerticalInput => cameraInput.y;
 
     #region InputAction 변수
     private PlayerInput playerInput;
@@ -116,7 +122,7 @@ public class PlayerController : MonoBehaviour
 
         jumpAction.performed += OnJump;
 
-        glideAction.started += OnGlide;
+        glideAction.started += OnGlide; 
         glideAction.performed += OnGlide;
         glideAction.canceled += OnGlide;
         #endregion
