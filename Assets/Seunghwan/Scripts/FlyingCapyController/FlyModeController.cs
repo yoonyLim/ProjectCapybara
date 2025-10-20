@@ -1,5 +1,3 @@
-
-using System;
 using System.Collections;
 using Capybara;
 using Unity.Cinemachine;
@@ -32,6 +30,8 @@ public class FlyModeController : MonoBehaviour
     
     private Vector2 moveInput;
 
+    private readonly int Alpha = Shader.PropertyToID("_Alpha");
+
     [SerializeField] private Transform meshTransform;
     [SerializeField] private Animator capyAnimator;
     [SerializeField] private Animator birdAnimator;
@@ -44,6 +44,10 @@ public class FlyModeController : MonoBehaviour
     [SerializeField] private CinemachineBasicMultiChannelPerlin cmPerlin;
     [SerializeField] private LayerMask obstacleLayerMask;
     [SerializeField] private CapybaraInputReader capybaraInputReader;
+
+    [SerializeField] private Material speedEffectMaterial;
+
+    [SerializeField] private BirdHitSound hitSoundComponent;
 
     enum FlyModeState
     {
@@ -69,12 +73,14 @@ public class FlyModeController : MonoBehaviour
     {
         capybaraInputReader.MoveEvent -= OnMove;
         capybaraInputReader.MoveCanceledEvent -= OnMoveCanceled;
+        speedEffectMaterial.SetFloat(Alpha, 0f);
     }
 
     private void OnMove(Vector2 input)
     {
         moveInput = input;
     }
+    
 
     private void OnMoveCanceled(Vector2 input)
     {
@@ -87,6 +93,10 @@ public class FlyModeController : MonoBehaviour
 
         float targetY = 25f - moveInput.y * 30f;
         cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 2f);
+
+        float targetEffectAlpha =
+            0.1f * Mathf.Clamp01(capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity);
+        speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
     }
 
     private void FixedUpdate()
@@ -157,6 +167,8 @@ public class FlyModeController : MonoBehaviour
         
         if (other.gameObject.CompareTag("FlyingObstacle"))
         {
+            hitSoundComponent.PlayHitSound();
+            
             DualSenseInputManager.Instance.RumbleControllerForDuration(1f, 0.1f);
             Vector3 currentVelocityDir = capyRigidBody.linearVelocity.normalized;
             Vector3 impulseDir = other.impulse.normalized;
