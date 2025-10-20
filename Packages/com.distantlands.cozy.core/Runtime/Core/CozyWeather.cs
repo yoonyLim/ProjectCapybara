@@ -435,15 +435,15 @@ namespace DistantLands.Cozy
         public void SetupSystems()
         {
             systems = new List<CozySystem>() { this };
-            systems.AddRange(FindObjectsOfType<CozySystem>().Where(x => x != this));
+            systems.AddRange(FindObjectsByType<CozySystem>(FindObjectsSortMode.None).Where(x => x != this));
         }
 
         public void ResetFXTriggers()
         {
             cozyTriggers.Clear();
-            foreach (Collider i in FindObjectsOfType<Collider>())
+            foreach (Collider i in FindObjectsByType<Collider>(FindObjectsSortMode.None))
             {
-                if (i.gameObject.tag == cozyTriggerTag)
+                if (i.gameObject.CompareTag(cozyTriggerTag))
                 {
                     cozyTriggers.Add(i);
                 }
@@ -1153,7 +1153,7 @@ namespace DistantLands.Cozy
                 if (cachedInstance)
                     return cachedInstance;
 
-                cachedInstance = FindObjectOfType<CozyWeather>();
+                cachedInstance = FindFirstObjectByType<CozyWeather>();
                 return cachedInstance;
 
 

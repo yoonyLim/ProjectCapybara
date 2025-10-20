@@ -15,46 +15,9 @@ MonoBehaviour:
   minWeatherTime: 0.125
   maxWeatherTime: 0.33333334
   likelihood: 0.554
-  forecastNext:
-  - {fileID: 11400000, guid: 134d60bbf3db4074599790ce6df65c88, type: 2}
-  - {fileID: 11400000, guid: 360273c9c779d1f42a10eee5f070a83a, type: 2}
+  forecastNext: []
   forecastModifierMethod: 0
-  chances:
-  - limitType: 1
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0.044111505
-        outSlope: 0.044111505
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.07378249
-      - serializedVersion: 3
-        time: 0.7038452
-        value: 0.70022964
-        inSlope: 2.5624804
-        outSlope: 2.5624804
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.14414027
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 0
-    customChanceEffector: {fileID: 0}
+  chances: []
   FX:
   - {fileID: 11400000, guid: 37958e75fc835c242a6ab218c3f7c868, type: 2}
   - {fileID: 11400000, guid: 5818af68d3b1bdd47ad057e03bb5f10e, type: 2}
@@ -65,3 +28,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 78a0e1aebc0292f4885202406e623d4c, type: 2}
   - {fileID: 11400000, guid: 15b37cbb30f878c489770528e2780033, type: 2}
   - {fileID: 11400000, guid: d3a2650486fe2ad4bb90df0581bb9590, type: 2}
+  - {fileID: 11400000, guid: 55f53f0020eb43a468b2ad79f30010b7, type: 2}
