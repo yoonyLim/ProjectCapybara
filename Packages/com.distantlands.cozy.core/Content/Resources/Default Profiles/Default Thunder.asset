@@ -37,4 +37,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   timeBetweenStrikes: {x: 61, y: 61}
+  thunderPrefab: {fileID: 1736072761645741898, guid: 79d4c09c80b928e44ab04e77f4bb76bb, type: 3}
   weight: 0
+  runtimeRef: {fileID: 0}
+  minimumDistance: 700
+  maximumDistance: 1200
+  minScreenXmultiplier: 0.1
+  maxScreenXmultiplier: 0.9
+  minScreenYmultiplier: 0
+  maxScreenYmultiplier: 0.1
+  spawnInFrustumPercentage: 0.5
