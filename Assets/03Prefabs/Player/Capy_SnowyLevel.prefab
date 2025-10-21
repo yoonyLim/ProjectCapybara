@@ -315,6 +315,7 @@ GameObject:
   - component: {fileID: 4839707528481259751}
   - component: {fileID: 3303812663063716169}
   - component: {fileID: 1011717938326663016}
+  - component: {fileID: 4418722021323753366}
   m_Layer: 0
   m_Name: Capy_SnowyLevel
   m_TagString: Player
@@ -456,7 +457,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3702451084219607114}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20ef7dddc2a242e488edac085be29c4f, type: 3}
   m_Name: 
@@ -464,8 +465,10 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
   cameraTransform: {fileID: 0}
   windSpeedParticles: {fileID: 0}
+  Clouds: {fileID: 3116581197892436976, guid: 49547230d06d39f4cab29735111a08b4, type: 3}
+  breakDistance: 1000
   acceleration: 30
-  maxSpeed: 50
+  maxSpeed: 40
   turnSpeed: 10
   friction: 0.1
   brakingPower: 25
@@ -473,10 +476,10 @@ MonoBehaviour:
   constJumpSpeed: 6
   groundLayer:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 73
   snowRampLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   constGroundRaycastDistance: 0.4
   constGravity: 9.81
 --- !u!114 &2389531717837984836
@@ -496,7 +499,7 @@ MonoBehaviour:
   drawDistance: 50
   groundLayers:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 73
 --- !u!114 &6204316196488817039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -510,16 +513,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
-  cameraTransform: {fileID: 0}
   playerHapticEvent: {fileID: 3303812663063716169}
+  cameraTransform: {fileID: 0}
   animator: {fileID: 430744752823893686}
   rb: {fileID: 6003072906289740817}
+  platformVelocity: {x: 0, y: 0, z: 0}
+  walkSpeed: 3
+  sprintSpeed: 7
+  gravity: 9.81
   moveDirection: {x: 0, y: 0, z: 0}
   isRunning: 0
-  platformVelocity: {x: 0, y: 0, z: 0}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 200
+    m_Bits: 201
   sphereRadius: 0.2
   raycastDistance: 0.5
   groundCheckPoints:
@@ -575,6 +581,7 @@ MonoBehaviour:
   dustSpawnVel: -8
   canSpawnDustLand: 0
   fallDeathYLevel: -30
+  obstacleTag: Obstacle
 --- !u!114 &8567395690160405000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -743,6 +750,18 @@ MonoBehaviour:
   ridableLayer:
     serializedVersion: 2
     m_Bits: 2147483648
+--- !u!114 &4418722021323753366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702451084219607114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c770a10842b27584fb38e907a1d06072, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3972661914928401711
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,7 +916,7 @@ Transform:
   m_GameObject: {fileID: 6087410550729406949}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -13.62}
   m_LocalScale: {x: 39.999996, y: 39.999996, z: 39.999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
