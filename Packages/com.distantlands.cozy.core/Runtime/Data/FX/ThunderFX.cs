@@ -49,7 +49,7 @@ namespace DistantLands.Cozy.Data
 
             if (runtimeRef == null)
             {
-                if (weather.GetFXRuntimeRef<CozyThunderManager>(name) != null)
+                if (weather.GetFXRuntimeRef<CozyThunderManager>(name))
                 {
                     runtimeRef = weather.GetFXRuntimeRef<CozyThunderManager>(name);
                     return true;

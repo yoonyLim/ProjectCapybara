@@ -14,7 +14,6 @@ public class FlyModeController : MonoBehaviour
     private readonly float maxMeshPitch = 40f;
     private readonly float bounceStrength = 40f;
     private readonly float maxSpeed = 100f;
-    private readonly float gravityStrength = 10f;
 
     private readonly float normalLinearDamping = 3f;
     private readonly float obstacleHitLinearDamping = 1f;
