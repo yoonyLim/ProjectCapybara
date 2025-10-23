@@ -6,7 +6,7 @@ using UnityEngine;
 /// [로직 전용] NPC에 부착되어 대화의 '흐름' (어떤 노드인지)만 관리합니다.
 /// 실제 표현(UI, 오디오)은 DialogUI.cs에 위임합니다.
 /// </summary>
-public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스를 구현하고 있는지 확인하세요.
+public class Dialogue : MonoBehaviour, IInteractable
 {
     public enum DialogueState
     {
@@ -18,14 +18,18 @@ public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스
     public event Action OnDialogueEnd;
     public event Action OnDialogueAdvance;
 
-    [Header("NPC Info")] // [추가됨]
+    [Header("NPC Info")]
     [Tooltip("이 NPC의 이름입니다. DialogUI에 표시됩니다.")]
-    [SerializeField] private string npcName; // [추가됨]
+    [SerializeField] private string npcName;
 
     [Header("Dialogue Content")]
     [Tooltip("이 NPC가 시작할 첫 번째 대화 노드(DialogueNode)입니다.")]
     [SerializeField]
     private DialogueNode startingNode;
+
+    [Header("Tutorial Trigger")]
+    [Tooltip("대화 종료 시 띄울 튜토리얼 레벨 (0 = 없음, 1 = 1레벨, 2 = 2레벨, 3 = 3레벨)")]
+    [SerializeField] private int tutorialLevelToShow = 0; // [수정됨]
 
     private DialogueNode currentNode;
     [SerializeField]
@@ -38,24 +42,24 @@ public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스
         currentState = DialogueState.Inactive;
     }
 
-    // InteractionComponent가 호출할 수 있도록 IInteractable 인터페이스를 구현합니다.
+    /// <summary>
+    /// InteractionComponent가 호출하는 인터페이스 구현
+    /// </summary>
     public void Interact()
     {
         StartDialogue();
     }
 
     /// <summary>
-    /// 대화를 시작합니다. (InteractionComponent 또는 DialogueTester에서 호출)
+    /// 대화를 시작합니다.
     /// </summary>
     public void StartDialogue()
     {
-        // 1. UIManager에게 대화 시작을 알립니다.
         if (UIManager.instance != null)
         {
             UIManager.instance.StartDialogue(this);
         }
 
-        // [추가됨] DialogUI에 NPC 이름 전달
         if (DialogUI.Instance != null)
         {
             DialogUI.Instance.SetNpcName(npcName);
@@ -104,6 +108,7 @@ public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스
         }
         else
         {
+            // 대화 종료
             currentState = DialogueState.Inactive;
             StartCoroutine(EndInteractionCoroutine());
             OnDialogueEnd?.Invoke();
@@ -124,16 +129,23 @@ public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스
     }
 
     /// <summary>
-    /// 대화가 완전히 종료될 때 UIManager에게 상태 복구를 요청합니다.
+    /// [수정됨] 대화가 완전히 종료될 때 UIManager에게 상태 복구를 요청합니다.
     /// </summary>
     private IEnumerator EndInteractionCoroutine()
     {
         if (UIManager.instance != null)
         {
-            UIManager.instance.EndDialogue();
+            // [수정] 튜토리얼 레벨 번호를 UIManager에게 전달
+            UIManager.instance.EndDialogue(tutorialLevelToShow);
         }
 
         yield return new WaitForEndOfFrame();
-        InteractionComponent.EndInteraction();
+
+        // [수정] 레벨별 튜토리얼이 뜰 경우, 상호작용 종료를 미룹니다.
+        // (튜토리얼이 닫힐 때 UIManager가 대신 호출해줍니다)
+        if (tutorialLevelToShow == 0)
+        {
+            InteractionComponent.EndInteraction();
+        }
     }
 }
