@@ -19,6 +19,17 @@ public class ScanEffect : MonoBehaviour
     
     [SerializeField] private LayerMask transparentLayerMask;
     Collider[] foundColliders = new Collider[10];
+    
+    
+    // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    [SerializeField] private Material breakableRockMaterial;
+    
+    [ColorUsage(true, true)]
+    [SerializeField] private Color breakableRockEmissionColor;
+    
+    [ColorUsage(true, true)]
+    [SerializeField] private Color breakableRockNormalColor;
+    // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     public void Execute()
     {
@@ -94,16 +105,34 @@ public class ScanEffect : MonoBehaviour
             //     }
             // }
             
+            // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            breakableRockMaterial.SetFloat("_FresnelActivation", 1f);
+            
+            Color blendedColor = Color.Lerp(
+                breakableRockNormalColor, 
+                breakableRockEmissionColor, 
+                currentAlpha 
+            );
+        
+            breakableRockMaterial.SetColor("_ScanEffectEmissionColor", blendedColor);
+            // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            
             yield return null;
         }
 
         transform.localScale = Vector3.zero;
-
+        
+        // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        breakableRockMaterial.SetFloat("_FresnelActivation", 0f);
+        breakableRockMaterial.SetColor("_ScanEffectEmissionColor", breakableRockNormalColor);
+        // TEST CODE FROM SEOJIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
         yield return FadeCoroutine();
         
         scanCoroutine = null;
     }
-
+    
     IEnumerator FadeCoroutine()
     {
         float elapsedTime = 0f;
@@ -113,6 +142,7 @@ public class ScanEffect : MonoBehaviour
             float alpha = Mathf.Lerp(1f, 0f, Mathf.Clamp01(elapsedTime / 1f));
             invisibleGlowMaterial.SetFloat("_Alpha", alpha);
             highlightGlowMaterial.SetFloat("_Alpha", alpha);
+            
             yield return null;
         }
         
