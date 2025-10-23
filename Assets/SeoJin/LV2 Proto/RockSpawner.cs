@@ -45,7 +45,8 @@ public class RockSpawner : MonoBehaviour
 
     private int GetRandomRockSet()
     {
-        return Random.Range(1,8);
+        //return Random.Range(1,8);
+        return Random.Range(7,8);
     }
 
     private IEnumerator SpawnRocks()

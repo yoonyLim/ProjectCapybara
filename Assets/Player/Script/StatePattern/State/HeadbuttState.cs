@@ -3,19 +3,19 @@ using UnityEngine;
 
 public class HeadbuttState : IPlayerState
 {
-    private float stateDuration = 0.6f; // ¹ÚÄ¡±â ¾Ö´Ï¸ÞÀÌ¼Ç ±æÀÌ ¶Ç´Â »óÅÂ À¯Áö ½Ã°£
+    private float stateDuration = 0.6f; // ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
     private float timer;
 
-    private string obstacleTag = "BreakableRock";  // ¡ç ÀÌ ÅÂ±×¸¸ Å¸°Ý ÆÇÁ¤
-    private float hitRange = 3f;          // ·¹ÀÌ ±æÀÌ
-    private float headHeight = 0.8f;          // ·¹ÀÌ ½ÃÀÛ ³ôÀÌ
-    private float hitDelay = 0.08f;         // ¾Ö´Ï Å¸ÀÌ¹Ö¿¡ ¸ÂÃç 1È¸¸¸ Ã¼Å©
+    private string obstacleTag = "BreakableRock";  // ï¿½ï¿½ ï¿½ï¿½ ï¿½Â±×¸ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float hitRange = 3f;          // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float headHeight = 0.8f;          // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float hitDelay = 0.08f;         // ï¿½Ö´ï¿½ Å¸ï¿½Ì¹Ö¿ï¿½ ï¿½ï¿½ï¿½ï¿½ 1È¸ï¿½ï¿½ Ã¼Å©
     private bool hitPerformed = false;
-    private float dashSpeed = 7f; // dash ¼Óµµ
+    private float dashSpeed = 7f; // dash ï¿½Óµï¿½
 
     public void Enter(PlayerController player)
     {
-        Debug.Log("HeadbuttState ÁøÀÔ");
+        Debug.Log("HeadbuttState ï¿½ï¿½ï¿½ï¿½");
         timer = 0f;
 
         player.animator.SetTrigger("Headbutt");
@@ -45,22 +45,21 @@ public class HeadbuttState : IPlayerState
 
             if (Physics.Raycast(origin, dir, out RaycastHit hit, hitRange, ~0, QueryTriggerInteraction.Ignore))
             {
-
                 if (hit.collider.CompareTag(obstacleTag))
                 {
                     if (hit.collider.TryGetComponent<DestructibleRock>(out var rock))
                     {
-                        rock.Hit();                      // ¡Ú ±× ´ÙÀ½¿¡ ÅÍ¶ß¸®±â
+                        rock.Hit();                      // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Í¶ß¸ï¿½ï¿½ï¿½
                     }
                 }
             }
 
-            // µð¹ö±×¿ë ·¹ÀÌ
+            // ï¿½ï¿½ï¿½ï¿½×¿ï¿½ ï¿½ï¿½ï¿½ï¿½
             Debug.DrawRay(origin, dir * hitRange, Color.red, 0.3f);
         }
 
         timer += Time.fixedDeltaTime;
-        // Á¤ÇØÁø ½Ã°£ÀÌ Áö³ª¸é ±âº» »óÅÂ(RunningState)·Î
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½(RunningState)ï¿½ï¿½
         if (timer >= stateDuration)
         {
             player.ChangeState(new RunningState());
