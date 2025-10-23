@@ -15,7 +15,7 @@ public class FlyModeController : MonoBehaviour
     private readonly float bounceStrength = 40f;
     private readonly float maxSpeed = 100f;
 
-    private readonly float normalLinearDamping = 3f;
+    private readonly float normalLinearDamping = 1f;
     private readonly float obstacleHitLinearDamping = 1f;
     private readonly float obstacleHitDuration = 1f;
     private readonly float camShakeDuration = 0.175f;
@@ -89,12 +89,11 @@ public class FlyModeController : MonoBehaviour
     private void Update()
     {
         ApplyMeshLocalRotation();
-
         float targetY = 25f - moveInput.y * 30f;
-        cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 2f);
+        cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 3f);
 
-        float targetEffectAlpha =
-            0.1f * Mathf.Clamp01(capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity);
+        float speedRatio = capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity;
+        float targetEffectAlpha = 0.1f * Mathf.Clamp01(1f / (1f- 0.7f) * (speedRatio - 0.7f));
         speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
     }
 
