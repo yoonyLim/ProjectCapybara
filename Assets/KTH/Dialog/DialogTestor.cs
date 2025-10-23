@@ -48,6 +48,7 @@ public class DialogueTester : MonoBehaviour
             // 테스트할 NPC가 할당되었는지 확인
             if (npcDialogueComponent != null)
             {
+
                 Debug.Log($"[InputReader.InteractEvent] {npcDialogueComponent.name}의 대화를 시작합니다.");
 
                 // NPC의 Dialogue 컴포넌트에 직접 대화 시작을 명령

@@ -22,6 +22,6 @@ public class GuidelineVisualizer : MonoBehaviour
 
     private void UpdateNearestKnot()
     {
-        if ()
+
     }
 }
