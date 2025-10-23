@@ -21,8 +21,8 @@ RenderSettings:
   m_LinearFogStart: 200
   m_LinearFogEnd: 500
   m_AmbientSkyColor: {r: 0.63919544, g: 0.9581202, b: 1.018868, a: 1.5}
-  m_AmbientEquatorColor: {r: 0.3603044, g: 0.47037876, b: 0.5196227, a: 0.765}
-  m_AmbientGroundColor: {r: 0.1801522, g: 0.23518938, b: 0.25981134, a: 0.765}
+  m_AmbientEquatorColor: {r: 0.51219743, g: 0.6686758, b: 0.7386793, a: 1.0875001}
+  m_AmbientGroundColor: {r: 0.25609872, g: 0.3343379, b: 0.36933964, a: 1.0875001}
   m_AmbientIntensity: 0
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.3481666, g: 0.37778836, b: 0.4528302, a: 1}
@@ -29435,31 +29435,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0.5125
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.81036377
+      time: -1000
       value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0729218
-      value: 0.5186798
+      time: 1000
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -29493,44 +29484,35 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0.5125
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.81036377
+      time: -1000
       value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0729218
-      value: 0.5186798
+      time: 1000
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  useOcclusion: 1
+  useOcclusion: 0
   useBackgroundCloudOcclusion: 0
   environmentOcclusion: 0
   useWaterOcclusion: 0
-  occlusionRadius: 0.5
+  occlusionRadius: 0
   sampleCount: 32
   occlusionOffset: 0.5
   scale: 1
-  allowOffScreen: 0
+  allowOffScreen: 1
   volumetricCloudOcclusion: 0
   occlusionRemapCurve:
     <length>k__BackingField: 2
@@ -42425,7 +42407,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 744716412}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.8038569, z: -0, w: 0.5948228}
+  m_LocalRotation: {x: -0, y: 0.2079117, z: -0, w: 0.9781476}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -48301,13 +48283,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5db40a91df2985c45baf012ec4dc20c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 880979002}
-  sfxSource: {fileID: 880979001}
-  BGMClips: []
-  SFXClips:
-  - name: PianoKey
-    clip: {fileID: 8300000, guid: f25ec38ac2adae14381a643785666a21, type: 3}
-    volume: 0.5
 --- !u!4 &880979004
 Transform:
   m_ObjectHideFlags: 0
@@ -61539,7 +61514,7 @@ MonoBehaviour:
   volumetricCloudProfile: {fileID: 11400000, guid: af8570cd92dc38a4fb6f28796631d855, type: 2}
   cloudChunkPrefab: {fileID: 8377891541840844724, guid: 14274e75fd089eb4d8a6f636d963d186, type: 3}
   coverageIntensityOffset: 0
-  cloudCoverage: 1
+  cloudCoverage: 0.70000005
   bendToHorizonMultiplier: 0.1
   offset: {x: 0, y: 0, z: 0}
   matrixHolder: {fileID: 0}
@@ -61587,7 +61562,7 @@ MonoBehaviour:
   cachedSystem: {fileID: 1400902368}
   biomes: []
   weight: 1
-  cumulus: 0.98
+  cumulus: 0.55
   cirrus: 0
   altocumulus: 0
   cirrostratus: 0
@@ -61599,8 +61574,8 @@ MonoBehaviour:
   borderEffect: 1
   borderVariation: 0.95
   fogDensity: 1.5
-  filterSaturation: -0.618
-  filterValue: -0.142
+  filterSaturation: 0.09
+  filterValue: -0.09
   filterColor: {r: 0.5647059, g: 0.6627451, b: 0.69803923, a: 0}
   sunFilter: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
   cloudFilter: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 0}
@@ -77794,6 +77769,7 @@ GameObject:
   - component: {fileID: 1302858319}
   - component: {fileID: 1302858324}
   - component: {fileID: 1302858326}
+  - component: {fileID: 1302858327}
   - component: {fileID: 1302858325}
   m_Layer: 0
   m_Name: PlayerCamera
@@ -78010,6 +77986,23 @@ MonoBehaviour:
     Time: 0.2
     Smoothing: 1
     IgnoreY: 1
+--- !u!114 &1302858327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302858318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 1
+  FrequencyGain: 1
+  m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &1305876092
 GameObject:
   m_ObjectHideFlags: 0
@@ -78796,7 +78789,7 @@ MonoBehaviour:
   weight: 1
   targetWeight: 1
   priority: 0
-  cumulus: 0.98
+  cumulus: 0.55
   cirrus: 0
   altocumulus: 0
   cirrostratus: 0
@@ -78809,7 +78802,7 @@ MonoBehaviour:
   borderVariation: 0.95
   fogDensity: 1.5
   usePhysicalSunHeight: 1
-  sunDirection: 107
+  sunDirection: 24
   sunPitch: 0
   moonDirection: {x: 0.35741958, y: -0.933944, z: 0.0000166893}
   skyZenithColor: {r: 0, g: 0.11450216, b: 0.35686275, a: 1}
@@ -78832,11 +78825,11 @@ MonoBehaviour:
   fogMoonFlareColor: {r: 0, g: 0, b: 0, a: 1}
   fogShadowColor: {r: 0, g: 0, b: 0, a: 0}
   fogLitColor: {r: 0, g: 0, b: 0, a: 0}
-  gradientExponent: 0.574
+  gradientExponent: 0.41
   sunSize: 1
   sunColor: {r: 10.432951, g: 10.432951, b: 10.432951, a: 1}
   moonColor: {r: 2, g: 2, b: 2, a: 0.2510258}
-  sunFalloff: 0.48
+  sunFalloff: 0.5
   sunFlareColor: {r: 2.7294118, g: 2.7137256, b: 2.0705884, a: 1}
   moonFalloff: 0.752
   moonlightColor: {r: 0, g: 0, b: 0, a: 1}
@@ -78852,7 +78845,7 @@ MonoBehaviour:
   fogStart3: 24
   fogStart4: 35
   fogHeight: 1
-  fogDensityMultiplier: 0.44
+  fogDensityMultiplier: 0.3
   fogLightFlareIntensity: 1
   fogLightFlareFalloff: 25.17635
   fogLightFlareSquish: 1
@@ -78918,38 +78911,29 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 0.5125
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.81036377
+        time: -1000
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1.0729218
-        value: 0.5186798
+        time: 1000
+        value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    useOcclusion: 1
-    occlusionRadius: 0.5
-    allowOffscreen: 0
+    useOcclusion: 0
+    occlusionRadius: 0
+    allowOffscreen: 1
   moonFlare:
     flare: {fileID: 11400000, guid: e3db97a2c8764cf4d9b4e3a9a81e38a7, type: 2}
     intensity: 1
@@ -78990,8 +78974,8 @@ MonoBehaviour:
     useOcclusion: 1
     occlusionRadius: 0.5
     allowOffscreen: 1
-  filterSaturation: -0.618
-  filterValue: -0.142
+  filterSaturation: 0.09
+  filterValue: -0.09
   filterColor: {r: 0.5647059, g: 0.6627451, b: 0.69803923, a: 0}
   sunFilter: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
   cloudFilter: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 0}
@@ -79054,7 +79038,7 @@ Transform:
   m_GameObject: {fileID: 1400902367}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 345.52274, y: -274.01154, z: 1696.6099}
+  m_LocalPosition: {x: 5.469104, y: -3.2738166, z: 93.815125}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -87904,7 +87888,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 288.23065, y: 288.23065, z: 288.23065}
+  m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1400118131}
@@ -89074,6 +89058,76 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40bd0e21900e0e44b91fdcfa4016a0fb, type: 3}
+--- !u!1 &1631873741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1631873743}
+  - component: {fileID: 1631873742}
+  m_Layer: 0
+  m_Name: DualSenseInputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1631873742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631873741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46dd2dd8c74c3b840a9cca6a966483d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SwimRumbleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SwimRumbleDuration: 2
+  ControllerCount: 0
+--- !u!4 &1631873743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631873741}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1632241421 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5690497365633616180, guid: 9704b8bf545ef1949a38f10afcb71091, type: 3}
@@ -122285,6 +122339,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 280600691330549272, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
+      propertyPath: cmPerlin
+      value: 
+      objectReference: {fileID: 1302858327}
+    - target: {fileID: 280600691330549272, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
       propertyPath: cmOrbitalFollow
       value: 
       objectReference: {fileID: 1302858324}
@@ -122448,3 +122506,4 @@ SceneRoots:
   - {fileID: 714460291}
   - {fileID: 1400902369}
   - {fileID: 353966820}
+  - {fileID: 1631873743}
