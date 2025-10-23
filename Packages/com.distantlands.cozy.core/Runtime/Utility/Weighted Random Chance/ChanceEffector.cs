@@ -17,6 +17,11 @@ namespace DistantLands.Cozy
         public CustomCozyChanceEffector customChanceEffector;
 
 
+        public float GetChance(float test)
+        {
+            return curve.Evaluate(test);
+        }
+
         public float GetChance(CozyWeather weather)
         {
             switch (limitType)
@@ -42,7 +47,7 @@ namespace DistantLands.Cozy
                         return 1;
                 case LimitType.AccumulatedWetness:
                     if (weather.climateModule)
-                        return curve.Evaluate(weather.climateModule.wetness);
+                        return curve.Evaluate(weather.climateModule.groundwaterAmount);
                     else
                         return 1;
                 case LimitType.Custom:
@@ -72,7 +77,7 @@ namespace DistantLands.Cozy
                     return curve.Evaluate(weather.timeModule.currentTime);
                 case (LimitType.AccumulatedSnow):
                     if (weather.climateModule)
-                        return curve.Evaluate(weather.climateModule.wetness);
+                        return curve.Evaluate(weather.climateModule.groundwaterAmount);
                     else
                         return 1;
                 case (LimitType.AccumulatedWetness):

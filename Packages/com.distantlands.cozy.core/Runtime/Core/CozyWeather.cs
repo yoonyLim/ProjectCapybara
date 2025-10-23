@@ -14,7 +14,6 @@ using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 #endif
 
 namespace DistantLands.Cozy
@@ -150,6 +149,8 @@ namespace DistantLands.Cozy
         public bool useRainbow;
         public bool separateSunLightAndTransform;
         public float sunAngle = 0.5f;
+        public LightShadows sunlightShadows = LightShadows.Soft;
+        public LightShadows moonlightShadows = LightShadows.Soft;
 #if COZY_URP || COZY_HDRP
         public AtmosphereProfile.SRPFlare sunFlare;
         public AtmosphereProfile.SRPFlare moonFlare;
@@ -174,11 +175,46 @@ namespace DistantLands.Cozy
 
         [Tooltip("Should the weather sphere always follow the camera and automatically rescale to the scene size?")]
         public LockToCameraStyle lockToCamera;
-        public bool freezeUpdateInEditMode = false;
-        public bool followEditorCamera = true;
+        public static bool FreezeUpdateInEditMode = false;
+        public static bool DisplayGizmos = true;
+        public static bool SceneFogRendering = true;
+        public static bool Tooltips
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return EditorPrefs.GetBool("CZY_Tooltips", true);
+#else
+                return false;
+#endif
+            }
+            set
+            {
+#if UNITY_EDITOR
+                EditorPrefs.SetBool("CZY_Tooltips", value);
+#endif
+            }
+        }
+        public static bool Graphs
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return EditorPrefs.GetBool("CZY_Graphs", true);
+#else
+                return false;
+#endif
+            }
+            set
+            {
+#if UNITY_EDITOR
+                EditorPrefs.SetBool("CZY_Graphs", value);
+#endif
+            }
+        }
+        public static bool FollowEditorCamera = true;
         public bool disableSunAtNight = true;
         public bool handleSceneLighting = true;
-        private bool sceneFogRendering = true;
         public bool dontDestroyOnLoad;
 
         #endregion
@@ -194,7 +230,6 @@ namespace DistantLands.Cozy
         private List<ParticleSystem> m_CloudParticles = new List<ParticleSystem>();
 
 
-        public PerennialProfile perennialProfile;
         public Light sunLight;
         public Transform sunTransform;
         public bool centerAroundCustomObject;
@@ -220,6 +255,10 @@ namespace DistantLands.Cozy
         public CozyTimeModule timeModule;
         public CozyAtmosphereModule atmosphereModule;
         public CozyWindModule windModule;
+
+        public delegate void RefreshModules();
+        public static event RefreshModules refreshModules;
+
 
         #endregion
 
@@ -390,8 +429,7 @@ namespace DistantLands.Cozy
             if (cozyTriggers.Count == 0)
                 ResetFXTriggers();
 
-            if (handleSceneLighting)
-                RenderSettings.ambientMode = AmbientMode.Trilight;
+            RenderSettings.ambientMode = AmbientMode.Trilight;
 
         }
 
@@ -443,7 +481,7 @@ namespace DistantLands.Cozy
             cozyTriggers.Clear();
             foreach (Collider i in FindObjectsByType<Collider>(FindObjectsSortMode.None))
             {
-                if (i.gameObject.CompareTag(cozyTriggerTag))
+                if (i.gameObject.tag == cozyTriggerTag)
                 {
                     cozyTriggers.Add(i);
                 }
@@ -627,9 +665,9 @@ namespace DistantLands.Cozy
 #if UNITY_EDITOR
         public void UpdateSkydomePositionAndScale(SceneView sceneView)
         {
-            sceneFogRendering = sceneView.sceneViewState.fogEnabled;
+            SceneFogRendering = sceneView.sceneViewState.fogEnabled;
 
-            if (freezeUpdateInEditMode || !followEditorCamera || Application.isFocused)
+            if (FreezeUpdateInEditMode || !FollowEditorCamera || Application.isFocused)
                 return;
 
             if (lockToCamera != LockToCameraStyle.DontLockToCamera)
@@ -672,7 +710,7 @@ namespace DistantLands.Cozy
             {
                 CozyShaderIDs.GrabShaderIDs();
             }
-            if (freezeUpdateInEditMode && !Application.isPlaying)
+            if (FreezeUpdateInEditMode && !Application.isPlaying)
                 return;
 
             if (fogStyle is FogStyle.stylized or FogStyle.heightFog or FogStyle.steppedFog/** or FogStyle.volumetric*/)
@@ -699,7 +737,7 @@ namespace DistantLands.Cozy
                 if (Application.isPlaying)
                     Shader.SetGlobalFloat(CozyShaderIDs.CZY_FogDepthMultiplierID, fogDensityMultiplier * fogDensity);
                 else
-                    Shader.SetGlobalFloat(CozyShaderIDs.CZY_FogDepthMultiplierID, fogDensityMultiplier * fogDensity * (sceneFogRendering ? 1 : 0));
+                    Shader.SetGlobalFloat(CozyShaderIDs.CZY_FogDepthMultiplierID, fogDensityMultiplier * fogDensity * (SceneFogRendering ? 1 : 0));
 #else
                 Shader.SetGlobalFloat(CozyShaderIDs.CZY_FogDepthMultiplierID, fogDensityMultiplier * fogDensity);
 #endif
@@ -847,12 +885,12 @@ namespace DistantLands.Cozy
                 sunLight.enabled = false;
             }
 
-            sunLight.shadows = sunLight.enabled ? LightShadows.Soft : LightShadows.None;
+            sunLight.shadows = sunLight.enabled ? sunlightShadows : LightShadows.None;
 
             if (climateModule)
             {
                 if (useRainbow)
-                    rainbowIntensity = climateModule.wetness * (1 - galaxyIntensity);
+                    rainbowIntensity = climateModule.groundwaterAmount * (1 - galaxyIntensity);
                 else
                     rainbowIntensity = 0;
             }
@@ -878,7 +916,7 @@ namespace DistantLands.Cozy
         {
             if (this == null)
                 return null;
-            
+
             return GetComponentsInChildren<T>().ToList().Find(x => x.transform.name == name);
         }
 
@@ -909,7 +947,7 @@ namespace DistantLands.Cozy
         /// </summary> 
         public void ResetVariables()
         {
-            rainbowIntensity = climateModule ? useRainbow ? climateModule.wetness * (1 - starColor.a) : 0 : 0;
+            rainbowIntensity = climateModule ? useRainbow ? climateModule.groundwaterAmount * (1 - starColor.a) : 0 : 0;
 
             ambientLightHorizonColor = FilterColor(ambientLightHorizonColor);
             ambientLightZenithColor = FilterColor(ambientLightZenithColor);
@@ -982,9 +1020,7 @@ namespace DistantLands.Cozy
 
             modules.RemoveAll(x => x == null);
 
-#if UNITY_EDITOR
-            E_CozyWeather.windowNum = Mathf.Clamp(E_CozyWeather.windowNum, 0, modules.Count);
-#endif
+            refreshModules?.Invoke();
 
         }
 
@@ -1153,7 +1189,7 @@ namespace DistantLands.Cozy
                 if (cachedInstance)
                     return cachedInstance;
 
-                cachedInstance = FindFirstObjectByType<CozyWeather>();
+                cachedInstance = FindObjectOfType<CozyWeather>();
                 return cachedInstance;
 
 
@@ -1206,557 +1242,23 @@ namespace DistantLands.Cozy
             }
         }
 
+        public void SetStyle(SkyStyle style)
+        {
+            skyStyle = style;
+        }
+
+        public void SetStyle(FogStyle style)
+        {
+            fogStyle = style;
+        }
+
+        public void SetStyle(CloudStyle style)
+        {
+            cloudStyle = style;
+        }
+
 
         #endregion
 
     }
-
-    #region Meridiem Time
-    [Serializable]
-    public class MeridiemTime
-    {
-
-        public int hours;
-        public int minutes;
-        public int seconds;
-        public int milliseconds;
-
-        public MeridiemTime() { }
-
-        public MeridiemTime(int hour, int minute)
-        {
-            hours = hour;
-            minutes = minute;
-        }
-        public MeridiemTime(int hour, int minute, int second, int millisecond)
-        {
-            hours = hour;
-            minutes = minute;
-            seconds = second;
-            milliseconds = millisecond;
-        }
-        public static implicit operator MeridiemTime(float floatValue)
-        {
-            MeridiemTime time = new MeridiemTime();
-            time.milliseconds = Mathf.RoundToInt(floatValue * 86400000);
-            time.seconds = (time.milliseconds - (time.milliseconds % 1000)) / 1000;
-            time.minutes = (time.seconds - (time.seconds % 60)) / 60;
-            time.hours = (time.minutes - (time.minutes % 60)) / 60;
-            time.minutes -= time.hours * 60;
-            time.seconds -= (time.hours * 60 + time.minutes) * 60;
-            time.milliseconds -= ((time.hours * 60 + time.minutes) * 60 + time.seconds) * 1000;
-            return time;
-        }
-        public static implicit operator float(MeridiemTime time)
-        {
-            return (time.hours * 3600000 + time.minutes * 60000 + time.seconds * 1000 + time.milliseconds) / 86400000f;
-        }
-        public static implicit operator DateTime(MeridiemTime time)
-        {
-            return new DateTime(1, 1, 1, time.hours, time.minutes, time.seconds, time.milliseconds);
-        }
-        public static implicit operator string(MeridiemTime time)
-        {
-            return $"{time.hours:D2}:{time.minutes:D2}";
-        }
-        public new string ToString()
-        {
-            return $"{hours:D2}:{minutes:D2}";
-        }
-        public string FullString()
-        {
-            return $"{hours:D2}:{minutes:D2}:{seconds:D2}:{milliseconds:D4}";
-        }
-
-
-    }
-
-    #endregion
-
-    #region Editor
-#if UNITY_EDITOR
-
-    [CustomEditor(typeof(CozyWeather))]
-    [CanEditMultipleObjects]
-    public class E_CozyWeather : Editor
-    {
-
-        public List<Type> mods;
-        public static List<E_CozyModule> editors = new List<E_CozyModule>();
-
-        public static int windowNum;
-        protected static Texture settingsIcon;
-        protected static bool modules;
-        protected static bool vfx;
-        protected static bool options;
-        protected static bool gizmos = true;
-        protected static int modulesPerRow = 4;
-
-        public bool tooltips;
-        CozyWeather t;
-        private Editor atmosEditor;
-
-        void OnEnable()
-        {
-
-            settingsIcon = Resources.Load<Texture>("MoreOptions");
-            t = (CozyWeather)target;
-            CacheEditors();
-
-        }
-
-        private void CacheEditors()
-        {
-
-            editors.Clear();
-            t.ResetModules();
-
-            foreach (CozyModule module in t.modules)
-            {
-                editors.Add(CreateEditor(module) as E_CozyModule);
-            }
-        }
-
-        void OnSceneGUI()
-        {
-
-            if (!gizmos)
-                return;
-
-            Vector3 sunDir = t.sunTransform.forward;
-            Vector3 sunNormal = t.sunTransform.right;
-            Vector3 north = Vector3.Cross(t.sunTransform.parent.forward, Vector3.up);
-            Vector3 west = t.sunTransform.parent.forward;
-            Vector3 pos = t.transform.position;
-            GUIStyle textStyleSec = new GUIStyle();
-            textStyleSec.normal.textColor = new Color(0, 1, 0, 0.4f);
-            textStyleSec.alignment = TextAnchor.MiddleLeft;
-            textStyleSec.contentOffset = new Vector2(23, 0);
-
-            if (t.GetModule(out CozySatelliteModule module))
-            {
-                Handles.color = new Color(0, 1, 0, 0.4f);
-                Handles.DrawWireArc(pos + t.moonDirection.normalized * 10, t.moonDirection, sunNormal, 360, 0.5f, 1);
-                Handles.Label(pos + t.moonDirection, $"  Current Moon Phase: {module.GetMoonPhase()}", textStyleSec);
-                SatelliteProfile moon = module.satellites[module.mainMoon];
-                Handles.DrawWireArc(pos, moon.orbitRef.right, Quaternion.AngleAxis(5, moon.orbitRef.right) * t.moonDirection, 350, 10, 1);
-
-                float dec = moon.declination * Mathf.Sin(Mathf.PI * 2 * ((t.modifiedDayPercentage + (float)(t.timeModule.currentDay + moon.declinationPeriodOffset + t.timeModule.GetDaysPerYear() * t.timeModule.currentYear) % moon.declinationPeriod) / moon.declinationPeriod));
-
-                Handles.color = new Color(0, 1, 0, 0.5f);
-                Quaternion moonOffset = Quaternion.AngleAxis(-dec - moon.declination, moon.orbitRef.forward);
-                Quaternion negativeMoonOffset = Quaternion.AngleAxis(-dec + moon.declination, moon.orbitRef.forward);
-                Handles.DrawWireArc(pos, moonOffset * moon.orbitRef.right, moon.orbitRef.forward, 360, 10);
-                Handles.DrawWireArc(pos, negativeMoonOffset * moon.orbitRef.right, moon.orbitRef.forward, 360, 10);
-
-            }
-
-            Handles.color = new Color(1, 0.5f, 0);
-            GUIStyle textStyle = new GUIStyle();
-            textStyle.normal.textColor = Handles.color;
-            textStyle.alignment = TextAnchor.MiddleLeft;
-            textStyle.contentOffset = new Vector2(15, 10);
-
-            GUIStyle compassTextStyle = new GUIStyle();
-            compassTextStyle.normal.textColor = Color.white;
-            compassTextStyle.fontStyle = FontStyle.Bold;
-            compassTextStyle.alignment = TextAnchor.MiddleCenter;
-
-
-            Handles.DrawWireArc(pos, sunNormal, Quaternion.AngleAxis(5, sunNormal) * -sunDir, 350, 10, 1);
-            if (t.timeModule)
-            {
-                t.timeModule.GetSunTransitTime(out MeridiemTime sunrise, out MeridiemTime sunset);
-                Handles.Label(pos - west, $"  Sunrise: {sunrise.ToString()}", textStyle);
-                Handles.Label(pos + west, $"  Sunset: {sunset.ToString()}", textStyle);
-            }
-            Handles.DrawWireArc(pos - sunDir.normalized * 10, sunDir, sunNormal, 360, 0.5f, 1);
-
-            Handles.color = new Color(1, 1, 1, 0.3f);
-
-            Handles.Label(pos + west, "W", compassTextStyle);
-            Handles.Label(pos - west, "E", compassTextStyle);
-            Handles.Label(pos + north, "N", compassTextStyle);
-            Handles.Label(pos - north, "S", compassTextStyle);
-
-            Quaternion rotation = Quaternion.AngleAxis(7.5f, Vector3.up);
-            Handles.DrawWireArc(pos, Vector3.up, rotation * west, 75, 10, 2);
-            Handles.DrawWireArc(pos, Vector3.up, rotation * -west, 75, 10, 2);
-            Handles.DrawWireArc(pos, Vector3.up, rotation * north, 75, 10, 2);
-            Handles.DrawWireArc(pos, Vector3.up, rotation * -north, 75, 10, 2);
-
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            tooltips = EditorPrefs.GetBool("CZY_Tooltips", true);
-
-            List<GUIContent> icons = new List<GUIContent>();
-            Rect position = EditorGUILayout.GetControlRect(GUILayout.Height(0));
-
-            if (t.modules.Count != editors.Count)
-                CacheEditors();
-
-            for (int i = 0; i < t.modules.Count; i++)
-            {
-                if (editors[i] == null)
-                {
-                    CacheEditors();
-                    return;
-                }
-                GUIContent content = editors[i].GetGUIContent();
-                if (Screen.width / modulesPerRow > 250)
-                    icons.Add(content);
-                else
-                    icons.Add(new GUIContent(content.image, content.tooltip));
-            }
-
-
-            if (Screen.width / modulesPerRow > 250)
-            {
-                icons.Add(new GUIContent("    Settings ", settingsIcon, "Adjust the functions of COZY to get the most out of your system."));
-            }
-            else
-            {
-                icons.Add(new GUIContent(settingsIcon, "Adjust the functions of COZY to get the most out of your system."));
-            }
-
-            if (Screen.width > Screen.height)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.BeginVertical(new GUIStyle("PreferencesSectionBox"), GUILayout.Width(150));
-                GUIStyle iconStyle = new GUIStyle(GUI.skin.GetStyle("PreferencesSection"))
-                {
-                    fixedWidth = 150,
-                    alignment = TextAnchor.MiddleLeft,
-                    padding = new RectOffset(5, 5, 5, 5)
-                };
-                int j = GUILayout.SelectionGrid(windowNum, icons.ToArray(), 1, iconStyle);
-
-                if (j != windowNum)
-                {
-
-                    if (j == t.modules.Count)
-                        mods = EditorUtilities.ResetModuleList();
-
-                    windowNum = j;
-
-                }
-
-                serializedObject.ApplyModifiedProperties();
-
-                GUILayout.FlexibleSpace();
-
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.Space(20);
-                EditorGUILayout.BeginVertical();
-                if (windowNum == t.modules.Count)
-                    Settings();
-                else
-                {
-                    CustomModule(windowNum);
-                }
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.EndHorizontal();
-            }
-            else
-            {
-                if (tooltips)
-                {
-
-                    EditorGUILayout.HelpBox("Welcome to the COZY system! This is your one-stop-shop to managing all the weather parameters for this system. " +
-                    "COZY organizes parameters into various components called modules. You can add or remove modules in the settings tab. Check out the various modules on the system to edit the parameters", MessageType.Info, true);
-                    if (GUILayout.Button("Disable Tooltips"))
-                        EditorPrefs.SetBool("CZY_Tooltips", !EditorPrefs.GetBool("CZY_Tooltips", true));
-                    EditorGUILayout.Space();
-
-                }
-
-
-
-                GUIStyle iconStyle = new GUIStyle(GUI.skin.GetStyle("Button"))
-                {
-                    fixedHeight = 40,
-                    fixedWidth = (position.width / modulesPerRow) - 5,
-                    margin = new RectOffset(5, 5, 5, 5),
-                    fontStyle = FontStyle.Bold,
-                };
-                int j = GUILayout.SelectionGrid(windowNum, icons.ToArray(), modulesPerRow, iconStyle);
-
-                if (j != windowNum)
-                {
-
-                    if (j == t.modules.Count)
-                        mods = EditorUtilities.ResetModuleList();
-
-                    windowNum = j;
-
-                }
-
-                serializedObject.ApplyModifiedProperties();
-
-                EditorGUILayout.Space();
-
-                if (windowNum == t.modules.Count)
-                    Settings();
-                else
-                {
-                    CustomModule(windowNum);
-                }
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void Settings()
-        {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            EditorGUILayout.LabelField(new GUIContent(new GUIContent("    Settings ", settingsIcon)));
-            EditorGUILayout.Separator();
-
-            GUILayout.FlexibleSpace();
-
-
-            EditorGUILayout.EndHorizontal();
-
-            if (tooltips)
-                EditorGUILayout.HelpBox("Add modules using this foldout!", MessageType.Info, true);
-
-            modules = EditorGUILayout.BeginFoldoutHeaderGroup(modules, "    Modules", EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (modules)
-            {
-
-                EditorGUI.indentLevel++;
-
-
-
-                mods ??= EditorUtilities.ResetModuleList();
-
-                if (mods.Contains(typeof(CozyModule)))
-                    mods.Remove(typeof(CozyModule));
-
-                if (mods.Contains(typeof(ExampleModule)))
-                    mods.Remove(typeof(ExampleModule));
-
-                if (mods.Contains(typeof(CozyTimeOverride)))
-                    mods.Remove(typeof(CozyTimeOverride));
-
-                if (mods.Contains(typeof(CozyDateOverride)))
-                    mods.Remove(typeof(CozyDateOverride));
-
-                if (mods.Contains(typeof(CozyBiomeModuleBase<>)))
-                    mods.Remove(typeof(CozyBiomeModuleBase<>));
-
-                t.modules.RemoveAll(x => x == null);
-
-                foreach (CozyModule a in t.modules)
-                    if (mods.Contains(a.GetType()))
-                        mods.Remove(a.GetType());
-
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Add New Module"))
-                {
-                    ModulesSearchProvider provider = ScriptableObject.CreateInstance<ModulesSearchProvider>();
-                    provider.modules = mods;
-                    provider.weather = t;
-                    SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)), provider);
-                }
-                if (GUILayout.Button("Add All Modules"))
-                {
-                    foreach (Type type in mods)
-                    {
-                        t.InitializeModule(type);
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUI.indentLevel++;
-
-                CozyModule j = null;
-
-                EditorGUILayout.Space();
-
-                for (int i = 0; i < editors.Count; i++)
-                {
-
-                    EditorGUILayout.BeginHorizontal();
-
-                    EditorGUILayout.PrefixLabel(editors[i].GetGUIContent());
-                    if (GUILayout.Button("Remove"))
-                    {
-                        j = t.modules[i];
-                        mods = EditorUtilities.ResetModuleList();
-                    }
-
-                    EditorGUILayout.EndHorizontal();
-
-                }
-
-                if (j != null)
-                    t.DeintitializeModule(j);
-
-                EditorGUI.indentLevel--;
-
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-            }
-
-
-            vfx = EditorGUILayout.BeginFoldoutHeaderGroup(vfx, "    VFX", EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (vfx)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Stars"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("m_CloudParticles"));
-                EditorGUI.indentLevel--;
-
-            }
-
-
-            options = EditorGUILayout.BeginFoldoutHeaderGroup(options, "    Options", EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (options)
-            {
-
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("COZY automatically aligns itself to a camera. By default the main camera is used, however you can set it up to use a different camera or to not lock to a camera by using the enumerator below.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("lockToCamera"));
-
-                if (t.lockToCamera == CozyWeather.LockToCameraStyle.useCustomCamera)
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("cozyCamera"));
-
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("centerAroundCustomObject"));
-                if (t.centerAroundCustomObject)
-                {
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("customPivot"));
-                    EditorGUI.indentLevel--;
-                }
-                EditorGUILayout.Space();
-
-                EditorGUI.BeginChangeCheck();
-
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Change the shader used for the sky, clouds and fog. You can also disable all the features individually here!", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("skyStyle"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("cloudStyle"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("fogStyle"));
-                EditorGUILayout.Space();
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Should the atmosphere colors reference the day percentage or the current time of day for coloring.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("usePhysicalSunHeight"));
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Determines if the sun directional light and the transform that determines the direction of the sun disk in the sky be seperated.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("handleSceneLighting"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("separateSunLightAndTransform"));
-                if (t.separateSunLightAndTransform)
-                {
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("sunLight"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("sunTransform"));
-                    EditorGUI.indentLevel--;
-                }
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Disables the sun's directional light while below the horizon. Recommended for better performance.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("disableSunAtNight"));
-                EditorGUILayout.Space();
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Should the weather sphere follow the editor camera while not in play mode?", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("followEditorCamera"));
-                gizmos = EditorGUILayout.Toggle("Gizmos", gizmos);
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Suppresses the update function while not in play mode.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("freezeUpdateInEditMode"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dontDestroyOnLoad"));
-                EditorGUILayout.Space();
-
-
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Determines the tag that removes weather FX when added to a collider.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("cozyTriggerTag"));
-                EditorGUILayout.Space();
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("Sets the number of modules that can be displayed per row in the editor.", MessageType.Info, true);
-                    EditorGUILayout.Space();
-                }
-                modulesPerRow = EditorGUILayout.IntSlider("Modules Per Row", modulesPerRow, 1, 6);
-
-                EditorGUI.indentLevel--;
-                serializedObject.ApplyModifiedProperties();
-
-                if (EditorGUI.EndChangeCheck())
-                    t.ResetQuality();
-
-            }
-
-            if (GUILayout.Button("Toggle Tooltips"))
-                EditorPrefs.SetBool("CZY_Tooltips", !EditorPrefs.GetBool("CZY_Tooltips", true));
-
-        }
-
-        public void CustomModule(int moduleNumber)
-        {
-
-            CozyModule module = t.modules[moduleNumber];
-            editors[moduleNumber].DisplayToolar(true);
-
-            if (t.gameObject.scene.isLoaded)
-                if (module != null && module.isActiveAndEnabled)
-                {
-                    // EditorGUI.indentLevel++;
-                    editors[moduleNumber].DisplayInCozyWindow();
-                    // EditorGUI.indentLevel--;
-
-                }
-                else
-                    EditorGUILayout.HelpBox("Something went wrong! Try removing and readding the module!", MessageType.Error);
-            else
-                EditorGUILayout.HelpBox("Modules may only be edited in the scene!", MessageType.Info);
-
-        }
-
-
-    }
-
-
-#endif
-    #endregion
 }

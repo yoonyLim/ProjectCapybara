@@ -12,10 +12,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dccf7172616748499437c285a6d18fe, type: 3}
   m_Name: Day Bugs
   m_EditorClassIdentifier: 
-  playTime: {x: 40.13, y: 120.33}
   minTime: 0.0625
   maxTime: 0.14583333
   likelihood: 1
+  chance:
+    baseChance: 1
+    chanceEffectors:
+    - limitType: 3
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 0.5574524
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 0.76543885
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 0.9018423
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      customChanceEffector: {fileID: 0}
   dontPlayDuring:
   - {fileID: 11400000, guid: f2d3f1cb4e3d78a4fb7f9853c2ec899a, type: 2}
   - {fileID: 11400000, guid: 4d539afa69e41c24592baf151ffc2e69, type: 2}
@@ -77,6 +132,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    customChanceEffector: {fileID: 0}
   FX:
   - {fileID: 11400000, guid: 6a1cee32258408c4488558184cb15ed3, type: 2}
   FXVolume: 0.519

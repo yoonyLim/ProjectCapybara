@@ -6,28 +6,30 @@ using UnityEngine;
 using DistantLands.Cozy.Data;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace DistantLands.Cozy
 {
     [ExecuteAlways]
     public class CozyWindModule : CozyModule
     {
 
+        [CozySearchable]
         public WindFX defaultWindProfile;
+        [CozySearchable]
         public WindZone windZone;
 
         public float windSpeed;
         public float windChangeSpeed;
         public float windAmount;
+        public float windGusting;
         private Vector3 m_WindDirection;
         private float m_Seed;
         [Tooltip("Multiplies the total wind power by a coefficient.")]
         [Range(0, 2)]
+        [CozySearchable]
         public float windMultiplier = 1;
+        [CozySearchable]
         public bool useWindzone = true;
+        [CozySearchable]
         public bool useShaderWind = true;
         private float m_WindTime;
         public List<WindFX> windFXes = new List<WindFX>();
@@ -68,6 +70,7 @@ namespace DistantLands.Cozy
                 {
                     windZone.transform.LookAt(windZone.transform.position + m_WindDirection, Vector3.up);
                     windZone.windMain = windAmount * windMultiplier;
+                    windZone.windPulseMagnitude = windGusting;
                     windZone.windPulseFrequency = windSpeed;
                 }
             }
@@ -88,6 +91,7 @@ namespace DistantLands.Cozy
             {
                 windSpeed = defaultWindProfile.windSpeed;
                 windAmount = defaultWindProfile.windAmount;
+                windGusting = defaultWindProfile.windGusting;
                 windChangeSpeed = defaultWindProfile.windChangeSpeed;
             }
         }
@@ -102,119 +106,4 @@ namespace DistantLands.Cozy
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyWindModule))]
-    [CanEditMultipleObjects]
-    public class E_CozyWindModule : E_CozyModule
-    {
-
-        public static bool selection;
-        public static bool settings;
-        public static bool information;
-        SerializedProperty profile;
-        SerializedProperty windZone;
-        SerializedProperty windMultiplier;
-        SerializedProperty windSpeed;
-        SerializedProperty windChangeSpeed;
-        SerializedProperty windAmount;
-        SerializedProperty useWindzone;
-        SerializedProperty useShaderWind;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Wind", (Texture)Resources.Load("Wind Module"), "Control wind within the COZY system.");
-
-        }
-
-        void OnEnable()
-        {
-            profile = serializedObject.FindProperty("defaultWindProfile");
-            windZone = serializedObject.FindProperty("windZone");
-            windMultiplier = serializedObject.FindProperty("windMultiplier");
-            windSpeed = serializedObject.FindProperty("windSpeed");
-            windChangeSpeed = serializedObject.FindProperty("windChangeSpeed");
-            windAmount = serializedObject.FindProperty("windAmount");
-            useWindzone = serializedObject.FindProperty("useWindzone");
-            useShaderWind = serializedObject.FindProperty("useShaderWind");
-        }
-        public override void GetReportsInformation()
-        {
-
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-
-            EditorGUILayout.HelpBox($"Current Wind Amount: {windAmount.floatValue} \n" +
-            $"Current Wind Speed: {windSpeed.floatValue} \n" +
-            $"Current Wind Change Speed: {windChangeSpeed.floatValue}", MessageType.None);
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/wind-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            selection = EditorGUILayout.BeginFoldoutHeaderGroup(selection, new GUIContent("    Selection"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (selection)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(profile);
-                if (profile.objectReferenceValue)
-                {
-                    EditorGUI.indentLevel++;
-                    CreateEditor(profile.objectReferenceValue).OnInspectorGUI();
-                    EditorGUI.indentLevel--;
-                }
-                EditorGUILayout.Space(20);
-                EditorGUILayout.PropertyField(windZone);
-                EditorGUI.indentLevel--;
-
-            }
-
-            settings = EditorGUILayout.BeginFoldoutHeaderGroup(settings, new GUIContent("    Global Settings"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (settings)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.PropertyField(windMultiplier);
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(useWindzone);
-                EditorGUILayout.PropertyField(useShaderWind);
-
-                EditorGUI.indentLevel--;
-
-            }
-
-
-            information = EditorGUILayout.BeginFoldoutHeaderGroup(information, new GUIContent("    Current Information"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (information)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(windAmount);
-                EditorGUILayout.PropertyField(windSpeed);
-                EditorGUILayout.PropertyField(windChangeSpeed);
-                EditorGUILayout.Space();
-                EditorGUI.indentLevel--;
-
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-    }
-#endif
 }

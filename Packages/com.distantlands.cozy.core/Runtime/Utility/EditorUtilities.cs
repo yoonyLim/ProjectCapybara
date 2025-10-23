@@ -32,13 +32,6 @@ namespace DistantLands.Cozy
 
         }
 
-        public static GUIStyle toolbarButtonIcon = new GUIStyle(GUI.skin.GetStyle("ToolbarButton"))
-        {
-            padding = new RectOffset(-5, -5, -5, -5),
-            fixedWidth = 20,
-            fixedHeight = 20
-        };
-
 #if UNITY_EDITOR
         public static GUIStyle FoldoutStyle => new GUIStyle(EditorStyles.toolbarButton)
         {
