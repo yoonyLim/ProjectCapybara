@@ -15,7 +15,7 @@ public class SquashState : IPlayerState
         player.rb.linearVelocity = Vector3.zero;
 
         // 스쿼시 코루틴 시작 (끝날 때 RunningState로 복귀하도록 PlayerController에 이미 구현됨)
-        player.StartSquashAndRecover();
+        player.RequestSquash(player.squashDuration);
     }
 
     public void Update(PlayerController player)

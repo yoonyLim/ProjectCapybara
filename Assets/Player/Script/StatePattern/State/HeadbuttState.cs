@@ -7,7 +7,7 @@ public class HeadbuttState : IPlayerState
     private float timer;
 
     private string obstacleTag = "BreakableRock";  // ← 이 태그만 타격 판정
-    private float hitRange = 2f;          // 레이 길이
+    private float hitRange = 3f;          // 레이 길이
     private float headHeight = 0.8f;          // 레이 시작 높이
     private float hitDelay = 0.08f;         // 애니 타이밍에 맞춰 1회만 체크
     private bool hitPerformed = false;

@@ -123,21 +123,28 @@ public class PlayerController : MonoBehaviour
     [Tooltip("플레이어의 시각적 모델(메시)의 Transform")]
     [SerializeField] private Transform playerModelTransform;
     [Tooltip("납작해져 있는 시간 (초)")]
-    [SerializeField] private float squashDuration = 1f;
+    [SerializeField] public float squashDuration = 2f;
     [Tooltip("Y축 스케일 (0.2 = 20%)")]
     [SerializeField] private float squashAmount = 0.2f;
     [Tooltip("X, Z축 스케일 (1.5 = 150%)")]
     [SerializeField] private float squashWidenAmount = 1.5f;
     [Tooltip("납작해지는 애니메이션 속도")]
     [SerializeField] private float squashAnimSpeed = 10f;
+    private Vector3 baseModelScale;      // 항상 복구할 기준 스케일(예: 40,40,40)
+    private Vector3 targetSquashScale;   // 절대 타겟 스케일
+    private float squashEndTime;         // 납작 유지 종료 시각
+    private Coroutine squashCo;          // 오직 하나만!
     #endregion 
 
-    private Vector3 originalModelScale;
-    private Transform originalModelTransform;
     private MountController mountController;
     void Awake()
     {
-        originalModelScale = playerModelTransform.localScale;
+        baseModelScale = playerModelTransform.localScale; // 
+        targetSquashScale = new Vector3(
+            baseModelScale.x * squashWidenAmount, 
+            baseModelScale.y * squashWidenAmount,      
+            baseModelScale.z * squashAmount
+        );
         mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
@@ -390,52 +397,52 @@ public class PlayerController : MonoBehaviour
 
     #region 납작해지는 코루틴
 
-    public void StartSquashAndRecover()
+    public void RequestSquash(float duration)
     {
-        // 이전에 실행 중이던 코루틴이 있다면 중지 (중복 실행 방지)
-        StopCoroutine("SquashAndRecoverCoroutine");
-        StartCoroutine(SquashAndRecoverCoroutine());
+        if (playerModelTransform == null) return;
+
+        // 1) 유지 종료 시각 “연장” (핵심)
+        float newEnd = Time.time + duration;
+        squashEndTime = Mathf.Max(squashEndTime, newEnd);
+
+        // 2) 코루틴이 없으면 시작, 있으면 그냥 시간만 연장
+        if (squashCo == null)
+            squashCo = StartCoroutine(SquashRoutine());
     }
 
-    // 스케일을 변경하고, 기다렸다가, 복구하는 실제 로직
-    private System.Collections.IEnumerator SquashAndRecoverCoroutine()
+    private System.Collections.IEnumerator SquashRoutine()
     {
-        if (playerModelTransform == null)
-        {
-            ChangeState(new RunningState()); // 오류 발생 시 강제로 상태 복구
-            yield break;
-        }
-
-        // 1. 원래 스케일 저장 및 목표 스케일 계산
-        Vector3 squashedScale = new Vector3(originalModelScale.x * squashWidenAmount,
-                                           originalModelScale.y * squashWidenAmount,
-                                           originalModelScale.z * squashAmount);
-
-        // --- 2. 납작해지는 애니메이션 (Lerp 사용) ---
-        float t = 0;
-        while (t < 1.0f)
+        // ↓ 현재 스케일 → 절대 타겟 으로 보간
+        Vector3 start = playerModelTransform.localScale;
+        float t = 0f;
+        while (t < 1f)
         {
             t += Time.deltaTime * squashAnimSpeed;
-            playerModelTransform.localScale = Vector3.Lerp(originalModelScale, squashedScale, t);
+            playerModelTransform.localScale = Vector3.Lerp(start, targetSquashScale, t);
             yield return null;
         }
-        playerModelTransform.localScale = squashedScale; // 정확히 목표 스케일로 설정
+        playerModelTransform.localScale = targetSquashScale;
 
-        // --- 3. 납작한 상태로 대기 ---
-        yield return new WaitForSeconds(squashDuration);
+        // 유지 구간: 재진입 시 RequestSquash()가 squashEndTime을 계속 연장
+        while (Time.time < squashEndTime)
+            yield return null;
 
-        // --- 4. 원래대로 돌아오는 애니메이션 (Lerp 사용) ---
-        t = 0;
-        while (t < 1.0f)
+        // 절대 타겟 → 절대 기준으로 복구
+        start = playerModelTransform.localScale;
+        t = 0f;
+        while (t < 1f)
         {
             t += Time.deltaTime * squashAnimSpeed;
-            playerModelTransform.localScale = Vector3.Lerp(squashedScale, originalModelScale, t);
+            playerModelTransform.localScale = Vector3.Lerp(start, baseModelScale, t);
             yield return null;
         }
-        playerModelTransform.localScale = originalModelScale; // 정확히 원래 스케일로 복구
+        playerModelTransform.localScale = baseModelScale;
 
-        // --- 5. 상태를 RunningState로 복구 ---
-        ChangeState(new RunningState());
+        squashCo = null;
+
+        // 아직 SquashState면 러닝으로 복귀 (다른 상태로 이미 바뀌었으면 건드리지 않음)
+        if (currentState is SquashState)
+            ChangeState(new RunningState());
     }
 
     #endregion
