@@ -878,7 +878,7 @@ namespace DistantLands.Cozy
         {
             if (this == null)
                 return null;
-
+            
             return GetComponentsInChildren<T>().ToList().Find(x => x.transform.name == name);
         }
 
