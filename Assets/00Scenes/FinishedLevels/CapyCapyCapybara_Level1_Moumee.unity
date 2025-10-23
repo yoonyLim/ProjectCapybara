@@ -10649,82 +10649,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7209691891071234590, guid: 28dd705c3e61f9f4b8f1bb00e5caacdf, type: 3}
   m_PrefabInstance: {fileID: 2048052111}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &87076651
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 87076654}
-  - component: {fileID: 87076653}
-  - component: {fileID: 87076652}
-  m_Layer: 0
-  m_Name: Cozy Biome
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!65 &87076652
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87076651}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 15, y: 15, z: 15}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &87076653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87076651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eefadcac6606bc84dac9314abeedd338, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weight: 1
-  targetWeight: 1
-  priority: 0
-  transitionTime: 5
-  transitionDistance: 5
-  trigger: {fileID: 87076652}
-  cachedWeatherSphere: {fileID: 686469905}
-  maxWeight: 1
-  mode: 1
-  transitionMode: 0
---- !u!4 &87076654
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87076651}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3134.8591, y: 1741.4164, z: -3463.3455}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &95050893
 GameObject:
   m_ObjectHideFlags: 0
@@ -27650,7 +27574,7 @@ MonoBehaviour:
   - {fileID: 0}
   systems:
   - {fileID: 686469905}
-  - {fileID: 87076653}
+  - {fileID: 0}
   audioFXParent: {fileID: 1451306892}
   particleFXParent: {fileID: 1261337968}
   thunderFXParent: {fileID: 776090918}
@@ -27674,7 +27598,7 @@ Transform:
   m_GameObject: {fileID: 686469904}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3137.842, y: 1742.8236, z: -3467.1033}
+  m_LocalPosition: {x: -818.33295, y: 1467.032, z: 2127.0774}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -87641,7 +87565,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 6634.988, y: 6634.988, z: 6634.988}
+  m_LocalScale: {x: 1953.2499, y: 1953.2499, z: 1953.2499}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 65646142}
@@ -122001,4 +121925,3 @@ SceneRoots:
   - {fileID: 61169185}
   - {fileID: 71865860}
   - {fileID: 686469906}
-  - {fileID: 87076654}

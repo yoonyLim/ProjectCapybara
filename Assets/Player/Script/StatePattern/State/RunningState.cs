@@ -59,14 +59,15 @@ public class RunningState : IPlayerState
             float speed = player.isRunning ? player.sprintSpeed : player.walkSpeed;
 
             // 캐릭터 회전 계산
-            Quaternion rotRef = player.SurfaceAlignment();
+            //Quaternion rotRef = player.SurfaceAlignment();
 
-            if (player.moveDirection.magnitude > 0.01f)
-            {
-                float angle = Mathf.Atan2(player.moveDirection.x, player.moveDirection.z) * Mathf.Rad2Deg;
-                float smooth = Mathf.SmoothDampAngle(player.transform.eulerAngles.y, angle, ref smoothVel, 0.1f);
-                player.transform.rotation = Quaternion.Euler(rotRef.eulerAngles.x, smooth, rotRef.eulerAngles.z);
-            }
+            //if (player.moveDirection.magnitude > 0.01f)
+            //{
+            //    float angle = Mathf.Atan2(player.moveDirection.x, player.moveDirection.z) * Mathf.Rad2Deg;
+            //    float smooth = Mathf.SmoothDampAngle(player.transform.eulerAngles.y, angle, ref smoothVel, 0.1f);
+            //    player.transform.rotation = Quaternion.Euler(rotRef.eulerAngles.x, smooth, rotRef.eulerAngles.z);
+            //}
+            player.transform.rotation = player.SurfaceAlignment();
 
             Vector3 velocity = player.CalculateNextFrameGroundAngle(speed) < 60f ? player.moveDirection : Vector3.zero;
             //Vector3 gravity = Vector3.down * Mathf.Abs(player.rb.linearVelocity.y);
