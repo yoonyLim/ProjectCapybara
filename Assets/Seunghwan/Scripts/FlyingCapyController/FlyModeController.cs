@@ -6,14 +6,14 @@ using UnityEngine;
 public class FlyModeController : MonoBehaviour
 {
     private Rigidbody capyRigidBody;
-    private readonly float forwardFlightStrength = 150f;
-    private readonly float upwardFlightStrength = 200f;
+    private readonly float forwardFlightStrength = 100f;
+    private readonly float upwardFlightStrength = 150f;
     private readonly float yawRotationSpeed = 130f;
     private readonly float obstacleHitRotationSpeed = 800f;
     private readonly float maxMeshRoll = 25f;
     private readonly float maxMeshPitch = 40f;
     private readonly float bounceStrength = 40f;
-    private readonly float maxSpeed = 50f;
+    private readonly float maxSpeed = 80f;
 
     private readonly float normalLinearDamping = 1f;
     private readonly float obstacleHitLinearDamping = 1f;
@@ -48,6 +48,8 @@ public class FlyModeController : MonoBehaviour
 
     [SerializeField] private BirdHitSound hitSoundComponent;
 
+    private float targetEffectAlpha = 0f;
+    
     enum FlyModeState
     {
         Normal,
@@ -93,12 +95,14 @@ public class FlyModeController : MonoBehaviour
         cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 3f);
 
         float speedRatio = capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity;
-        float targetEffectAlpha = 0.1f * Mathf.Clamp01(1f / (1f- 0.5f) * (speedRatio - 0.5f));
+        targetEffectAlpha = 0.3f * Mathf.Clamp01(1f / (1f- 0.8f) * (speedRatio - 0.8f));
         speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
     }
 
     private void FixedUpdate()
     {
+        
+        Debug.Log($"Speed: {capyRigidBody.linearVelocity.magnitude}, Max Speed: {capyRigidBody.maxLinearVelocity}");
         switch (state)
         {
             case FlyModeState.Normal:
@@ -114,6 +118,11 @@ public class FlyModeController : MonoBehaviour
 
     void NormalStateFixedUpdate()
     {
+        if (targetEffectAlpha > 0f)
+        {
+            DualSenseInputManager.Instance.RumbleControllerForDuration(0.1f, 0.1f);
+        }
+        
         Vector3 rbYawForward = capyRigidBody.transform.forward;
         rbYawForward.y = 0;
         rbYawForward.Normalize();

@@ -40,7 +40,7 @@ MonoBehaviour:
   multiFX:
   - FX: {fileID: 11400000, guid: d2270d056588a394f999d82274e5c507, type: 2}
     intensityCurve:
-      limitType: 6
+      limitType: 3
       curve:
         serializedVersion: 2
         m_Curve:
@@ -101,7 +101,6 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      customChanceEffector: {fileID: 0}
   - FX: {fileID: 11400000, guid: 151a7e108d46feb488574c3a17f52cdc, type: 2}
     intensityCurve:
       limitType: 3
@@ -183,7 +182,6 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      customChanceEffector: {fileID: 0}
   test:
     FX: {fileID: 0}
     intensityCurve:
@@ -194,4 +192,3 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      customChanceEffector: {fileID: 0}

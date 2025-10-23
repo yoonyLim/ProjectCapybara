@@ -15,6 +15,35 @@ MonoBehaviour:
   minWeatherTime: 0.125
   maxWeatherTime: 0.33333334
   likelihood: 0.197
+  chance:
+    baseChance: 0.197
+    chanceEffectors:
+    - limitType: 4
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+      customChanceEffector: {fileID: 0}
   forecastNext:
   - {fileID: 11400000, guid: 3daad8702a5ccbf418a5370bac12e4c0, type: 2}
   - {fileID: 11400000, guid: 455ce7df2555ead47afd8bdb324c85ab, type: 2}

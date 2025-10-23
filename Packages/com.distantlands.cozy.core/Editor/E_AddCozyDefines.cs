@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.PackageManager;
+using UnityEditor.PackageManager.Requests;
+using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using UnityEngine;
 
 namespace DistantLands.Cozy.EditorScripts
@@ -35,14 +38,13 @@ namespace DistantLands.Cozy.EditorScripts
                 string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
                 List<string> allDefines = definesString.Split(';').ToList();
                 allDefines.AddRange(Symbols.Except(allDefines));
-
-
-                if (E_CozyEditor.IsPackageInstalled("com.unity.render-pipelines.universal"))
+        
+                if (IsPackageInstalled("com.unity.render-pipelines.universal"))
                 {
                     if (!allDefines.Contains("COZY_URP"))
                         allDefines.Add("COZY_URP");
                 }
-                else if (E_CozyEditor.IsPackageInstalled("com.unity.render-pipelines.high-definition"))
+                else if (IsPackageInstalled("com.unity.render-pipelines.high-definition"))
                 {
                     if (!allDefines.Contains("COZY_HDRP"))
                         allDefines.Add("COZY_HDRP");
@@ -52,21 +54,37 @@ namespace DistantLands.Cozy.EditorScripts
                     EditorUserBuildSettings.selectedBuildTargetGroup,
                     string.Join(";", allDefines.ToArray()));
             }
+        }
 
-            string curVersion = AssetInformation.SEM_VERSION;
+        public static PackageInfo GetPackage(string packageID, bool throwError)
+        {
+            SearchRequest request = Client.Search(packageID);
+            while (request.Status == StatusCode.InProgress) { }
 
-            if (PlayerPrefs.GetString("CZY_SemVersion", "") != curVersion)
+            if (request.Status == StatusCode.Failure && throwError)
             {
-                Debug.Log("NEW COZY VERSION DETECTED. Please import the appropriate render pipeline setup via the COZY Hub window.");
+                Debug.LogError("Failed to retrieve package from Package Manager...");
+                return null;
             }
 
-            
-            if (!(PlayerPrefs.GetInt("CZY_Started", 0) == 1) || PlayerPrefs.GetInt("CZY_AlwaysShow", 0) == 1)
-            {
-                E_CozyEditor.Init();
-                PlayerPrefs.SetInt("CZY_Started", 1);
-            }
+            return request.Result[0];
+        }
 
+        public static bool IsPackageInstalled(string packageID)
+        {
+            string manifestPath = Application.dataPath + "/../Packages/manifest.json";
+
+            if (File.Exists(manifestPath))
+            {
+                string manifestContents = File.ReadAllText(manifestPath);
+
+                return manifestContents.Contains(packageID);
+            }
+            else
+            {
+                Debug.LogError("Unable to find the manifest file.");
+                return false;
+            }
         }
     }
 }

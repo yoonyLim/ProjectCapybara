@@ -5,9 +5,6 @@
 using DistantLands.Cozy.Data;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace DistantLands.Cozy
 {
@@ -16,8 +13,7 @@ namespace DistantLands.Cozy
     public class CozyInteractionsModule : CozyModule
     {
 
-
-        [CozyProfile]
+        [CozySearchable(true)]
         public MaterialManagerProfile profile;
         // public List<PrecipitationFX> precipitationFXes = new List<PrecipitationFX>();
 
@@ -40,7 +36,7 @@ namespace DistantLands.Cozy
             if (profile == null)
                 return;
 
-            if (weatherSphere.freezeUpdateInEditMode && !Application.isPlaying)
+            if (CozyWeather.FreezeUpdateInEditMode && !Application.isPlaying)
                 return;
 
             SetupStaticGlobalVariables();
@@ -94,7 +90,7 @@ namespace DistantLands.Cozy
                     break;
                 case (MaterialManagerProfile.ModulatedValue.ModulationSource.rainAmount):
                     if (weatherSphere.climateModule)
-                        i = weatherSphere.climateModule.wetness;
+                        i = weatherSphere.climateModule.groundwaterAmount;
                     break;
                 case (MaterialManagerProfile.ModulatedValue.ModulationSource.snowAmount):
                     if (weatherSphere.climateModule)
@@ -127,78 +123,4 @@ namespace DistantLands.Cozy
         }
 
     }
-
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyInteractionsModule))]
-    [CanEditMultipleObjects]
-    public class E_MaterialManger : E_CozyModule
-    {
-
-        CozyInteractionsModule materialManager;
-        protected static bool profileSettings;
-        protected static bool settings;
-
-
-        void OnEnable()
-        {
-
-
-        }
-
-        public override GUIContent GetGUIContent()
-        {
-
-            return new GUIContent("    Interactions", (Texture)Resources.Load("InteractionsModule"), "Modifies and transforms the world based on the COZY system. Replaces the Materials Module in COZY 3");
-
-        }
-        
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/interactions-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-
-            if (materialManager == null)
-                if (target)
-                {
-                    materialManager = (CozyInteractionsModule)target;
-
-                }
-                else
-                    return;
-
-            materialManager = (CozyInteractionsModule)target;
-
-
-            if (serializedObject.FindProperty("profile").objectReferenceValue == null)
-            {
-                EditorGUILayout.HelpBox("Make sure that you have all of the necessary profile references!", MessageType.Error);
-            }
-
-            profileSettings = EditorGUILayout.BeginFoldoutHeaderGroup(profileSettings, "    Profile Settings", EditorUtilities.FoldoutStyle);
-            EditorGUI.EndFoldoutHeaderGroup();
-            if (profileSettings)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("profile"));
-                EditorGUILayout.Space();
-                EditorGUI.indentLevel--;
-
-            }
-
-            if (materialManager.profile)
-                (CreateEditor(materialManager.profile) as E_MaterialProfile).DisplayInCozyWindow();
-
-
-
-            serializedObject.ApplyModifiedProperties();
-
-
-        }
-    }
-#endif
 }

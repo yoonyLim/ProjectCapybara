@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Capybara; // InputReader 참조
+using Unity.Cinemachine;
+using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using DG.Tweening;
-using Capybara; // InputReader 참조
 
 /// <summary>
-/// UI 패널과 대화 상태를 총괄하는 매니저입니다.
+/// UI 패널과 대화 상태, 그리고 Cinemachine 카메라 전환을 총괄하는 매니저입니다.
 /// </summary>
 public class UIManager : MonoBehaviour
 {
@@ -27,7 +29,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject settingsMenuUI;
     [SerializeField] private GameObject controlsMenuUI;
 
-    // [중요] 대화 캔버스 UI를 다시 추가합니다.
     [Tooltip("DialogUI 스크립트가 붙어있는 최상위 캔버스 패널")]
     [SerializeField] private GameObject dialogUI;
 
@@ -35,9 +36,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject startMenuFirstButton;
     [SerializeField] private GameObject pauseMenuFirstButton;
     [SerializeField] private GameObject settingsMenuFirstButton;
-    [SerializeField] private GameObject controlsMenuFirstButton;
 
-    // [중요] 대화 캔버스의 '다음' 버튼을 추가합니다.
     [Tooltip("대화창이 열릴 때 기본으로 선택될 '다음' 버튼")]
     [SerializeField] private GameObject dialogUIFirstButton;
 
@@ -45,6 +44,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float animationDuration = 0.3f;
     [SerializeField] private Ease openEase = Ease.OutBack;
     [SerializeField] private Ease closeEase = Ease.InBack;
+
+
+    // [수정됨] Camera 대신 CinemachineVirtualCamera를 참조합니다.
+    [Header("Title Camera Transition")]
+    [Tooltip("1단계: 타이틀 씬의 Cinemachine 가상 카메라 (Priority 20)")]
+    [SerializeField] private CinemachineCamera vcam_Title;
+
+    [Tooltip("2단계: 플레이어를 따라다니는 Cinemachine 가상 카메라 (Priority 10)")]
+    [SerializeField] private CinemachineCamera vcam_Player;
+
+    // [삭제] transitionDuration 필드 삭제 (Cinemachine Brain이 처리)
 
     private Stack<GameObject> uiStack = new Stack<GameObject>();
     private Dictionary<GameObject, GameObject> uiFirstButtons = new Dictionary<GameObject, GameObject>();
@@ -64,13 +74,32 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        // [수정됨] 카메라 활성화 대신 '우선순위(Priority)'로 초기 상태를 설정합니다.
+        // 1. 타이틀 카메라는 높은 우선순위 (예: 20)
+        if (vcam_Title != null)
+        {
+            vcam_Title.Priority = 20;
+        }
+        else
+        {
+            Debug.LogError("UIManager: vcam_Title이(가) 할당되지 않았습니다!", this);
+        }
+
+        // 2. 플레이어 카메라는 낮은 우선순위 (예: 10)
+        if (vcam_Player != null)
+        {
+            vcam_Player.Priority = 10;
+        }
+        else
+        {
+            Debug.LogError("UIManager: vcam_Player가 할당되지 않았습니다!", this);
+        }
+
+        // --- (기존 UI 초기화 로직은 그대로 유지) ---
         // 딕셔너리에 UI 패널과 기본 버튼 등록
         if (startMenuUI != null) uiFirstButtons[startMenuUI] = startMenuFirstButton;
         if (pauseMenuUI != null) uiFirstButtons[pauseMenuUI] = pauseMenuFirstButton;
         if (settingsMenuUI != null) uiFirstButtons[settingsMenuUI] = settingsMenuFirstButton;
-        if (controlsMenuUI != null) uiFirstButtons[controlsMenuUI] = controlsMenuFirstButton;
-
-        // [중요] 대화 UI 등록
         if (dialogUI != null) uiFirstButtons[dialogUI] = dialogUIFirstButton;
 
         // 시작 시 모든 UI 즉시 닫기
@@ -78,8 +107,6 @@ public class UIManager : MonoBehaviour
         if (pauseMenuUI != null) CloseUIImmediately(pauseMenuUI);
         if (settingsMenuUI != null) CloseUIImmediately(settingsMenuUI);
         if (controlsMenuUI != null) CloseUIImmediately(controlsMenuUI);
-
-        // [중요] 대화 UI도 닫기
         if (dialogUI != null) CloseUIImmediately(dialogUI);
 
         // 시작 메뉴 열기
@@ -93,15 +120,13 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Event Subscription
-
+    // ... (OnEnable, OnDisable - 수정 없음) ...
     private void OnEnable()
     {
         if (inputReader != null)
         {
             inputReader.PauseEvent += HandlePauseEvent;
             inputReader.CancelEvent += HandleCancelEvent;
-
-            // [중요] '다음' 이벤트(Submit)를 public 함수로 연결
             inputReader.SubmitEvent += TriggerNextDialogueStep;
         }
     }
@@ -112,22 +137,13 @@ public class UIManager : MonoBehaviour
         {
             inputReader.PauseEvent -= HandlePauseEvent;
             inputReader.CancelEvent -= HandleCancelEvent;
-            inputReader.SubmitEvent -= TriggerNextDialogueStep; // 구독 해제
+            inputReader.SubmitEvent -= TriggerNextDialogueStep;
         }
     }
-
     #endregion
 
-    // Core UI Logic (OpenUI, CloseAndGoBack, CloseAllUI)
-    // Animation (AnimateOpen, AnimateClose, CloseUIImmediately)
-    // Public UI Button Functions (OpenSettingMenu, StartGame, ResumeGameFromUI)
-    // ... (이전과 동일한 함수들) ...
-
     #region Core UI Logic (Panels)
-
-    /// <summary>
-    /// UI 패널을 엽니다 (애니메이션, 스택 관리, 컨트롤러 포커스 설정 포함)
-    /// </summary>
+    // ... (OpenUI, CloseAndGoBack, CloseAllUI - 수정 없음) ...
     public void OpenUI(GameObject uiToOpen)
     {
         uiFirstButtons.TryGetValue(uiToOpen, out GameObject firstSelected);
@@ -143,10 +159,6 @@ public class UIManager : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null);
         EventSystem.current.SetSelectedGameObject(firstSelected);
     }
-
-    /// <summary>
-    /// 현재 UI 패널을 닫고 스택의 이전 UI 패널로 돌아갑니다.
-    /// </summary>
     public void CloseAndGoBack()
     {
         if (uiStack.Count > 0)
@@ -166,10 +178,6 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-
-    /// <summary>
-    /// 스택에 있는 모든 UI 패널을 닫습니다. (게임 시작 또는 재개 시 사용)
-    /// </summary>
     public void CloseAllUI()
     {
         while (uiStack.Count > 0)
@@ -178,11 +186,10 @@ public class UIManager : MonoBehaviour
         }
         EventSystem.current.SetSelectedGameObject(null);
     }
-
     #endregion
 
     #region Animation & Public Functions (Buttons)
-
+    // ... (AnimateOpen, AnimateClose, CloseUIImmediately - 수정 없음) ...
     private void AnimateOpen(GameObject uiObject)
     {
         CanvasGroup canvasGroup = uiObject.GetComponent<CanvasGroup>() ?? uiObject.AddComponent<CanvasGroup>();
@@ -224,8 +231,13 @@ public class UIManager : MonoBehaviour
     public void OpenSettingMenu() => OpenUI(settingsMenuUI);
     public void OpenControlsMenu() => OpenUI(controlsMenuUI);
 
+    /// <summary>
+    /// 'Start Game' 버튼 (시작 메뉴용)
+    /// [수정됨] Cinemachine 우선순위를 변경하여 카메라 전환을 시작합니다.
+    /// </summary>
     public void StartGame()
     {
+        // 1. 기존 로직: UI 닫고 입력 모드 변경
         CloseAllUI();
         inputReader.EnableGamePlayActionInputs();
 
@@ -233,11 +245,23 @@ public class UIManager : MonoBehaviour
         {
             GameManager.instance.ResumeGame();
         }
+
+        // 2. [수정됨] Cinemachine 카메라 우선순위를 변경하여 전환을 시작합니다.
+        if (vcam_Title != null && vcam_Player != null)
+        {
+            // Player 카메라의 우선순위를 Title(20)보다 높게 설정합니다.
+            vcam_Player.Priority = 30;
+            // (vcam_Title의 우선순위를 낮춰도 동일하게 작동합니다)
+            // vcam_Title.Priority = 5;
+        }
+        else
+        {
+            Debug.LogWarning("카메라 전환에 필요한 Virtual Camera가 UIManager에 할당되지 않았습니다.", this);
+        }
+
+        // [삭제] StartCoroutine(StartCameraTransition()); 삭제
     }
 
-    /// <summary>
-    /// 'Resume' (메뉴 UI 또는 대화 종료 시)
-    /// </summary>
     public void ResumeGameFromUI()
     {
         CloseAllUI();
@@ -251,92 +275,126 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-
     #region Public Dialogue Methods (Canvas)
-
     /// <summary>
-    /// Dialogue.cs가 호출: "대화 시작"
-    /// UIManager는 대화 캔버스를 열고 게임 상태를 변경합니다.
+    /// 대화를 시작합니다. (InteractionComponent 또는 DialogueTester에서 호출)
     /// </summary>
     public void StartDialogue(Dialogue dialogueComponent)
     {
-        if (IsMenuUIOpen) return; // 메뉴가 열려있으면 대화 시작 안 함
+        if (IsMenuUIOpen) return;
 
-        currentActiveDialogue = dialogueComponent; // 현재 활성 대화(로직)로 등록
+        currentActiveDialogue = dialogueComponent;
 
-        // [중요] 캔버스 대화창을 엽니다.
         OpenUI(dialogUI);
 
-        inputReader.EnableUIActionInputs(); // 입력 모드를 UI로 변경
+        inputReader.EnableUIActionInputs();
 
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.PauseGame(); // 게임 시간 정지
-        }
     }
 
     /// <summary>
-    /// Dialogue.cs가 호출: "대화 종료"
-    /// UIManager는 대화 캔버스를 닫고 게임 상태를 복구합니다.
+    /// 대화를 종료합니다.
     /// </summary>
     public void EndDialogue()
     {
-        currentActiveDialogue = null; // 활성 대화 등록 해제
+        currentActiveDialogue = null;
 
-        // [중요] ResumeGameFromUI를 호출하여 캔버스를 닫고 게임을 재개합니다.
-        ResumeGameFromUI();
+        CloseAllUI();
+        inputReader.EnableGamePlayActionInputs();
     }
-
     #endregion
 
     #region Input Event Handlers
 
-    private void HandlePauseEvent()
+    /// <summary>
+    /// [신규] 일시정지 메뉴를 열고, 필요시 게임 시간을 멈추는 헬퍼 함수
+    /// </summary>
+    private void OpenPauseMenu(bool pauseGame)
     {
-        // 메뉴X, 대화X 일 때만 일시정지 메뉴 열기
-        if (!IsMenuUIOpen && !IsDialogueActive)
-        {
-            OpenUI(pauseMenuUI);
-            inputReader.EnableUIActionInputs();
+        OpenUI(pauseMenuUI);
+        inputReader.EnableUIActionInputs();
 
-            if (GameManager.instance != null)
-            {
-                GameManager.instance.PauseGame();
-            }
+        if (pauseGame && GameManager.instance != null)
+        {
+            GameManager.instance.PauseGame();
         }
     }
 
     /// <summary>
-    /// [PUBLIC] '확인/다음' 입력 (InputReader 또는 UI 버튼 클릭)을 처리합니다.
+    /// [수정됨] 일시정지 이벤트 핸들러
     /// </summary>
+    private void HandlePauseEvent()
+    {
+        // 1. 게임 플레이 중일 때 (기본)
+        if (!IsMenuUIOpen && !IsDialogueActive)
+        {
+            // 일시정지 메뉴를 열고 게임을 멈춥니다.
+            OpenPauseMenu(true);
+        }
+        // 2. 대화 중일 때
+        else if (IsDialogueActive)
+        {
+            // 2-1. 대화 중에 이미 일시정지 메뉴가 열려있다면 (Stack: [Dialog, Pause])
+            if (uiStack.Peek() == pauseMenuUI)
+            {
+                // 일시정지 버튼을 다시 누르면 '취소'와 동일하게 동작 (대화로 복귀)
+                HandleCancelEvent();
+            }
+            // 2-2. 대화만 하고 있다면 (Stack: [Dialog])
+            else
+            {
+                // 일시정지 메뉴를 대화창 '위에' 열고 게임을 멈춥니다.
+                OpenPauseMenu(true);
+            }
+        }
+        // 3. (그 외) 메인 메뉴, 설정창 등에서는 '일시정지'가 동작하지 않습니다.
+    }
+
     public void TriggerNextDialogueStep()
     {
-        // 활성화된 대화(로직)가 있다면
         if (currentActiveDialogue != null)
         {
-            // Dialogue.cs에게 대화를 넘기라고 명령
             currentActiveDialogue.AdvanceDialogue();
         }
     }
 
+    /// <summary>
+    /// [수정됨] 취소(뒤로가기) 이벤트 핸들러
+    /// </summary>
     private void HandleCancelEvent()
     {
-        if (!IsMenuUIOpen) return; // 메뉴가 열려있지 않으면 무시
+        if (!IsMenuUIOpen) return;
 
         GameObject topUI = uiStack.Peek();
 
+        // 1. UI가 2개 이상 겹쳐있을 때 (예: [Start, Settings] 또는 [Dialog, Pause])
         if (uiStack.Count > 1)
         {
+            // 뒤로가기 (이전 UI로 복귀)
             CloseAndGoBack();
-        }
-        else
-        {
+
+            // [중요] 만약 닫힌 UI가 '일시정지 메뉴'였다면,
+            // 게임 시간을 다시 흐르게 합니다. (대화창으로 복귀하므로)
             if (topUI == pauseMenuUI)
             {
-                ResumeGameFromUI();
+                if (GameManager.instance != null)
+                {
+                    GameManager.instance.ResumeGame();
+                }
             }
         }
+        // 2. UI가 1개만 있을 때
+        else
+        {
+            // 2-1. 게임 플레이 중 열었던 일시정지 메뉴라면
+            if (topUI == pauseMenuUI)
+            {
+                // 게임으로 복귀합니다. (이 함수는 CloseAllUI와 ResumeGame을 포함)
+                ResumeGameFromUI();
+            }
+            // 2-2. (그 외) 시작 메뉴 등에서는 '취소'가 동작하지 않습니다.
+        }
     }
-
     #endregion
+
+    // [삭제] private IEnumerator StartCameraTransition() 코루틴 전체를 삭제합니다.
 }

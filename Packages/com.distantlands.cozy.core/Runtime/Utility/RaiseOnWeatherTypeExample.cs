@@ -8,22 +8,22 @@ namespace DistantLands.Cozy
     public class RaiseOnWeatherTypeExample : MonoBehaviour
     {
 
-        // public EventFX weatherType;
+        public EventFX weatherType;
 
-        // void OnEnable()
-        // {
+        void OnEnable()
+        {
 
-        //     weatherType.onCall += OnStart;
-        //     weatherType.onCall += OnStart;
+            weatherType.onCall += OnStart;
+            weatherType.onCall += OnStart;
 
-        // }
-        // void OnDisable()
-        // {
+        }
+        void OnDisable()
+        {
 
-        //     weatherType.onCall -= OnStart;
-        //     weatherType.onEnd -= OnEnd;
+            weatherType.onCall -= OnStart;
+            weatherType.onEnd -= OnEnd;
 
-        // }
+        }
 
         public void OnStart()
         {

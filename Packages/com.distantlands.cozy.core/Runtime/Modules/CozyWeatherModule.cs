@@ -5,11 +5,6 @@
 using UnityEngine;
 using DistantLands.Cozy.Data;
 using System.Collections.Generic;
-using System.Linq;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace DistantLands.Cozy
 {
@@ -35,12 +30,14 @@ namespace DistantLands.Cozy
         public Color sunFilter = Color.white;
         public Color cloudFilter = Color.white;
 
+        [CozySearchable(true)]
         public CozyEcosystem ecosystem;
 
         public CozyEcosystem Ecosystem { get => ecosystem; set => ecosystem = value; }
         public CozySystem LocalSystem { get => system; }
 
         [WeatherRelation]
+        [CozySearchable]
         public List<WeatherRelation> currentWeatherProfiles = new List<WeatherRelation>();
         public FilterFX defaultFilter;
         public CloudFX defaultClouds;
@@ -273,128 +270,4 @@ namespace DistantLands.Cozy
     }
 
 
-
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyWeatherModule))]
-    [CanEditMultipleObjects]
-    public class E_CozyWeatherModule : E_CozyModule, E_BiomeModule, IControlPanel
-    {
-
-        SerializedProperty ecosystem;
-        CozyWeatherModule weatherModule;
-        public static bool selectionWindowIsOpen;
-        public static bool currentWeatherWindowIsOpen;
-        public static bool forecastWindowIsOpen;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Weather", (Texture)Resources.Load("Weather Profile-01"), "Manage weather, forecast and playback options.");
-
-        }
-
-        void OnEnable()
-        {
-            ecosystem = serializedObject.FindProperty("ecosystem");
-            weatherModule = (CozyWeatherModule)target;
-        }
-
-        public override void GetReportsInformation()
-        {
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-            EditorGUILayout.HelpBox("Current Weather", MessageType.None);
-
-            foreach (WeatherRelation w in weatherModule.currentWeatherProfiles)
-                EditorGUILayout.HelpBox($"{w.profile.name} - Weight: {w.weight}", MessageType.None);
-
-            if (weatherModule.ecosystem.currentForecast.Count == 0)
-            {
-
-                EditorGUILayout.HelpBox("No forecast information yet!", MessageType.None);
-
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("Currently it is " + weatherModule.ecosystem.currentWeather.name, MessageType.None);
-
-
-                for (int i = 0; i < weatherModule.ecosystem.currentForecast.Count; i++)
-                {
-                    if (weatherModule.ecosystem.weatherSelectionMode == CozyEcosystem.EcosystemStyle.forecast)
-                        EditorGUILayout.HelpBox($"Starting at {weatherModule.ecosystem.currentForecast[i].startTime.ToString()} the weather will change to {weatherModule.ecosystem.currentForecast[i].profile.name} for {((MeridiemTime)weatherModule.ecosystem.currentForecast[i].duration).ToString()} or unitl {weatherModule.ecosystem.currentForecast[i].endTime.ToString()}.", MessageType.None, true);
-
-                    if (weatherModule.ecosystem.weatherSelectionMode == CozyEcosystem.EcosystemStyle.dailyForecast)
-                        EditorGUILayout.HelpBox($"In {i + 1} day{(i == 0 ? "" : "s")} the weather will change to {weatherModule.ecosystem.currentForecast[i].profile.name}.", MessageType.None, true);
-
-                    EditorGUILayout.Space(2);
-
-                }
-            }
-        }
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/weather-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-
-            EcosystemEditor.DrawEditor(ecosystem);
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-        public void GetControlPanel()
-        {
-            if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex != CozyEcosystem.EcosystemStyle.manual)
-            {
-                if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic)
-                    EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Current Weather"));
-                else
-                    EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Preview Weather"));
-            }
-            else
-                EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weightedWeatherProfiles"), new GUIContent("Weather Ratios"));
-        }
-
-        public void DrawBiomeReports()
-        {
-            if (weatherModule.ecosystem.currentForecast.Count == 0)
-            {
-                EditorGUILayout.HelpBox("No forecast information yet!", MessageType.None);
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("Currently it is " + weatherModule.ecosystem.currentWeather.name, MessageType.None);
-
-                for (int i = 0; i < weatherModule.ecosystem.currentForecast.Count; i++)
-                {
-                    if (weatherModule.ecosystem.weatherSelectionMode == CozyEcosystem.EcosystemStyle.forecast)
-                        EditorGUILayout.HelpBox($"Starting at {weatherModule.ecosystem.currentForecast[i].startTime.ToString()} the weather will change to {weatherModule.ecosystem.currentForecast[i].profile.name} for {((MeridiemTime)weatherModule.ecosystem.currentForecast[i].duration).ToString()} or unitl {weatherModule.ecosystem.currentForecast[i].endTime.ToString()}.", MessageType.None, true);
-
-                    if (weatherModule.ecosystem.weatherSelectionMode == CozyEcosystem.EcosystemStyle.dailyForecast)
-                        EditorGUILayout.HelpBox($"In {i + 1} day{(i == 0 ? "" : "s")} the weather will change to {weatherModule.ecosystem.currentForecast[i].profile.name}.", MessageType.None, true);
-
-                    EditorGUILayout.Space(2);
-
-                }
-            }
-        }
-
-        public void DrawInlineBiomeUI()
-        {
-            if (!target) return;
-            serializedObject.Update();
-
-            EditorGUI.indentLevel++;
-            EcosystemEditor.DrawEditor(ecosystem);
-            EditorGUI.indentLevel--;
-
-            serializedObject.ApplyModifiedProperties();
-        }
-    }
-#endif
 }

@@ -8,10 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace DistantLands.Cozy
 {
 
@@ -19,6 +15,7 @@ namespace DistantLands.Cozy
     public class CozyAmbienceModule : CozyBiomeModuleBase<CozyAmbienceModule>
     {
 
+        [CozySearchable("Ambiences", "Ambience profiles", "profiles")]
         public AmbienceProfile[] ambienceProfiles = new AmbienceProfile[0];
 
         [System.Serializable]
@@ -54,6 +51,7 @@ namespace DistantLands.Cozy
 
         public List<WeightedAmbience> weightedAmbience = new List<WeightedAmbience>();
 
+        [CozySearchable("Ambience", "Ambience profile", "profile")]
         public AmbienceProfile currentAmbienceProfile;
         public AmbienceProfile ambienceChangeCheck;
         public float timeToChangeProfiles = 7;
@@ -66,6 +64,11 @@ namespace DistantLands.Cozy
 
             if (isBiomeModule)
                 return;
+
+            if (ambienceProfiles.Length == 0)
+            {
+                FindAllAmbiences();
+            }
 
             foreach (AmbienceProfile profile in ambienceProfiles)
             {
@@ -120,36 +123,31 @@ namespace DistantLands.Cozy
                     SetNextAmbience();
                 }
 
+                foreach (WeightedAmbience i in weightedAmbience)
+                {
+                    i.weight = i.weight * weight;
+                }
+
+                weightedAmbience.RemoveAll(x => x.weight == 0 && x.transitioning == false);
+
             }
 
             ComputeBiomeWeights();
+            // ManageBiomeWeights();
         }
 
         public override void UpdateFXWeights()
         {
-            foreach (WeightedAmbience i in weightedAmbience)
+            foreach (WeightedAmbience weather in weightedAmbience)
             {
-                i.ambienceProfile.SetWeight(i.weight * weight);
-            }
-            foreach (CozyAmbienceModule biome in biomes)
-            {
-                foreach (WeightedAmbience i in biome.weightedAmbience)
-                {
-                    i.ambienceProfile.SetWeight(i.weight * biome.weight);
-                }
+                if (weather != null && weather.ambienceProfile)
+                    weather.ambienceProfile.SetWeight(weather.weight);
             }
         }
         public override void UpdateBiomeModule()
         {
-            if (weightedAmbience.Count == 0 || weightedAmbience[0].ambienceProfile != currentAmbienceProfile)
-            {
-                weightedAmbience = new List<WeightedAmbience>() {
-                    new WeightedAmbience() {
-                        ambienceProfile = currentAmbienceProfile,
-                        weight = 1
-                    }
-                };
-            }
+
+            currentAmbienceProfile.SetWeight(weight);
 
         }
 
@@ -264,111 +262,4 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyAmbienceModule))]
-    [CanEditMultipleObjects]
-    public class E_AmbienceManager : E_CozyModule, E_BiomeModule, IControlPanel
-    {
-
-
-        protected static bool profileSettings;
-        protected static bool currentInfo;
-        CozyAmbienceModule ambienceManager;
-
-
-        public override GUIContent GetGUIContent()
-        {
-
-            return new GUIContent("    Ambience", (Texture)Resources.Load("Ambience Profile"), "Controls a secondary weather system that runs parallel to the main system allowing for ambient noises and FX.");
-
-        }
-
-        void OnEnable()
-        {
-
-            if (target)
-                ambienceManager = (CozyAmbienceModule)target;
-
-        }
-        public override void GetReportsInformation()
-        {
-
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-
-            EditorGUILayout.HelpBox("Current Ambiences", MessageType.None);
-            foreach (CozyAmbienceModule.WeightedAmbience w in ambienceManager.weightedAmbience)
-                EditorGUILayout.HelpBox($"{w.ambienceProfile.name} - Weight: {w.weight}", MessageType.None);
-
-        }
-
-        public void GetControlPanel()
-        {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("currentAmbienceProfile"));
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/ambience-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            serializedObject.Update();
-            EditorGUI.indentLevel = 0;
-
-            if (ambienceManager == null)
-                if (target)
-                    ambienceManager = (CozyAmbienceModule)target;
-                else
-                    return;
-
-            profileSettings = EditorGUILayout.BeginFoldoutHeaderGroup(profileSettings, "    Forecast Settings", EditorUtilities.FoldoutStyle);
-            EditorGUI.EndFoldoutHeaderGroup();
-            if (profileSettings)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("ambienceProfiles"));
-                serializedObject.ApplyModifiedProperties();
-                EditorGUILayout.Space();
-                if (GUILayout.Button("Add all ambience profiles"))
-                    ambienceManager.FindAllAmbiences();
-                EditorGUI.indentLevel--;
-
-            }
-
-
-            currentInfo = EditorGUILayout.BeginFoldoutHeaderGroup(currentInfo, "    Current Information", EditorUtilities.FoldoutStyle);
-            EditorGUI.EndFoldoutHeaderGroup();
-            if (currentInfo)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("currentAmbienceProfile"));
-                if (Application.isPlaying)
-                    EditorGUILayout.HelpBox(ambienceManager.currentAmbienceProfile.name + " will be playing for the next " + ((MeridiemTime)ambienceManager.GetTimeTillNextAmbience()).ToString() + " of in-game time.", MessageType.None, true);
-
-                EditorGUI.indentLevel--;
-            }
-
-            serializedObject.ApplyModifiedProperties();
-        }
-
-        public void DrawBiomeReports()
-        {
-            EditorGUILayout.HelpBox($"Current ambience is {ambienceManager.currentAmbienceProfile.name}", MessageType.None, true);
-        }
-
-        public void DrawInlineBiomeUI()
-        {
-            if (target == null) return;
-            serializedObject.Update();
-
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("currentAmbienceProfile"));
-            EditorGUI.indentLevel--;
-
-
-            serializedObject.ApplyModifiedProperties();
-        }
-    }
-#endif
 }
