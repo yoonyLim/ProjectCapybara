@@ -2,6 +2,7 @@ using System;
 using System;
 using System.Runtime.CompilerServices;
 using System.Collections;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -39,10 +40,10 @@ namespace Capybara
         
         [Header("Default Settings")]
         [SerializeField] private float constGroundRaycastDistance = 0.4f;
-        [SerializeField] private float constGravity = 9.81f;
         
         private Rigidbody rb;
         private Animator anim;
+        private CinemachineCamera cineCam;
         
         // Current State Values
         private bool isGrounded = true;
@@ -73,6 +74,7 @@ namespace Capybara
         {
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
+            cineCam = GameObject.FindGameObjectWithTag("CineCamera").GetComponent<CinemachineCamera>();
             
             // SKI CHANGE: If the camera transform isn't assigned, find the main camera.
             if (cameraTransform == null)
@@ -136,11 +138,16 @@ namespace Capybara
             if (transform.position.z >= breakDistance && !isOverBreakDistance)
             {
                 Debug.Log("BreakPoint over " + breakDistance);
-
+                
+                CinemachineFollow follwComp = cineCam.GetComponent<CinemachineFollow>();
+                if (follwComp)
+                    follwComp.FollowOffset = new Vector3(0f, 10f, 0f);
+                
                 isOverBreakDistance = true;
                 isWindZoned = false;
                 Instantiate(Clouds, transform.position + Vector3.down * 100, Quaternion.identity);
-                rb.linearVelocity = Vector3.zero;
+                rb.useGravity = false;
+                rb.linearVelocity = new Vector3(0f, -10f, 0f);
             }
         }
 
