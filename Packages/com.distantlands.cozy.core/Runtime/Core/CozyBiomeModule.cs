@@ -79,7 +79,7 @@ namespace DistantLands.Cozy
         {
             if (ParentModule)
             {
-                ParentModule.biomes = FindObjectsOfType<CozyBiomeModuleBase<TCozyBiomeModule>>()
+                ParentModule.biomes = FindObjectsByType<CozyBiomeModuleBase<TCozyBiomeModule>>(FindObjectsSortMode.None)
                     .Where(x => x != ParentModule)
                     .ToList();
             }

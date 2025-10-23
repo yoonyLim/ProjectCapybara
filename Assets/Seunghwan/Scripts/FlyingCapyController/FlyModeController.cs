@@ -1,5 +1,3 @@
-
-using System;
 using System.Collections;
 using Capybara;
 using Unity.Cinemachine;
@@ -10,15 +8,14 @@ public class FlyModeController : MonoBehaviour
     private Rigidbody capyRigidBody;
     private readonly float forwardFlightStrength = 150f;
     private readonly float upwardFlightStrength = 200f;
-    private readonly float yawRotationSpeed = 100f;
+    private readonly float yawRotationSpeed = 130f;
     private readonly float obstacleHitRotationSpeed = 800f;
     private readonly float maxMeshRoll = 25f;
     private readonly float maxMeshPitch = 40f;
     private readonly float bounceStrength = 40f;
-    private readonly float maxSpeed = 100f;
-    private readonly float gravityStrength = 10f;
+    private readonly float maxSpeed = 50f;
 
-    private readonly float normalLinearDamping = 3f;
+    private readonly float normalLinearDamping = 1f;
     private readonly float obstacleHitLinearDamping = 1f;
     private readonly float obstacleHitDuration = 1f;
     private readonly float camShakeDuration = 0.175f;
@@ -32,6 +29,8 @@ public class FlyModeController : MonoBehaviour
     
     private Vector2 moveInput;
 
+    private readonly int Alpha = Shader.PropertyToID("_Alpha");
+
     [SerializeField] private Transform meshTransform;
     [SerializeField] private Animator capyAnimator;
     [SerializeField] private Animator birdAnimator;
@@ -44,6 +43,10 @@ public class FlyModeController : MonoBehaviour
     [SerializeField] private CinemachineBasicMultiChannelPerlin cmPerlin;
     [SerializeField] private LayerMask obstacleLayerMask;
     [SerializeField] private CapybaraInputReader capybaraInputReader;
+
+    [SerializeField] private Material speedEffectMaterial;
+
+    [SerializeField] private BirdHitSound hitSoundComponent;
 
     enum FlyModeState
     {
@@ -69,12 +72,14 @@ public class FlyModeController : MonoBehaviour
     {
         capybaraInputReader.MoveEvent -= OnMove;
         capybaraInputReader.MoveCanceledEvent -= OnMoveCanceled;
+        speedEffectMaterial.SetFloat(Alpha, 0f);
     }
 
     private void OnMove(Vector2 input)
     {
         moveInput = input;
     }
+    
 
     private void OnMoveCanceled(Vector2 input)
     {
@@ -84,9 +89,12 @@ public class FlyModeController : MonoBehaviour
     private void Update()
     {
         ApplyMeshLocalRotation();
-
         float targetY = 25f - moveInput.y * 30f;
-        cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 2f);
+        cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 3f);
+
+        float speedRatio = capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity;
+        float targetEffectAlpha = 0.1f * Mathf.Clamp01(1f / (1f- 0.5f) * (speedRatio - 0.5f));
+        speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
     }
 
     private void FixedUpdate()
@@ -157,6 +165,8 @@ public class FlyModeController : MonoBehaviour
         
         if (other.gameObject.CompareTag("FlyingObstacle"))
         {
+            hitSoundComponent.PlayHitSound();
+            
             DualSenseInputManager.Instance.RumbleControllerForDuration(1f, 0.1f);
             Vector3 currentVelocityDir = capyRigidBody.linearVelocity.normalized;
             Vector3 impulseDir = other.impulse.normalized;

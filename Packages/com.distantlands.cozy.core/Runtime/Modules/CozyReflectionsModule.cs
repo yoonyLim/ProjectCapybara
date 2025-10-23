@@ -44,7 +44,7 @@ namespace DistantLands.Cozy
 
             base.InitializeModule();
             reflectionCubemap = Resources.Load("Materials/Reflection Cubemap") as Cubemap;
-            RenderSettings.customReflection = reflectionCubemap;
+            RenderSettings.customReflectionTexture = reflectionCubemap;
             RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Custom;
             if (automaticallySetLayer)
             {
@@ -137,7 +137,7 @@ namespace DistantLands.Cozy
                 CozyWeather.Events.onNewHour -= RenderReflections;
             }
 
-            RenderSettings.customReflection = null;
+            RenderSettings.customReflectionTexture = null;
 
         }
 
