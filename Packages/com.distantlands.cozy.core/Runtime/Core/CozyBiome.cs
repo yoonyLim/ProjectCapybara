@@ -42,14 +42,14 @@ namespace DistantLands.Cozy
         public float maxWeight = 1;
         public enum BiomeMode
         {
-            global,
-            local
+            Global,
+            Local
         }
         public BiomeMode mode;
         public enum TransitionMode
         {
-            distance,
-            time
+            Distance,
+            Time
         }
         public TransitionMode transitionMode;
 
@@ -67,13 +67,13 @@ namespace DistantLands.Cozy
             if (modules.Count == 0)
                 modules = GetComponents<ICozyBiomeModule>().ToList();
 
-            if (mode == BiomeMode.global)
+            if (mode == BiomeMode.Global)
             {
                 targetWeight = maxWeight;
             }
             else
             {
-                if (transitionMode == TransitionMode.distance)
+                if (transitionMode == TransitionMode.Distance)
                     SetWeightByDistance();
                 else
                     SetWeightByTime();
@@ -91,7 +91,7 @@ namespace DistantLands.Cozy
                 targetWeight = 0;
 
 
-            if (mode == BiomeMode.global)
+            if (mode == BiomeMode.Global)
             {
                 targetWeight = maxWeight;
             }
@@ -119,7 +119,7 @@ namespace DistantLands.Cozy
                 targetWeight = 0;
 
 
-            if (mode == BiomeMode.global)
+            if (mode == BiomeMode.Global)
             {
                 targetWeight = maxWeight;
             }
@@ -200,175 +200,175 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    [CanEditMultipleObjects]
-    [CustomEditor(typeof(CozyBiome))]
-    public class CozyBiomeEditor : Editor
-    {
+// #if UNITY_EDITOR
+//     [CanEditMultipleObjects]
+//     [CustomEditor(typeof(CozyBiome))]
+//     public class CozyBiomeEditor : Editor
+//     {
 
-        protected static bool managementFoldout;
-        protected static bool weatherFoldout;
-        protected static bool biomeFoldout;
-        protected static bool boundsFoldout;
-        protected static bool infoFoldout;
-        public CozyBiome biome;
-        public CozyWeather weatherSphere;
-        public List<Type> mods;
-        public List<E_BiomeModule> editors = new List<E_BiomeModule>();
-        SerializedProperty mode;
-        SerializedProperty transitionMode;
-        SerializedProperty trigger;
-        SerializedProperty weight;
-        SerializedProperty priority;
-        SerializedProperty transitionDistance;
-        SerializedProperty transitionTime;
-
-
-        public void OnEnable()
-        {
-
-            biome = (CozyBiome)target;
-            weatherSphere = CozyWeather.instance;
-            mode = serializedObject.FindProperty("mode");
-            transitionMode = serializedObject.FindProperty("transitionMode");
-            trigger = serializedObject.FindProperty("trigger");
-            weight = serializedObject.FindProperty("maxWeight");
-            priority = serializedObject.FindProperty("priority");
-            transitionDistance = serializedObject.FindProperty("transitionDistance");
-            transitionTime = serializedObject.FindProperty("transitionTime");
-
-        }
-
-        public void CacheEditors()
-        {
-            editors.Clear();
-
-            foreach (ICozyBiomeModule module in biome.modules)
-                editors.Add(CreateEditor((CozyModule)module) as E_BiomeModule);
-
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            if (editors.Count != biome.modules.Count)
-                CacheEditors();
-
-            EditorGUI.indentLevel = 0;
-
-            managementFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(managementFoldout, "   Management Settings", EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (managementFoldout)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(mode);
-                EditorGUILayout.PropertyField(transitionMode);
-                if (mode.intValue == 1)
-                {
-                    if (!biome.trigger)
-                    {
-                        biome.trigger = biome.GetComponent<Collider>();
-                        EditorGUILayout.HelpBox("Local biomes require a collider! Please add a collider to this game object or manually assign a collider.", MessageType.Warning);
-                    }
-                    else if (!biome.trigger.isTrigger)
-                        EditorGUILayout.HelpBox("You will likely want to change your collider's trigger mode to on.", MessageType.Warning);
-
-                    EditorGUILayout.PropertyField(trigger);
-                    if (transitionMode.intValue == 0)
-                        EditorGUILayout.PropertyField(transitionDistance, new GUIContent("Transition Distance"));
-                    else
-                        EditorGUILayout.PropertyField(transitionTime, new GUIContent("Transition Time"));
-
-                }
-                EditorGUILayout.PropertyField(weight, new GUIContent("Weight"));
-                EditorGUILayout.PropertyField(priority, new GUIContent("Priority"));
-
-                EditorGUI.indentLevel--;
-
-            }
-
-            EditorGUI.indentLevel += 2;
-            foreach (E_BiomeModule module in editors)
-            {
-                if (module == null) continue;
-                ((E_CozyModule)module).DisplayToolar(false);
-                module.DrawInlineBiomeUI();
-            }
-            EditorGUI.indentLevel -= 2;
-
-            infoFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(infoFoldout, "   Current Information", EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (infoFoldout)
-            {
-                EditorGUI.indentLevel++;
-
-                //                 EditorGUILayout.HelpBox("Currently it is " + Mathf.Round(biome.currentTemperature) + "F or " + Mathf.Round(biome.currentTemperatureCelsius) + "C with a precipitation chance of " + Mathf.Round(biome.currentPrecipitation) + "%.\n" +
-                // "Temperatures will " + (biome.currentTemperature > biome.GetTemperature(false, weatherSphere.perennialProfile.ticksPerDay) ? "drop" : "rise") + " tomorrow, bringing the temprature to " + Mathf.Round(biome.GetTemperature(false, weatherSphere.perennialProfile.ticksPerDay)) + "F", MessageType.None);
-                //                 EditorGUILayout.Space();
+//         protected static bool managementFoldout;
+//         protected static bool weatherFoldout;
+//         protected static bool biomeFoldout;
+//         protected static bool boundsFoldout;
+//         protected static bool infoFoldout;
+//         public CozyBiome biome;
+//         public CozyWeather weatherSphere;
+//         public List<Type> mods;
+//         public List<E_BiomeModule> editors = new List<E_BiomeModule>();
+//         SerializedProperty mode;
+//         SerializedProperty transitionMode;
+//         SerializedProperty trigger;
+//         SerializedProperty weight;
+//         SerializedProperty priority;
+//         SerializedProperty transitionDistance;
+//         SerializedProperty transitionTime;
 
 
-                // if (biome.currentForecast.Count == 0)
-                // {
-                //     EditorGUILayout.HelpBox("No forecast information yet!", MessageType.None);
+//         public void OnEnable()
+//         {
 
-                // }
-                // else
-                // {
-                //     EditorGUILayout.HelpBox("Currently it is " + biome.weatherSphere.currentWeather.name, MessageType.None);
+//             biome = (CozyBiome)target;
+//             weatherSphere = CozyWeather.instance;
+//             mode = serializedObject.FindProperty("mode");
+//             transitionMode = serializedObject.FindProperty("transitionMode");
+//             trigger = serializedObject.FindProperty("trigger");
+//             weight = serializedObject.FindProperty("maxWeight");
+//             priority = serializedObject.FindProperty("priority");
+//             transitionDistance = serializedObject.FindProperty("transitionDistance");
+//             transitionTime = serializedObject.FindProperty("transitionTime");
+
+//         }
+
+//         public void CacheEditors()
+//         {
+//             editors.Clear();
+
+//             foreach (ICozyBiomeModule module in biome.modules)
+//                 editors.Add(CreateEditor((CozyModule)module) as E_BiomeModule);
+
+//         }
+
+//         public override void OnInspectorGUI()
+//         {
+//             serializedObject.Update();
+
+//             if (editors.Count != biome.modules.Count)
+//                 CacheEditors();
+
+//             EditorGUI.indentLevel = 0;
+
+//             managementFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(managementFoldout, "   Management Settings", EditorUtilities.FoldoutStyle);
+//             EditorGUILayout.EndFoldoutHeaderGroup();
+
+//             if (managementFoldout)
+//             {
+
+//                 EditorGUI.indentLevel++;
+//                 EditorGUILayout.PropertyField(mode);
+//                 EditorGUILayout.PropertyField(transitionMode);
+//                 if (mode.intValue == 1)
+//                 {
+//                     if (!biome.trigger)
+//                     {
+//                         biome.trigger = biome.GetComponent<Collider>();
+//                         EditorGUILayout.HelpBox("Local biomes require a collider! Please add a collider to this game object or manually assign a collider.", MessageType.Warning);
+//                     }
+//                     else if (!biome.trigger.isTrigger)
+//                         EditorGUILayout.HelpBox("You will likely want to change your collider's trigger mode to on.", MessageType.Warning);
+
+//                     EditorGUILayout.PropertyField(trigger);
+//                     if (transitionMode.intValue == 0)
+//                         EditorGUILayout.PropertyField(transitionDistance, new GUIContent("Transition Distance"));
+//                     else
+//                         EditorGUILayout.PropertyField(transitionTime, new GUIContent("Transition Time"));
+
+//                 }
+//                 EditorGUILayout.PropertyField(weight, new GUIContent("Weight"));
+//                 EditorGUILayout.PropertyField(priority, new GUIContent("Priority"));
+
+//                 EditorGUI.indentLevel--;
+
+//             }
+
+//             EditorGUI.indentLevel += 2;
+//             foreach (E_BiomeModule module in editors)
+//             {
+//                 if (module == null) continue;
+//                 ((E_CozyModule)module).DisplayToolar(false);
+//                 module.DrawInlineBiomeUI();
+//             }
+//             EditorGUI.indentLevel -= 2;
+
+//             infoFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(infoFoldout, "   Current Information", EditorUtilities.FoldoutStyle);
+//             EditorGUILayout.EndFoldoutHeaderGroup();
+
+//             if (infoFoldout)
+//             {
+//                 EditorGUI.indentLevel++;
+
+//                 //                 EditorGUILayout.HelpBox("Currently it is " + Mathf.Round(biome.currentTemperature) + "F or " + Mathf.Round(biome.currentTemperatureCelsius) + "C with a precipitation chance of " + Mathf.Round(biome.currentPrecipitation) + "%.\n" +
+//                 // "Temperatures will " + (biome.currentTemperature > biome.GetTemperature(false, weatherSphere.perennialProfile.ticksPerDay) ? "drop" : "rise") + " tomorrow, bringing the temprature to " + Mathf.Round(biome.GetTemperature(false, weatherSphere.perennialProfile.ticksPerDay)) + "F", MessageType.None);
+//                 //                 EditorGUILayout.Space();
 
 
-                //     for (int i = 0; i < biome.currentForecast.Count; i++)
-                //     {
+//                 // if (biome.currentForecast.Count == 0)
+//                 // {
+//                 //     EditorGUILayout.HelpBox("No forecast information yet!", MessageType.None);
 
-                //         EditorGUILayout.HelpBox("Starting at " + biome.weatherSphere.perennialProfile.FormatTime(false, biome.currentForecast[i].startTicks) + " the weather will change to " +
-                //             biome.currentForecast[i].profile.name + " for " + Mathf.Round(biome.currentForecast[i].weatherProfileDuration) +
-                //             " ticks or unitl " + biome.weatherSphere.perennialProfile.FormatTime(false, biome.currentForecast[i].endTicks) + ".", MessageType.None, true);
-
-                //         EditorGUILayout.Space(2);
-
-                //     }
-                // }
-
-                foreach (E_BiomeModule module in editors)
-                    if (module != null)
-                        module.DrawBiomeReports();
-
-                EditorGUI.indentLevel--;
-
-            }
+//                 // }
+//                 // else
+//                 // {
+//                 //     EditorGUILayout.HelpBox("Currently it is " + biome.weatherSphere.currentWeather.name, MessageType.None);
 
 
-            if (GUILayout.Button("Add Modules"))
-            {
-                if (mods == null)
-                    mods = EditorUtilities.ResetBiomeModulesList();
+//                 //     for (int i = 0; i < biome.currentForecast.Count; i++)
+//                 //     {
 
-                if (mods.Contains(typeof(ICozyBiomeModule)))
-                    mods.Remove(typeof(ICozyBiomeModule));
+//                 //         EditorGUILayout.HelpBox("Starting at " + biome.weatherSphere.perennialProfile.FormatTime(false, biome.currentForecast[i].startTicks) + " the weather will change to " +
+//                 //             biome.currentForecast[i].profile.name + " for " + Mathf.Round(biome.currentForecast[i].weatherProfileDuration) +
+//                 //             " ticks or unitl " + biome.weatherSphere.perennialProfile.FormatTime(false, biome.currentForecast[i].endTicks) + ".", MessageType.None, true);
 
-                if (mods.Contains(typeof(CozyBiomeModuleBase<>)))
-                    mods.Remove(typeof(CozyBiomeModuleBase<>));
+//                 //         EditorGUILayout.Space(2);
 
-                foreach (ICozyBiomeModule a in biome.modules)
-                    if (mods.Contains(a.GetType()))
-                        mods.Remove(a.GetType());
+//                 //     }
+//                 // }
 
-                BiomeModulesSearchProvider provider = CreateInstance<BiomeModulesSearchProvider>();
-                provider.modules = mods;
-                provider.biome = biome;
-                SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)), provider);
+//                 foreach (E_BiomeModule module in editors)
+//                     if (module != null)
+//                         module.DrawBiomeReports();
 
+//                 EditorGUI.indentLevel--;
 
-            }
-
-            serializedObject.ApplyModifiedProperties();
+//             }
 
 
-        }
-    }
-#endif
+//             if (GUILayout.Button("Add Modules"))
+//             {
+//                 if (mods == null)
+//                     mods = EditorUtilities.ResetBiomeModulesList();
+
+//                 if (mods.Contains(typeof(ICozyBiomeModule)))
+//                     mods.Remove(typeof(ICozyBiomeModule));
+
+//                 if (mods.Contains(typeof(CozyBiomeModuleBase<>)))
+//                     mods.Remove(typeof(CozyBiomeModuleBase<>));
+
+//                 foreach (ICozyBiomeModule a in biome.modules)
+//                     if (mods.Contains(a.GetType()))
+//                         mods.Remove(a.GetType());
+
+//                 // BiomeModulesSearchProvider provider = CreateInstance<BiomeModulesSearchProvider>();
+//                 // provider.modules = mods;
+//                 // provider.biome = biome;
+//                 // SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)), provider);
+
+
+//             }
+
+//             serializedObject.ApplyModifiedProperties();
+
+
+//         }
+//     }
+// #endif
 }

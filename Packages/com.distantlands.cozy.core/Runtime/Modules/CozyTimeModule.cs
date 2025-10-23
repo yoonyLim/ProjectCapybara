@@ -5,10 +5,7 @@
 using System.Collections;
 using UnityEngine;
 using DistantLands.Cozy.Data;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using UnityEngine.Serialization;
 
 namespace DistantLands.Cozy
 {
@@ -17,25 +14,22 @@ namespace DistantLands.Cozy
     {
 
         public CozyTransitModule transit;
-        [CozyProfile]
         public PerennialProfile perennialProfile;
         public CozyDateOverride overrideDate;
-        [MeridiemTimeAttriute]
-        [SerializeField]
-        private float m_DayPercentage = 0.5f;
         [Range(0, 1)]
         public float yearPercentage = 0;
         public float modifiedDayPercentage;
         public bool transitioningTime;
 
-        public MeridiemTime currentTime
-        {
-            get { return m_DayPercentage; }
-            set { m_DayPercentage = value; }
+        [FormerlySerializedAs("m_DayPercentage")]
+        [CozySearchable]
+        public MeridiemTime currentTime = 0;
 
-        }
+        public int AbsoluteDay => currentDay + GetDaysPerYear() * currentYear;
 
+        [CozySearchable]
         public int currentDay;
+        [CozySearchable]
         public int currentYear;
         public CozyTimeModule parentModule;
 
@@ -82,7 +76,7 @@ namespace DistantLands.Cozy
             ManageTime();
 
             yearPercentage = GetCurrentYearPercentage();
-            modifiedDayPercentage = transit ? transit.ModifyDayPercentage(m_DayPercentage) / 360 : m_DayPercentage;
+            modifiedDayPercentage = transit ? transit.ModifyDayPercentage(currentTime) / 360 : currentTime;
 
         }
 
@@ -102,17 +96,16 @@ namespace DistantLands.Cozy
         /// </summary> 
         private void ConstrainTime()
         {
-            if (m_DayPercentage >= 1)
+            if (currentTime >= 1)
             {
-                m_DayPercentage -= 1;
+                currentTime -= 1;
                 ChangeDay(1);
-                weatherSphere.events.timeToCheckFor = 0.25f;
                 weatherSphere.events.RaiseOnDayChange();
             }
 
-            if (m_DayPercentage < 0)
+            if (currentTime < 0)
             {
-                m_DayPercentage += 1;
+                currentTime += 1;
                 ChangeDay(-1);
                 weatherSphere.events.RaiseOnDayChange();
             }
@@ -204,7 +197,7 @@ namespace DistantLands.Cozy
             if (overrideDate)
                 return overrideDate.DayAndTime();
 
-            return currentDay + m_DayPercentage;
+            return currentDay + currentTime;
 
         }
 
@@ -215,8 +208,7 @@ namespace DistantLands.Cozy
         {
 
             if (Application.isPlaying && !perennialProfile.pauseTime)
-                m_DayPercentage += modifiedTimeSpeed * Time.deltaTime;
-
+                currentTime += modifiedTimeSpeed * Time.deltaTime;
 
             ConstrainTime();
 
@@ -226,7 +218,7 @@ namespace DistantLands.Cozy
         {
             get
             {
-                return perennialProfile.timeMovementSpeed * (perennialProfile.pauseTime ? 0 : 1) * perennialProfile.timeSpeedMultiplier.Evaluate(m_DayPercentage) / 1440;
+                return perennialProfile.timeMovementSpeed * (perennialProfile.pauseTime ? 0 : 1) * (perennialProfile.modulateTimeSpeed ? perennialProfile.timeSpeedMultiplier.Evaluate(currentTime) : 1) / 1440;
             }
         }
 
@@ -375,140 +367,4 @@ namespace DistantLands.Cozy
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyTimeModule))]
-    [CanEditMultipleObjects]
-    public class E_CozyTimeModule : E_CozyModule, IControlPanel
-    {
-
-        SerializedProperty currentTimePercent;
-        SerializedProperty currentDay;
-        SerializedProperty currentYear;
-        SerializedProperty perennialProfile;
-        public static bool isSelectionWindowOpen;
-        public static bool isCurrentSettingsWindowOpen;
-        public static bool isLengthWindowOpen;
-        public static bool isMovementWindowOpen;
-        CozyTimeModule timeModule;
-        E_PerennialProfile timeEditor;
-        PerennialProfile perennial;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Time", (Texture)Resources.Load("CozyCalendar"), "Setup time settings, simple calendars, and manage current settings.");
-
-        }
-
-        void OnEnable()
-        {
-            timeModule = (CozyTimeModule)target;
-            currentTimePercent = serializedObject.FindProperty("m_DayPercentage");
-            currentDay = serializedObject.FindProperty("currentDay");
-            currentYear = serializedObject.FindProperty("currentYear");
-            perennial = timeModule.perennialProfile;
-            timeEditor = CreateEditor(perennial) as E_PerennialProfile;
-            perennialProfile = serializedObject.FindProperty("perennialProfile");
-        }
-
-        public void SetTime(object time)
-        {
-            timeModule.currentTime = (float)time;
-        }
-
-        public override void OpenContextMenu(Vector2 pos)
-        {
-
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Set Time to Morning"), false, SetTime, 0.25f);
-            menu.AddItem(new GUIContent("Set Time to Day"), false, SetTime, 0.5f);
-            menu.AddItem(new GUIContent("Set Time to Evening"), false, SetTime, 0.75f);
-            menu.AddItem(new GUIContent("Set Time to Night"), false, SetTime, 0f);
-            menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Remove Module"), false, RemoveModule);
-            menu.AddItem(new GUIContent("Reset"), false, ResetModule);
-            menu.AddItem(new GUIContent("Edit Script"), false, EditScript);
-
-            menu.ShowAsContext();
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/time-module");
-        }
-
-        public void GetControlPanel()
-        {
-            EditorGUILayout.PropertyField(currentTimePercent, new GUIContent("Current Time"));
-            EditorGUI.BeginChangeCheck();
-            currentDay.intValue = EditorGUILayout.IntSlider(new GUIContent("Current Day"), currentDay.intValue, 0, timeModule.GetDaysPerYear());
-            if (EditorGUI.EndChangeCheck() && timeModule.transit)
-                timeModule.transit.GetModifiedDayPercent();
-            EditorGUILayout.PropertyField(currentYear);
-        }
-        public override void GetReportsInformation()
-        {
-
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-            EditorGUILayout.HelpBox("Currently it is " + timeModule.currentTime.ToString() + " on " + timeModule.MonthTitle(timeModule.GetCurrentYearPercentage()) + ".", MessageType.None, true);
-
-        }
-
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            bool tooltips = EditorPrefs.GetBool("CZY_Tooltips", true);
-
-            isSelectionWindowOpen = EditorGUILayout.BeginFoldoutHeaderGroup(isSelectionWindowOpen, new GUIContent("    Selection Settings"), EditorUtilities.FoldoutStyle);
-
-            if (isSelectionWindowOpen)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(perennialProfile);
-                if (serializedObject.hasModifiedProperties)
-                {
-                    serializedObject.ApplyModifiedProperties();
-                    perennial = timeModule.perennialProfile;
-                    timeEditor = CreateEditor(perennial) as E_PerennialProfile;
-                }
-            }
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-
-            isCurrentSettingsWindowOpen = EditorGUILayout.BeginFoldoutHeaderGroup(isCurrentSettingsWindowOpen, new GUIContent("    Current Settings"), EditorUtilities.FoldoutStyle);
-
-            if (isCurrentSettingsWindowOpen)
-            {
-                EditorGUI.indentLevel++;
-                if (tooltips)
-                {
-                    EditorGUILayout.HelpBox("You can also change the length of the year! The default profile uses 48 days in a year to create a shorter year to improve contrast.", MessageType.Info);
-                    EditorGUILayout.HelpBox("Don't like the proportions of the current time system? Not to worry! Check out the 2400 tick perennial profile for a more realistic year!", MessageType.Info);
-                }
-
-                EditorGUILayout.PropertyField(currentTimePercent, new GUIContent("Current Time"));
-                EditorGUI.BeginChangeCheck();
-                currentDay.intValue = EditorGUILayout.IntSlider(new GUIContent("Current Day"), currentDay.intValue, 0, timeModule.GetDaysPerYear());
-                if (EditorGUI.EndChangeCheck() && timeModule.transit)
-                    timeModule.transit.GetModifiedDayPercent();
-                EditorGUILayout.PropertyField(currentYear);
-
-                EditorGUI.indentLevel--;
-            }
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            timeEditor.OnStaticMeasureGUI(EditorUtilities.FoldoutStyle, ref isLengthWindowOpen, ref isMovementWindowOpen);
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-    }
-#endif
 }

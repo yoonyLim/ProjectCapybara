@@ -5,32 +5,27 @@ using UnityEngine;
 
 public class DestructibleRock : MonoBehaviour, IDestructible
 {
-    //private ParticleSystem rockParticleSystem;
+    private ParticleSystem rockParticleSystem;
     private Collider rockCollider;
+    private Rigidbody rockRigidbody;
     private MeshRenderer rockMeshRenderer;
-    [SerializeField] private Transform brokenRock;
-    public Vector3 brokenPosition;
+
     private void Awake()
     {
-        //rockParticleSystem = GetComponent<ParticleSystem>();
+        rockParticleSystem = GetComponent<ParticleSystem>();
         rockCollider = GetComponent<Collider>();
         rockMeshRenderer = GetComponent<MeshRenderer>();
+        rockRigidbody = GetComponent<Rigidbody>();
     }
 
     public void Hit()
     {
+        
+        Debug.Log("Hit");
+        rockRigidbody.isKinematic = true;
+        rockParticleSystem.Play();
         rockCollider.enabled = false;
         rockMeshRenderer.enabled = false;
-        brokenRock.gameObject.SetActive(true);
-        foreach (Transform child in brokenRock)
-        {
-            if (child.TryGetComponent<Rigidbody>(out Rigidbody childRigidbody))
-            {
-                childRigidbody.AddExplosionForce(200f, brokenPosition, 2f);
-            }
-
-            Destroy(gameObject, 5f);
-        }
     }
 
     

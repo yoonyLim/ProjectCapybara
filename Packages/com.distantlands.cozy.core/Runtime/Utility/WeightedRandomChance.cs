@@ -31,8 +31,43 @@ namespace DistantLands.Cozy
                 if (j != null)
                     i *= j.GetChance(weather);
 
-            return i;
+            return Mathf.Max(i, 0);
 
+        }
+        public float GetChance(CozyWeather weather, float inTime)
+        {
+
+            float i = baseChance;
+
+            foreach (ChanceEffector j in chanceEffectors)
+                if (j != null)
+                    i *= j.GetChance(weather, inTime);
+
+            return Mathf.Max(i, 0);
+
+        }
+
+        public bool HasLimit(ChanceEffector.LimitType limit)
+        {
+            foreach (ChanceEffector effector in chanceEffectors)
+            {
+                if (effector.limitType == limit)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public float GetChance(ChanceEffector.LimitType limit, float test)
+        {
+            float i = baseChance;
+
+            foreach (ChanceEffector effector in chanceEffectors)
+            {
+                i *= effector.limitType == limit ? effector.GetChance(test) : 1;
+            }
+
+            return i;
         }
 
         public static implicit operator float(WeightedRandomChance chance)

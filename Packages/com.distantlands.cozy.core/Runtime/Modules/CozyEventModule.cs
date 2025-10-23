@@ -6,29 +6,34 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using DistantLands.Cozy.Data;
-using System.Collections.Generic;
-using System.Linq;
-
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace DistantLands.Cozy
 {
     public class CozyEventModule : CozyBiomeModuleBase<CozyEventModule>
     {
+        [CozySearchable]
         public UnityEvent onDawn;
+        [CozySearchable]
         public UnityEvent onMorning;
+        [CozySearchable]
         public UnityEvent onDay;
+        [CozySearchable]
         public UnityEvent onAfternoon;
+        [CozySearchable]
         public UnityEvent onEvening;
+        [CozySearchable]
         public UnityEvent onTwilight;
+        [CozySearchable]
         public UnityEvent onNight;
+        [CozySearchable]
         public UnityEvent onNewMinute;
+        [CozySearchable]
         public UnityEvent onNewHour;
+        [CozySearchable]
         public UnityEvent onNewDay;
+        [CozySearchable]
         public UnityEvent onNewYear;
+        [CozySearchable]
         public UnityEvent onWeatherProfileChange;
 
         [System.Serializable]
@@ -41,6 +46,7 @@ namespace DistantLands.Cozy
 
         }
 
+        [CozySearchable]
         public CozyEvent[] cozyEvents;
         
         public bool inBiome = false;
@@ -181,136 +187,5 @@ namespace DistantLands.Cozy
         }
 
     }
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyEventModule))]
-    [CanEditMultipleObjects]
-    public class E_EventManager : E_CozyModule, E_BiomeModule
-    {
 
-        protected static bool todEvents;
-        protected static bool teEvents;
-        protected static bool weatherEvents;
-        protected static bool eventSettings;
-        SerializedProperty cozyEvents;
-        SerializedProperty onEnterBiome;
-        SerializedProperty onExitBiome;
-        SerializedProperty whileInBiome;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            return new GUIContent("    Events", (Texture)Resources.Load("Events"), "Setup Unity events that directly integrate into the COZY system.");
-
-        }
-
-        void OnEnable()
-        {
-            cozyEvents = serializedObject.FindProperty("cozyEvents");
-            onEnterBiome = serializedObject.FindProperty("onEnterBiome");
-            onExitBiome = serializedObject.FindProperty("onExitBiome");
-            whileInBiome = serializedObject.FindProperty("whileInBiome");
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/events-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-
-            todEvents = EditorGUILayout.BeginFoldoutHeaderGroup(todEvents,
-                    new GUIContent("    Time of Day Events"), EditorUtilities.FoldoutStyle);
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            if (todEvents)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onDawn"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onMorning"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onDay"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onAfternoon"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onEvening"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onTwilight"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onNight"));
-                EditorGUI.indentLevel--;
-            }
-
-            teEvents = EditorGUILayout.BeginFoldoutHeaderGroup(teEvents,
-                new GUIContent("    Time Elapsed Events"), EditorUtilities.FoldoutStyle);
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            if (teEvents)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onNewMinute"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onNewHour"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onNewDay"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onNewYear"));
-                EditorGUI.indentLevel--;
-            }
-
-            weatherEvents = EditorGUILayout.BeginFoldoutHeaderGroup(weatherEvents,
-                new GUIContent("    Weather Events"), EditorUtilities.FoldoutStyle);
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            if (weatherEvents)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("onWeatherProfileChange"));
-
-                for (int i = 0; i < cozyEvents.arraySize; i++)
-                {
-                    string name = "New Event FX";
-                    if (cozyEvents.GetArrayElementAtIndex(i).FindPropertyRelative("fxReference").objectReferenceValue)
-                        name = cozyEvents.GetArrayElementAtIndex(i).FindPropertyRelative("fxReference").objectReferenceValue.name;
-                    EditorGUILayout.LabelField(name, EditorStyles.boldLabel);
-                    EditorGUILayout.PropertyField(cozyEvents.GetArrayElementAtIndex(i).FindPropertyRelative("fxReference"));
-                    EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(cozyEvents.GetArrayElementAtIndex(i).FindPropertyRelative("onPlay"));
-                    EditorGUILayout.PropertyField(cozyEvents.GetArrayElementAtIndex(i).FindPropertyRelative("onStop"));
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Add New"))
-                    {
-                        cozyEvents.InsertArrayElementAtIndex(i + 1);
-                    }
-                    if (GUILayout.Button("Remove"))
-                        cozyEvents.DeleteArrayElementAtIndex(i);
-
-                    EditorGUILayout.EndHorizontal();
-                    EditorGUILayout.Space();
-
-                }
-
-                if (GUILayout.Button("Add New Event FX Reference"))
-                {
-                    cozyEvents.InsertArrayElementAtIndex(cozyEvents.arraySize);
-                }
-
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void DrawBiomeReports()
-        {
-
-        }
-
-        public void DrawInlineBiomeUI()
-        {
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(onEnterBiome);
-            EditorGUILayout.PropertyField(whileInBiome);
-            EditorGUILayout.PropertyField(onExitBiome);
-            serializedObject.ApplyModifiedProperties();
-        }
-
-
-    }
-#endif
 }

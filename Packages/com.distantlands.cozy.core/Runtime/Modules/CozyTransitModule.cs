@@ -4,9 +4,6 @@
 
 using System;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace DistantLands.Cozy
 {
@@ -17,7 +14,7 @@ namespace DistantLands.Cozy
         [System.Serializable]
         public struct TimeWeightRelation
         {
-            [MeridiemTimeAttriute] public float time; [Range(0, 360)] public float sunHeight; [Range(0, 1)] public float weight;
+            [MeridiemTimeAttribute] public float time; [Range(0, 360)] public float sunHeight; [Range(0, 1)] public float weight;
 
             public TimeWeightRelation(float time, float sunHeight, float weight)
             {
@@ -30,25 +27,33 @@ namespace DistantLands.Cozy
         public AnimationCurve sunMovementCurve;
 
         [Tooltip("Specifies the default weight of the sunrise.")]
+        [CozySearchable]
         public TimeWeightRelation sunriseWeight = new TimeWeightRelation(0.25f, 90, 0.2f);
         [Tooltip("Specifies the default weight of the day.")]
+        [CozySearchable]
         public TimeWeightRelation dayWeight = new TimeWeightRelation(0.5f, 180, 0.2f);
         [Tooltip("Specifies the default weight of the sunset.")]
+        [CozySearchable]
         public TimeWeightRelation sunsetWeight = new TimeWeightRelation(0.75f, 270, 0.2f);
         [Tooltip("Specifies the default weight of the night.")]
+        [CozySearchable]
         public TimeWeightRelation nightWeight = new TimeWeightRelation(1, 360, 0.2f);
 
         [Tooltip("Specifies the day length multiplier in the spring.")]
         [Range(-1, 1)]
+        [CozySearchable]
         public float springDayLengthOffset = 0;
         [Tooltip("Specifies the day length multiplier in the summer.")]
         [Range(-1, 1)]
+        [CozySearchable]
         public float summerDayLengthOffset = 0.4f;
         [Tooltip("Specifies the day length multiplier in the fall.")]
         [Range(-1, 1)]
+        [CozySearchable]
         public float fallDayLengthOffset = 0;
         [Tooltip("Specifies the day length multiplier in the winter.")]
         [Range(-1, 1)]
+        [CozySearchable]
         public float winterDayLengthOffset = -0.3f;
 
 
@@ -62,10 +67,8 @@ namespace DistantLands.Cozy
         [System.Serializable]
         public class TimeBlock
         {
-            [MeridiemTimeAttriute]
-            public float start;
-            [MeridiemTimeAttriute]
-            public float end;
+            public MeridiemTime start;
+            public MeridiemTime end;
             public TimeBlock(float startDayPercentage, float endDayPercentage)
             {
                 start = startDayPercentage;
@@ -74,12 +77,19 @@ namespace DistantLands.Cozy
 
         }
 
+        [CozySearchable]
         public TimeBlock dawnBlock = new TimeBlock(4f / 24f, 5.5f / 24f);
+        [CozySearchable]
         public TimeBlock morningBlock = new TimeBlock(6f / 24f, 7f / 24f);
+        [CozySearchable]
         public TimeBlock dayBlock = new TimeBlock(7.5f / 24f, 9f / 24f);
+        [CozySearchable]
         public TimeBlock afternoonBlock = new TimeBlock(13f / 24f, 14f / 24f);
+        [CozySearchable]
         public TimeBlock eveningBlock = new TimeBlock(16f / 24f, 18f / 24f);
+        [CozySearchable]
         public TimeBlock twilightBlock = new TimeBlock(20f / 24f, 21f / 24f);
+        [CozySearchable]
         public TimeBlock nightBlock = new TimeBlock(21f / 24f, 22f / 24f);
 
         public enum TimeBlockName { dawn, morning, day, afternoon, evening, twilight, night }
@@ -343,170 +353,5 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyTransitModule))]
-    [CanEditMultipleObjects]
-    public class E_TransitModule : E_CozyModule
-    {
 
-        CozyTransitModule transit;
-        Data.PerennialProfile prof;
-        public static bool timeBlocksWindow;
-        public static bool curveWindow;
-        public static bool yearCurveWindow;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Transit", (Texture)Resources.Load("Transit"), "Manage the sun moving through the sky.");
-
-        }
-
-        void OnEnable()
-        {
-            transit = (CozyTransitModule)target;
-            if (transit.weatherSphere)
-                prof = transit.weatherSphere.timeModule.perennialProfile;
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/transit-module");
-        }
-        public override void GetReportsInformation()
-        {
-
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-            EditorGUILayout.HelpBox("Currently the Transit module is modifying the current time of " + transit.weatherSphere.timeModule.currentTime.ToString() + " to appear with the same sun position as it would at " + (MeridiemTime)(transit.ModifyDayPercentage(transit.weatherSphere.timeModule.currentTime) / 360) + " without the Transit module.", MessageType.None, true);
-
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            timeBlocksWindow = EditorGUILayout.BeginFoldoutHeaderGroup(timeBlocksWindow,
-                           new GUIContent("    Time Blocks Window"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (timeBlocksWindow)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.LabelField("Dawn");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dawnBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dawnBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Morning");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("morningBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("morningBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Day");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dayBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dayBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Afternoon");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("afternoonBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("afternoonBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Evening");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("eveningBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("eveningBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Twilight");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("twilightBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("twilightBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.LabelField("Night");
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("nightBlock").FindPropertyRelative("start"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("nightBlock").FindPropertyRelative("end"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-                EditorGUI.indentLevel--;
-            }
-
-            curveWindow = EditorGUILayout.BeginFoldoutHeaderGroup(curveWindow,
-                new GUIContent("    Day Curve Settings"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (curveWindow)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("timeCurveSettings"));
-                EditorGUILayout.Space();
-                transit.GetModifiedDayPercent();
-
-                EditorGUI.indentLevel++;
-
-                switch ((CozyTransitModule.TimeCurveSettings)serializedObject.FindProperty("timeCurveSettings").enumValueIndex)
-                {
-
-                    case (CozyTransitModule.TimeCurveSettings.linearDay):
-                        break;
-                    case (CozyTransitModule.TimeCurveSettings.simpleCurve):
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("sunriseWeight").FindPropertyRelative("weight"), new GUIContent("Sunrise Weight"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("dayWeight").FindPropertyRelative("weight"), new GUIContent("Day Weight"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("sunsetWeight").FindPropertyRelative("weight"), new GUIContent("Sunset Weight"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("nightWeight").FindPropertyRelative("weight"), new GUIContent("Night Weight"));
-                        break;
-                    case (CozyTransitModule.TimeCurveSettings.advancedCurve):
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("sunriseWeight"), new GUIContent("Sunrise Settings"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("dayWeight"), new GUIContent("Day Settings"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("sunsetWeight"), new GUIContent("Sunset Settings"));
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("nightWeight"), new GUIContent("Night Settings"));
-                        break;
-                }
-
-                EditorGUI.indentLevel--;
-
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("dayWeightsDisplayCurve"));
-
-                EditorGUI.indentLevel--;
-            }
-
-            yearCurveWindow = EditorGUILayout.BeginFoldoutHeaderGroup(yearCurveWindow,
-                new GUIContent("    Seasonal Variation"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (yearCurveWindow)
-            {
-                EditorGUI.indentLevel++;
-
-                transit.GetModifiedDayPercent();
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("springDayLengthOffset"), new GUIContent("Spring Offset"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("summerDayLengthOffset"), new GUIContent("Summer Offset"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("fallDayLengthOffset"), new GUIContent("Fall Offset"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("winterDayLengthOffset"), new GUIContent("Winter Offset"));
-
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("yearWeightsCurve"));
-
-                EditorGUI.indentLevel--;
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void DisplayBlockEditor(string blockName)
-        {
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(blockName).FindPropertyRelative("start"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(blockName).FindPropertyRelative("end"));
-            serializedObject.ApplyModifiedProperties();
-        }
-
-    }
-#endif
 }

@@ -4,41 +4,44 @@
 
 using UnityEngine;
 using DistantLands.Cozy.Data;
-using System.Collections.Generic;
-using System.Linq;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using UnityEngine.Serialization;
 
 namespace DistantLands.Cozy
 {
     [ExecuteAlways]
     public class CozyClimateModule : CozyBiomeModuleBase<CozyClimateModule>
     {
-
-        [CozyProfile]
+        [CozySearchable(true, "wet", "precipitation", "hot", "cold", "humidity", "temperature")]
         public ClimateProfile climateProfile;
         public CozyWeather.ControlMethod controlMethod = CozyWeather.ControlMethod.profile;
 
 
+        [CozySearchable]
         [Tooltip("Adds an offset to the local temperature. Useful for adding biomes or climate change by location or elevation")]
         public float localTemperatureFilter;
+        [CozySearchable]
         [Tooltip("Adds an offset to the local precipitation. Useful for adding biomes or climate change by location or elevation")]
         public float localPrecipitationFilter;
         internal float temperatureOffset;
         internal float precipitationOffset;
+        [CozySearchable]
         public float currentTemperature;
+        [CozySearchable]
         public float currentPrecipitation;
 
         [Range(0, 1)]
+        [CozySearchable]
         public float snowAmount;
-        [SerializeField]
-        private float m_SnowMeltSpeed = 0.35f;
+        [FormerlySerializedAs("m_SnowMeltSpeed")]
+        [CozySearchable]
+        public float snowMeltSpeed = 0.35f;
         [Range(0, 1)]
-        public float wetness;
-        [SerializeField]
-        private float m_DryingSpeed = 0.5f;
+        [CozySearchable]
+        [FormerlySerializedAs("wetness")]
+        public float groundwaterAmount;
+        [CozySearchable]
+        [FormerlySerializedAs("m_DryingSpeed")]
+        public float dryingSpeed = 0.5f;
         public float snowSpeed;
         public float rainSpeed;
         
@@ -61,12 +64,12 @@ namespace DistantLands.Cozy
 
             if (snowSpeed <= 0)
                 if (currentTemperature > 32)
-                    snowAmount -= Time.deltaTime * m_SnowMeltSpeed * 0.03f;
+                    snowAmount -= Time.deltaTime * snowMeltSpeed * 0.03f;
 
-            wetness += (Time.deltaTime * rainSpeed) + (-1 * m_DryingSpeed * 0.001f);
+            groundwaterAmount += (Time.deltaTime * rainSpeed) + (-1 * dryingSpeed * 0.001f);
 
             snowAmount = Mathf.Clamp01(snowAmount);
-            wetness = Mathf.Clamp01(wetness);
+            groundwaterAmount = Mathf.Clamp01(groundwaterAmount);
 
             if (controlMethod == CozyWeather.ControlMethod.profile)
             {
@@ -84,7 +87,7 @@ namespace DistantLands.Cozy
             }
 
             Shader.SetGlobalFloat("CZY_SnowAmount", snowAmount);
-            Shader.SetGlobalFloat("CZY_WetnessAmount", wetness);
+            Shader.SetGlobalFloat("CZY_WetnessAmount", groundwaterAmount);
         }
 
         public override void FrameReset()
@@ -150,157 +153,4 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyClimateModule))]
-    [CanEditMultipleObjects]
-    public class E_ClimateModule : E_CozyModule, E_BiomeModule, IControlPanel
-    {
-
-        public static bool selection;
-        public static bool settings;
-        public static bool information;
-        SerializedProperty profile;
-        SerializedProperty controlMethod;
-        SerializedProperty currentTemperature;
-        SerializedProperty currentPrecipitation;
-        public CozyClimateModule climateModule;
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Climate", (Texture)Resources.Load("Climate"), "Control temperature and humidity.");
-
-        }
-
-        void OnEnable()
-        {
-            profile = serializedObject.FindProperty("climateProfile");
-            controlMethod = serializedObject.FindProperty("controlMethod");
-            currentTemperature = serializedObject.FindProperty("currentTemperature");
-            currentPrecipitation = serializedObject.FindProperty("currentPrecipitation");
-            climateModule = (CozyClimateModule)target;
-        }
-
-        public override void GetReportsInformation()
-        {
-
-            EditorGUILayout.LabelField(GetGUIContent(), EditorStyles.toolbar);
-            EditorGUILayout.HelpBox("Currently the global ecosystem is running at " + Mathf.Round(climateModule.currentTemperature) + "°F or " + Mathf.Round((climateModule.currentTemperature - 32) * 5f / 9f) + "°C with a precipitation chance of " + Mathf.Round(climateModule.currentPrecipitation) + "%.\n" +
-                    "Temperatures will " + (climateModule.currentTemperature > climateModule.GetTemperature(1) ? "drop" : "rise") + " tomorrow, bringing the temperature to " + Mathf.Round(climateModule.GetTemperature(1)) + "°F", MessageType.None);
-            EditorGUILayout.HelpBox($"Snow Amount: {climateModule.snowAmount}\nWetness: {climateModule.wetness}", MessageType.None);
-
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/climate-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            selection = EditorGUILayout.BeginFoldoutHeaderGroup(selection, new GUIContent("    Selection"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (selection)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(controlMethod);
-                if (controlMethod.intValue == 1)
-                    EditorGUILayout.PropertyField(profile);
-                EditorGUI.indentLevel--;
-
-            }
-
-            if (controlMethod.intValue == 1)
-            {
-                settings = EditorGUILayout.BeginFoldoutHeaderGroup(settings, new GUIContent("    Global Settings"), EditorUtilities.FoldoutStyle);
-                EditorGUILayout.EndFoldoutHeaderGroup();
-
-                if (settings)
-                {
-                    EditorGUI.indentLevel++;
-                    if (profile.objectReferenceValue)
-                        CreateEditor(profile.objectReferenceValue).OnInspectorGUI();
-                    else
-                        EditorGUILayout.HelpBox("Assign a profile to begin editing the climate!", MessageType.Error);
-
-
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("m_SnowMeltSpeed"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("m_DryingSpeed"));
-
-                    EditorGUI.indentLevel--;
-
-                }
-            }
-
-            information = EditorGUILayout.BeginFoldoutHeaderGroup(information, new GUIContent("    Current Information"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (information)
-            {
-
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(currentTemperature);
-                EditorGUILayout.PropertyField(currentPrecipitation);
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("snowAmount"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("wetness"));
-                EditorGUI.indentLevel--;
-
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-        public void GetControlPanel()
-        {
-            EditorGUILayout.PropertyField(currentTemperature);
-            EditorGUILayout.PropertyField(currentPrecipitation);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("snowAmount"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("wetness"));
-        }
-
-        public void DrawBiomeReports()
-        {
-            EditorGUILayout.PropertyField(currentTemperature);
-            EditorGUILayout.PropertyField(currentPrecipitation);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("snowAmount"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("wetness"));
-        }
-
-        public void DrawInlineBiomeUI()
-        {
-            if (!target) return;
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(controlMethod);
-            if (controlMethod.intValue == 1)
-            {
-                EditorGUILayout.PropertyField(profile);
-
-
-                EditorGUI.indentLevel++;
-                if (profile.objectReferenceValue)
-                    CreateEditor(profile.objectReferenceValue).OnInspectorGUI();
-                else
-                    EditorGUILayout.HelpBox("Assign a profile to begin editing the climate!", MessageType.Error);
-
-            }
-
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(currentTemperature);
-            EditorGUILayout.PropertyField(currentPrecipitation);
-
-            EditorGUI.indentLevel--;
-            serializedObject.ApplyModifiedProperties();
-
-        }
-    }
-#endif
 }

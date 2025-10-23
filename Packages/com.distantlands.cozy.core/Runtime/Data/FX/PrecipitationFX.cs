@@ -39,7 +39,7 @@ namespace DistantLands.Cozy.Data
                     return;
 
             climateModule.snowSpeed += snowAccumulationSpeed * Mathf.Clamp01(transitionTimeModifier.Evaluate(i)) * (climateModule.snowAmount < maximumSnowAmount ? 1 : 0);
-            climateModule.rainSpeed += rainAccumulationSpeed * Mathf.Clamp01(transitionTimeModifier.Evaluate(i)) * (climateModule.wetness < maximumRainAmount ? 1 : 0);
+            climateModule.rainSpeed += rainAccumulationSpeed * Mathf.Clamp01(transitionTimeModifier.Evaluate(i)) * (climateModule.groundwaterAmount < maximumRainAmount ? 1 : 0);
             
         }
 

@@ -30,11 +30,10 @@ public class PlayerController : MonoBehaviour
     // main camera 위치
     public Transform cameraTransform;
     private bool isInWindZone = false;
-    
+
     public Animator animator;
     public Rigidbody rb;
 
-    
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
     [HideInInspector] public Vector3 platformVelocity;
@@ -260,18 +259,18 @@ public class PlayerController : MonoBehaviour
     {
         if (coyoteTimeCounter > 0f && !isJumping)
         {
-            JumpSoundPlay();
+            //JumpSoundPlay();
             ChangeState(new JumpState());
-            playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
+            //playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
             coyoteTimeCounter = 0f; // 점프하면 즉시 시간 초기화
         }
     }
 
-    
+
     public void FootStepSoundPlay()
     {
-        string soundToPlay = footstepSoundNames[Random.Range(0, footstepSoundNames.Length)];
-        soundManager.PlaySFX(soundToPlay);
+        //string soundToPlay = footstepSoundNames[Random.Range(0, footstepSoundNames.Length)];
+        //soundManager.PlaySFX(soundToPlay);
     }
 
     public void JumpSoundPlay()
@@ -300,10 +299,10 @@ public class PlayerController : MonoBehaviour
 
 
     public bool IsOnIceGround()
-        {
-            // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
-            return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
-        }
+    {
+        // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
+        return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
+    }
 
     /// <summary>
     /// 플레이어가 땅에 닿아있는지 체크하는 함수

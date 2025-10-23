@@ -16,12 +16,13 @@ namespace DistantLands.Cozy
     [System.Serializable]
     public class CozyEcosystem
     {
-        [CozyProfile]
         public ForecastProfile forecastProfile;
         public enum EcosystemStyle { manual, forecast, dailyForecast, automatic }
-        [Tooltip("How should this ecosystem manage weather selection? " +
-        "Manual allows you to manually select the weather profile that this ecosystem will use and the weights will adjust accordingly," +
-            " Forecast allows for dynamically changing weather based on a predetermined forecast that runs entirely on it's own.")]
+        [Tooltip("How should this ecosystem manage weather selection? \n\n" +
+        "[Manual] allows you to manually select the weather profiles and weights for this ecosystem,\n\n" +
+        "[Automatic] allows you to manually select a weather profile and COZY will determine the weights automatically,\n\n" +
+        "[Forecast] allows for dynamically changing weather based on a predetermined forecast that runs entirely on it's own,\n\n" +
+        "[Daily Forecast] allows for a forecast that only changes at midnight every day for a more predictable playstyle.")]
         public EcosystemStyle weatherSelectionMode = EcosystemStyle.forecast;
 
         public List<WeatherPattern> currentForecast = new List<WeatherPattern>();
@@ -80,7 +81,7 @@ namespace DistantLands.Cozy
                 {
                     switch (forecastProfile.startWeatherWith)
                     {
-                        case ForecastProfile.StartWeatherWith.initialProfile:
+                        case ForecastProfile.StartWeatherWith.InitialProfile:
                             {
                                 if (forecastProfile.initialProfile == null)
                                 {
@@ -96,7 +97,7 @@ namespace DistantLands.Cozy
 
                                 break;
                             }
-                        case ForecastProfile.StartWeatherWith.initialForecast:
+                        case ForecastProfile.StartWeatherWith.InitialForecast:
                             {
                                 for (int i = 0; i < forecastProfile.initialForecast.Count; i++)
                                     ForecastNewWeather(forecastProfile.initialForecast[i].profile, forecastProfile.initialForecast[i].duration);
@@ -106,7 +107,7 @@ namespace DistantLands.Cozy
 
                                 break;
                             }
-                        case ForecastProfile.StartWeatherWith.random:
+                        case ForecastProfile.StartWeatherWith.Random:
                             {
                                 for (int i = 0; i < forecastProfile.forecastLength; i++)
                                     ForecastNewWeather();
@@ -413,81 +414,81 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    public static class EcosystemEditor
-    {
+// #if UNITY_EDITOR
+//     public static class EcosystemEditor
+//     {
 
-        public static bool selectionWindowIsOpen;
-        public static bool forecastWindowIsOpen;
-        public static bool currentWeatherWindowIsOpen;
+//         public static bool selectionWindowIsOpen;
+//         public static bool forecastWindowIsOpen;
+//         public static bool currentWeatherWindowIsOpen;
 
-        public static void DrawEditor(SerializedProperty ecosystem)
-        {
+//         public static void DrawEditor(SerializedProperty ecosystem)
+//         {
 
-            selectionWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(selectionWindowIsOpen, new GUIContent("    Selection Settings"), EditorUtilities.FoldoutStyle);
+//             selectionWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(selectionWindowIsOpen, new GUIContent("    Selection Settings"), EditorUtilities.FoldoutStyle);
 
-            EditorGUILayout.EndFoldoutHeaderGroup();
+//             EditorGUILayout.EndFoldoutHeaderGroup();
 
-            bool useSingle = (CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic;
+//             bool useSingle = (CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic;
 
-            if (selectionWindowIsOpen)
-            {
-                EditorGUI.BeginChangeCheck();
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weatherSelectionMode"));
-                if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex != CozyEcosystem.EcosystemStyle.manual)
-                {
-                    if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic)
-                        EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Current Weather"));
-                    else
-                        EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Preview Weather"));
-                }
-                else
-                    EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weightedWeatherProfiles"), new GUIContent("Weather Ratios"));
+//             if (selectionWindowIsOpen)
+//             {
+//                 EditorGUI.BeginChangeCheck();
+//                 EditorGUI.indentLevel++;
+//                 EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weatherSelectionMode"));
+//                 if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex != CozyEcosystem.EcosystemStyle.manual)
+//                 {
+//                     if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic)
+//                         EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Current Weather"));
+//                     else
+//                         EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("currentWeather"), new GUIContent("Preview Weather"));
+//                 }
+//                 else
+//                     EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weightedWeatherProfiles"), new GUIContent("Weather Ratios"));
 
-                EditorGUI.indentLevel--;
+//                 EditorGUI.indentLevel--;
 
-            }
-            if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic)
-            {
-                currentWeatherWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(currentWeatherWindowIsOpen, new GUIContent("    Profile Settings"), EditorUtilities.FoldoutStyle);
+//             }
+//             if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex == CozyEcosystem.EcosystemStyle.automatic)
+//             {
+//                 currentWeatherWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(currentWeatherWindowIsOpen, new GUIContent("    Profile Settings"), EditorUtilities.FoldoutStyle);
 
-                EditorGUILayout.EndFoldoutHeaderGroup();
+//                 EditorGUILayout.EndFoldoutHeaderGroup();
 
-                if (currentWeatherWindowIsOpen)
-                {
-                    EditorGUI.indentLevel++;
-                    (Editor.CreateEditor(ecosystem.FindPropertyRelative("currentWeather").objectReferenceValue) as E_WeatherProfile).DisplayInCozyWindow();
-                    EditorGUI.indentLevel--;
-                }
-            }
-            else if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex != CozyEcosystem.EcosystemStyle.manual)
-            {
+//                 if (currentWeatherWindowIsOpen)
+//                 {
+//                     EditorGUI.indentLevel++;
+//                     (Editor.CreateEditor(ecosystem.FindPropertyRelative("currentWeather").objectReferenceValue) as E_WeatherProfile).DisplayInCozyWindow();
+//                     EditorGUI.indentLevel--;
+//                 }
+//             }
+//             else if ((CozyEcosystem.EcosystemStyle)ecosystem.FindPropertyRelative("weatherSelectionMode").enumValueIndex != CozyEcosystem.EcosystemStyle.manual)
+//             {
 
-                forecastWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(forecastWindowIsOpen,
-                    new GUIContent("    Forecasting Behaviors"), EditorUtilities.FoldoutStyle);
+//                 forecastWindowIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(forecastWindowIsOpen,
+//                     new GUIContent("    Forecasting Behaviors"), EditorUtilities.FoldoutStyle);
 
-                EditorGUILayout.EndFoldoutHeaderGroup();
+//                 EditorGUILayout.EndFoldoutHeaderGroup();
 
-                if (forecastWindowIsOpen)
-                {
+//                 if (forecastWindowIsOpen)
+//                 {
 
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("forecastProfile"));
-                    EditorGUILayout.Space();
-                    EditorGUI.indentLevel++;
-                    if (ecosystem.FindPropertyRelative("forecastProfile").objectReferenceValue)
-                        Editor.CreateEditor(ecosystem.FindPropertyRelative("forecastProfile").objectReferenceValue).OnInspectorGUI();
-                    EditorGUI.indentLevel--;
-                    EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weatherTransitionTime"));
-                    EditorGUI.indentLevel--;
+//                     EditorGUI.indentLevel++;
+//                     EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("forecastProfile"));
+//                     EditorGUILayout.Space();
+//                     EditorGUI.indentLevel++;
+//                     if (ecosystem.FindPropertyRelative("forecastProfile").objectReferenceValue)
+//                         Editor.CreateEditor(ecosystem.FindPropertyRelative("forecastProfile").objectReferenceValue).OnInspectorGUI();
+//                     EditorGUI.indentLevel--;
+//                     EditorGUILayout.Space();
+//                     EditorGUILayout.PropertyField(ecosystem.FindPropertyRelative("weatherTransitionTime"));
+//                     EditorGUI.indentLevel--;
 
-                }
-            }
-        }
+//                 }
+//             }
+//         }
 
-    }
-#endif
+//     }
+// #endif
 
 }

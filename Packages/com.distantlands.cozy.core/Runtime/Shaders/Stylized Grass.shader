@@ -51,7 +51,7 @@ Shader "Distant Lands/Cozy/URP/Demo/Stylized Grass"
 
 		Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" "UniversalMaterialType"="Lit" }
 
-		Cull Back
+		Cull Off
 		ZWrite On
 		ZTest LEqual
 		Offset 0 , 0

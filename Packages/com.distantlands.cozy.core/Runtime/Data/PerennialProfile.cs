@@ -3,9 +3,6 @@
 //  All code included in this file is protected under the Unity Asset Store Eula
 
 using System.Collections.Generic;
-#if UNITY_EDITOR 
-using UnityEditor;
-#endif
 using UnityEngine;
 
 
@@ -15,10 +12,8 @@ namespace DistantLands.Cozy.Data
 
     [System.Serializable]
     [CreateAssetMenu(menuName = "Distant Lands/Cozy/Perennial Profile", order = 361)]
-    public class PerennialProfile : ClimateProfile
+    public class PerennialProfile : CozyProfile
     {
-        [HideInInspector]
-        public float dayAndTime;
         public bool pauseTime;
         [Tooltip("Should this profile use a series of months for a more realistic year.")]
         public bool realisticYear;
@@ -31,6 +26,8 @@ namespace DistantLands.Cozy.Data
         public MeridiemTime startTime = new MeridiemTime(9, 00);
         [Tooltip("Specifies the amount of in-game minutes that pass in a real-world second.")]
         public float timeMovementSpeed = 1;
+        [Tooltip("Change the rate at which time moves based on the current time.")]
+        public bool modulateTimeSpeed = true;
         [Tooltip("Changes the time speed based on the day percentage.")]
         public AnimationCurve timeSpeedMultiplier;
         [Tooltip("Will the day move to the next day at 12:00 midnight")]
@@ -62,9 +59,6 @@ namespace DistantLands.Cozy.Data
         public enum DefaultYear { January, February, March, April, May, June, July, August, September, October, November, December }
         public enum TimeDivisors { Early, Mid, Late }
 
-        public enum TimeCurveSettings { linearDay, simpleCurve, advancedCurve }
-        public TimeCurveSettings timeCurveSettings;
-
         public int daysPerYear = 48;
 
         public int GetRealisticDaysPerYear(int currentYear)
@@ -80,146 +74,4 @@ namespace DistantLands.Cozy.Data
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(PerennialProfile))]
-    [CanEditMultipleObjects]
-    public class E_PerennialProfile : Editor
-    {
-
-        SerializedProperty timeSpeedMultiplier;
-        SerializedProperty standardYear;
-        SerializedProperty leapYear;
-        PerennialProfile prof;
-
-        void OnEnable()
-        {
-
-            timeSpeedMultiplier = serializedObject.FindProperty("timeSpeedMultiplier");
-            standardYear = serializedObject.FindProperty("standardYear");
-            leapYear = serializedObject.FindProperty("leapYear");
-            prof = (PerennialProfile)target;
-
-        }
-
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            EditorGUILayout.LabelField("Time Movement", EditorStyles.boldLabel);
-            prof.pauseTime = EditorGUILayout.Toggle("Pause Time", prof.pauseTime);
-            if (!prof.pauseTime)
-            {
-                prof.timeMovementSpeed = EditorGUILayout.FloatField("Time Speed", prof.timeMovementSpeed);
-                EditorGUILayout.PropertyField(timeSpeedMultiplier);
-            }
-            EditorGUILayout.Space(20);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("progressDay"));
-            EditorGUILayout.Space(10);
-            prof.realisticYear = EditorGUILayout.Toggle("Realistic Year", prof.realisticYear);
-            if (prof.realisticYear)
-            {
-                prof.useLeapYear = EditorGUILayout.Toggle("Use Leap Year", prof.useLeapYear);
-
-                EditorGUILayout.Space(10);
-                EditorGUILayout.PropertyField(standardYear);
-                if (prof.useLeapYear)
-                    EditorGUILayout.PropertyField(leapYear);
-            }
-            else
-            {
-
-                prof.daysPerYear = EditorGUILayout.IntField("Days Per Year", prof.daysPerYear);
-
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void OnStaticMeasureGUI(GUIStyle style, ref bool lengthWindow, ref bool movementWindow)
-        {
-
-            serializedObject.Update();
-
-
-            movementWindow = EditorGUILayout.BeginFoldoutHeaderGroup(movementWindow,
-                new GUIContent("    Movement Settings"), EditorUtilities.FoldoutStyle);
-
-            if (movementWindow)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("pauseTime"));
-                if (!serializedObject.FindProperty("pauseTime").boolValue)
-                {
-
-                    EditorGUILayout.Space();
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("resetTimeOnStart"));
-                    if (serializedObject.FindProperty("resetTimeOnStart").boolValue)
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("startTime"));
-                    EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("timeMovementSpeed"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("timeSpeedMultiplier"));
-                    EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("progressDay"));
-                    EditorGUI.indentLevel--;
-
-
-                }
-
-                EditorGUI.indentLevel--;
-            }
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            lengthWindow = EditorGUILayout.BeginFoldoutHeaderGroup(lengthWindow,
-                new GUIContent("    Length Settings"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (lengthWindow)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("realisticYear"));
-                if (serializedObject.FindProperty("realisticYear").boolValue)
-                {
-
-
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("useLeapYear"));
-                    EditorGUILayout.Space();
-
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("standardYear"));
-
-                    if (serializedObject.FindProperty("useLeapYear").boolValue)
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty("leapYear"));
-
-                }
-                else
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("daysPerYear"));
-
-                EditorGUI.indentLevel--;
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void OnRuntimeMeasureGUI()
-        {
-
-            serializedObject.Update();
-
-
-            serializedObject.FindProperty("currentTicks").floatValue = EditorGUILayout.Slider("Current Ticks", serializedObject.FindProperty("currentTicks").floatValue, 0, serializedObject.FindProperty("ticksPerDay").floatValue);
-            serializedObject.FindProperty("currentDay").intValue = EditorGUILayout.IntSlider(new GUIContent("Current Day"), serializedObject.FindProperty("currentDay").intValue, 0, serializedObject.FindProperty("daysPerYear").intValue);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("currentYear"));
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-    }
-#endif
 }

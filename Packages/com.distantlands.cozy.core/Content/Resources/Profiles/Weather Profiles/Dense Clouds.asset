@@ -15,6 +15,44 @@ MonoBehaviour:
   minWeatherTime: 0.125
   maxWeatherTime: 0.33333334
   likelihood: 1
+  chance:
+    baseChance: 1
+    chanceEffectors:
+    - limitType: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.5579588
+          value: 0.28537276
+          inSlope: 1.2293255
+          outSlope: 1.2293255
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.08690662
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+      customChanceEffector: {fileID: 0}
   forecastNext:
   - {fileID: 11400000, guid: 3500d156aa5168944b5dd4b8e84ff00c, type: 2}
   - {fileID: 11400000, guid: 56652bb77d1606b4396767fbb07e50ab, type: 2}
@@ -57,6 +95,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
+    customChanceEffector: {fileID: 0}
   FX:
   - {fileID: 11400000, guid: 37958e75fc835c242a6ab218c3f7c868, type: 2}
   - {fileID: 11400000, guid: 8db7c251c41aa86488164aa359d06980, type: 2}
