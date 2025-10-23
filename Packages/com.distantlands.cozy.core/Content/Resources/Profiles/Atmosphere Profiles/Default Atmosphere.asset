@@ -2994,7 +2994,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareIntensity:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3071,7 +3071,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareFalloff:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3175,7 +3175,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareSquish:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -4406,14 +4406,14 @@ MonoBehaviour:
       m_RotationOrder: 4
   texturePanDirection: {x: 0, y: 0, z: 0}
   sunFlare:
-    flare: {fileID: 11400000, guid: b7bd2fcbf47c015488d42ef693c6db7d, type: 2}
+    flare: {fileID: 11400000, guid: 5f80bcd3845c22841b3ae28bd89da6f8, type: 2}
     intensity: 1
     scale: 1
     screenAttenuation:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: -1000
+        time: -1e+13
         value: 1
         inSlope: 0
         outSlope: 0
@@ -4422,7 +4422,7 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1000
+        time: 1e+18
         value: 1
         inSlope: 0
         outSlope: 0
