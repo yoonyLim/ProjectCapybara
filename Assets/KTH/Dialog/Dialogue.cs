@@ -6,11 +6,8 @@ using UnityEngine;
 /// [로직 전용] NPC에 부착되어 대화의 '흐름' (어떤 노드인지)만 관리합니다.
 /// 실제 표현(UI, 오디오)은 DialogUI.cs에 위임합니다.
 /// </summary>
-//[RequireComponent(typeof(Animal))]
-public class Dialogue : MonoBehaviour
+public class Dialogue : MonoBehaviour, IInteractable // IInteractable 인터페이스를 구현하고 있는지 확인하세요.
 {
-    // 오디오, 타이핑, 말풍선(speechBubbleText) 관련 필드 모두 제거
-
     public enum DialogueState
     {
         Inactive,
@@ -21,26 +18,30 @@ public class Dialogue : MonoBehaviour
     public event Action OnDialogueEnd;
     public event Action OnDialogueAdvance;
 
+    [Header("NPC Info")] // [추가됨]
+    [Tooltip("이 NPC의 이름입니다. DialogUI에 표시됩니다.")]
+    [SerializeField] private string npcName; // [추가됨]
+
     [Header("Dialogue Content")]
     [Tooltip("이 NPC가 시작할 첫 번째 대화 노드(DialogueNode)입니다.")]
     [SerializeField]
     private DialogueNode startingNode;
 
-    private DialogueNode currentNode; // 현재 진행 중인 대화 노드
-
+    private DialogueNode currentNode;
     [SerializeField]
     public DialogueState currentState;
 
-    // Animal 스크립트로 전달될 표정 (이건 남겨둡니다)
-    //public Animal.FacialAnimationType TargetFacialAnimation;
-
-    // 회전, 오디오, 타이핑 코루틴 필드 모두 제거
-    public Coroutine currentDialogueCoroutine { get; private set; } // 타이핑 코루틴 (DialogUI의 코루틴을 참조)
+    public Coroutine currentDialogueCoroutine { get; private set; }
 
     private void Awake()
     {
-        // speechBubbleText, originalRotation 관련 코드 모두 제거
         currentState = DialogueState.Inactive;
+    }
+
+    // InteractionComponent가 호출할 수 있도록 IInteractable 인터페이스를 구현합니다.
+    public void Interact()
+    {
+        StartDialogue();
     }
 
     /// <summary>
@@ -48,10 +49,20 @@ public class Dialogue : MonoBehaviour
     /// </summary>
     public void StartDialogue()
     {
-        // 1. UIManager에게 대화 시작을 알립니다. (UIManager가 UI를 켭니다)
+        // 1. UIManager에게 대화 시작을 알립니다.
         if (UIManager.instance != null)
         {
             UIManager.instance.StartDialogue(this);
+        }
+
+        // [추가됨] DialogUI에 NPC 이름 전달
+        if (DialogUI.Instance != null)
+        {
+            DialogUI.Instance.SetNpcName(npcName);
+        }
+        else
+        {
+            Debug.LogWarning("DialogUI 인스턴스를 찾을 수 없어 이름을 설정할 수 없습니다.");
         }
 
         OnDialogueStart?.Invoke();
@@ -64,15 +75,10 @@ public class Dialogue : MonoBehaviour
         }
 
         currentNode = startingNode;
-
         currentState = DialogueState.Normal;
 
-        // 2. ProcessDialogue를 호출하여 첫 번째 대사를 DialogUI에 표시하도록 '요청'합니다.
-        // (FacePlayer 등 시각적 요소 제거)
         currentDialogueCoroutine = StartCoroutine(ProcessDialogue());
     }
-
-    // FacePlayer, FaceOriginalRotation, RotateMesh 메서드 모두 제거
 
     /// <summary>
     /// 현재 노드를 처리하고, DialogUI에 텍스트 표시를 '요청'합니다.
@@ -81,12 +87,9 @@ public class Dialogue : MonoBehaviour
     {
         if (currentNode)
         {
-            // 노드 처리 (애니메이션, 텍스트)
-            //TargetFacialAnimation = currentNode.FacialAnimation;
             OnDialogueAdvance?.Invoke();
             currentState = DialogueState.Normal;
 
-            // [중요] DialogUI.Instance에 텍스트 표시 및 타이핑을 위임합니다.
             if (DialogUI.Instance != null)
             {
                 yield return DialogUI.Instance.ShowDialog(currentNode.DialogueText);
@@ -97,21 +100,17 @@ public class Dialogue : MonoBehaviour
                 yield return null;
             }
 
-            // 다음 노드로 이동
             currentNode = currentNode.NextNode;
         }
         else
         {
-            // 대화 종료
             currentState = DialogueState.Inactive;
-            StartCoroutine(EndInteractionCoroutine()); // UIManager에 종료 알림
+            StartCoroutine(EndInteractionCoroutine());
             OnDialogueEnd?.Invoke();
         }
 
-        currentDialogueCoroutine = null; // 타이핑 코루틴이 끝났음을 표시
+        currentDialogueCoroutine = null;
     }
-
-    // TypeText 코루틴 제거 (DialogUI로 이동)
 
     /// <summary>
     /// UIManager가 '다음' 입력을 받았을 때 호출할 공용 함수입니다.
@@ -129,9 +128,6 @@ public class Dialogue : MonoBehaviour
     /// </summary>
     private IEnumerator EndInteractionCoroutine()
     {
-        // (FaceOriginalRotation 제거)
-
-        // 3. UIManager에게 대화 종료를 알립니다. (UIManager가 UI를 끕니다)
         if (UIManager.instance != null)
         {
             UIManager.instance.EndDialogue();
