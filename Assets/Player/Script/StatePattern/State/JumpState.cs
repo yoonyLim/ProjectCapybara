@@ -19,13 +19,13 @@ public class JumpState : IPlayerState
             player.animator.SetTrigger("jumpTrigger");
             //player.isGrounded = false;
 
-            // --- ¼öÁ¤ ---
-            // yÃà ¼Óµµ¸¦ ¸ÕÀú 0À¸·Î ¸¸µé¾î, ÇÏ°­ Áß Á¡ÇÁÇØµµ ÀÏÁ¤ÇÑ ³ôÀÌ¸¦ º¸Àå (¼±ÅÃ »çÇ×)
+            // --- ï¿½ï¿½ï¿½ï¿½ ---
+            // yï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ï°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
             player.rb.linearVelocity = new Vector3(player.rb.linearVelocity.x, 0, player.rb.linearVelocity.z);
 
-            // °æ»ç¸é°ú »ó°ü¾øÀÌ Ç×»ó À§ÂÊÀ¸·Î ÈûÀ» °¡ÇÔ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             player.rb.AddForce(Vector3.up * player.jumpForce, ForceMode.Impulse);
-            // --- ¼öÁ¤ ³¡ ---
+            // --- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ---
 
             //player.rb.useGravity = true;
         }
@@ -33,6 +33,7 @@ public class JumpState : IPlayerState
 
     public void Exit(PlayerController player)
     {
+        //player.LandSoundPlay();
         player.animator.SetBool("isFall", false);
         Debug.Log("Jump Exit");
     }
@@ -49,7 +50,7 @@ public class JumpState : IPlayerState
         }
         else
         {
-            // ÂøÁöÇÏ¸é ´Þ¸®±â »óÅÂ·Î º¹±Í (ÂøÁö ¾Ö´Ï Ã³¸®µµ Running¿¡¼­)
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½Þ¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ Runningï¿½ï¿½ï¿½ï¿½)
             if (player.isGrounded && jumpApplied)
             {
                 player.ChangeState(new RunningState());
@@ -58,7 +59,7 @@ public class JumpState : IPlayerState
             }
             else
             {
-                // °øÁß¿¡¼­ ÇÏ°­ ÁßÀÌ¸é ³«ÇÏ ÇÃ·¡±×¸¸
+                // ï¿½ï¿½ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½×¸ï¿½
                 if (player.rb.linearVelocity.y < 0f)
                 {
 
@@ -72,8 +73,8 @@ public class JumpState : IPlayerState
 
     public void FixedUpdate(PlayerController player)
     {
-        #region °øÁß ÀÌµ¿ ÄÚµå (Running State - Move¿Í ºñ½Á)
-        // Ä«¸Þ¶ó ±âÁØ °øÁß Á¦¾î µ¿ÀÏ
+        #region ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Úµï¿½ (Running State - Moveï¿½ï¿½ ï¿½ï¿½ï¿½)
+        // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         Vector3 camForward = player.cameraTransform.forward; camForward.y = 0; camForward.Normalize();
         Vector3 camRight = player.cameraTransform.right; camRight.y = 0; camRight.Normalize();
 
