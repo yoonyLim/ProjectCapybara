@@ -92,7 +92,7 @@ public class Animal : MonoBehaviour, IInteractable
 
     private void HandleDialogueAdvance()
     {
-        ChangeFacialAnimation(dialogue.TargetFacialAnimation);
+        //ChangeFacialAnimation(dialogue.TargetFacialAnimation);
     }
 
     private void ChangeFacialAnimation(FacialAnimationType facialAnimation)
