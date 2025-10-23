@@ -6,7 +6,7 @@ public class HeadbuttState : IPlayerState
     private float stateDuration = 0.6f; // 박치기 애니메이션 길이 또는 상태 유지 시간
     private float timer;
 
-    private string obstacleTag = "Obstacle";  // ← 이 태그만 타격 판정
+    private string obstacleTag = "BreakableRock";  // ← 이 태그만 타격 판정
     private float hitRange = 2f;          // 레이 길이
     private float headHeight = 0.8f;          // 레이 시작 높이
     private float hitDelay = 0.08f;         // 애니 타이밍에 맞춰 1회만 체크
@@ -39,7 +39,7 @@ public class HeadbuttState : IPlayerState
 
             if (Physics.Raycast(origin, dir, out RaycastHit hit, hitRange, ~0, QueryTriggerInteraction.Ignore))
             {
-                // Tag = Obstacle 인 것만 타격
+                
                 if (hit.collider.CompareTag(obstacleTag))
                 {
                     if (hit.collider.TryGetComponent<DestructibleRock>(out var rock))

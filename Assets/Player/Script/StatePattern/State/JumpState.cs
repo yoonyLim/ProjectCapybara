@@ -33,6 +33,7 @@ public class JumpState : IPlayerState
 
     public void Exit(PlayerController player)
     {
+        player.LandSoundPlay();
         player.animator.SetBool("isFall", false);
         Debug.Log("Jump Exit");
     }
@@ -61,7 +62,6 @@ public class JumpState : IPlayerState
                 // 공중에서 하강 중이면 낙하 플래그만
                 if (player.rb.linearVelocity.y < 0f)
                 {
-
                     player.animator.SetBool("isFall", true);
                     jumpApplied = true;
                 }
@@ -85,6 +85,13 @@ public class JumpState : IPlayerState
         Vector3 v = player.rb.linearVelocity;
         Vector3 hv = new Vector3(v.x, 0f, v.z);
         Vector3 hvNew = Vector3.MoveTowards(hv, desiredVel, player.airAcceleration * Time.fixedDeltaTime);
+
+        float gravityToApply = player.gravity;
+        if (player.rb.linearVelocity.y < 0)
+        {
+            gravityToApply = player.fallGravity; // 하강 중이면 더 낮은 중력
+        }
+
         float newVerticalVelocity = player.rb.linearVelocity.y - player.gravity * Time.fixedDeltaTime;
 
         Quaternion RotationRef = player.SurfaceAlignment();
