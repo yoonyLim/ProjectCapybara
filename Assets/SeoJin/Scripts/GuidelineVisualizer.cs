@@ -15,7 +15,7 @@ public class GuidelineVisualizer : MonoBehaviour
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    private void Update()
+    /*private void Update()
     {
         UpdateNearestKnot();
     }
@@ -23,5 +23,5 @@ public class GuidelineVisualizer : MonoBehaviour
     private void UpdateNearestKnot()
     {
         if ()
-    }
+    }*/
 }

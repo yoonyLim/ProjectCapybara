@@ -41,7 +41,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1518977876280651794}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -287,7 +287,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 15
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -4901,6 +4901,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5169299289195761274}
   - component: {fileID: 2381867010823036100}
+  - component: {fileID: 4493874898821549912}
   m_Layer: 0
   m_Name: GlowingOrb
   m_TagString: Untagged
@@ -4944,12 +4945,33 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 3.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4493874898821549912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662134200011554502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 492ae6137ec87ae4fbaa44c12ea1752f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  orbParticles:
+  - {fileID: 6664987819274404518}
+  - {fileID: 3710311381113395507}
+  - {fileID: 3673335273149921650}
+  - {fileID: 6518602027417823660}
+  - {fileID: 3551023389026154423}
+  - {fileID: 8801815244511216275}
+  decreaseSpeed: 7
+  puffEffect: {fileID: 6758007814467886414, guid: 7eae905e1e26c304dbcec629ac181128, type: 3}
 --- !u!1 &2077661615381039669
 GameObject:
   m_ObjectHideFlags: 0
@@ -4991,7 +5013,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2077661615381039669}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -9891,7 +9913,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2215035648962888448}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -14782,7 +14804,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2474433754421313970}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -19673,7 +19695,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6030057275011120884}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0

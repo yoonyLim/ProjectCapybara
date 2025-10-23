@@ -5,6 +5,7 @@ using System.Collections;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace Capybara
 {
@@ -16,6 +17,7 @@ namespace Capybara
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
         [SerializeField] private ParticleSystem windSpeedParticles;
+        [SerializeField] private ParticleSystem collectOrbsWindSpeedParticles;
         [SerializeField] private GameObject Clouds;
 
         [Header("Snow Level Specifics")] [SerializeField]
@@ -43,7 +45,13 @@ namespace Capybara
         
         private Rigidbody rb;
         private Animator anim;
-        private CinemachineCamera cineCam;
+        
+        [Header("Camera Settings")]
+        [SerializeField] private CinemachineCamera mainCineCam;
+        [SerializeField] private CinemachineCamera collectOrbCineCam;
+        
+        [Header("Cinematic Settings")]
+        [SerializeField] PlayableDirector collectOrbsTimeline;
         
         // Current State Values
         private bool isGrounded = true;
@@ -74,7 +82,6 @@ namespace Capybara
         {
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
-            cineCam = GameObject.FindGameObjectWithTag("CineCamera").GetComponent<CinemachineCamera>();
             
             // SKI CHANGE: If the camera transform isn't assigned, find the main camera.
             if (cameraTransform == null)
@@ -118,6 +125,10 @@ namespace Capybara
             if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, constGroundRaycastDistance, snowRampLayer))
             {
                 DualSenseInputManager.Instance.RumbleControllerForDuration(0.1f, 0.1f);
+                
+                if (!rb.useGravity)
+                    rb.useGravity = true;
+                
                 var mainParticleSystem = windSpeedParticles.main;
                 mainParticleSystem.startSpeed = rb.linearVelocity.magnitude;
                 anim.SetBool(IsOnIce, true);
@@ -134,20 +145,36 @@ namespace Capybara
                     anim.SetBool(IsInAir, true);
                 }
             }
-
+            
+            // collect orbs
             if (transform.position.z >= breakDistance && !isOverBreakDistance)
             {
-                Debug.Log("BreakPoint over " + breakDistance);
-                
-                CinemachineFollow follwComp = cineCam.GetComponent<CinemachineFollow>();
+                /*CinemachineFollow follwComp = cineCam.GetComponent<CinemachineFollow>();
                 if (follwComp)
-                    follwComp.FollowOffset = new Vector3(0f, 10f, 0f);
+                    follwComp.FollowOffset = new Vector3(0f, 10f, 0f);*/
+                
+                mainCineCam.enabled = false;
+                collectOrbCineCam.enabled = true;
                 
                 isOverBreakDistance = true;
                 isWindZoned = false;
-                Instantiate(Clouds, transform.position + Vector3.down * 100, Quaternion.identity);
+                Instantiate(Clouds, transform.position + Vector3.down * 100 + Vector3.forward * 200, Quaternion.identity);
                 rb.useGravity = false;
-                rb.linearVelocity = new Vector3(0f, -10f, 0f);
+                // rb.linearVelocity = new Vector3(0f, -20f, 0f);
+                collectOrbsTimeline.Play();
+            }
+
+            if (isOverBreakDistance)
+            {
+                Debug.Log("over distance effect");
+                // set particles
+                var mainParticleSystem = collectOrbsWindSpeedParticles.main;
+                mainParticleSystem.startSpeed = rb.linearVelocity.magnitude;
+            }
+            else
+            {
+                var mainParticleSystem = collectOrbsWindSpeedParticles.main;
+                mainParticleSystem.startSpeed = 0;
             }
         }
 
@@ -236,6 +263,11 @@ namespace Capybara
             {
                 rb.AddForce(Vector3.up * constJumpSpeed, ForceMode.Impulse);
             }
+        }
+
+        public void SetOrbCollectionLinearVelocity()
+        {
+            rb.linearVelocity = new Vector3(0f, -20f, 0f);
         }
     }
 }
