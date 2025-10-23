@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.3.3
+// Made with Amplify Shader Editor v1.9.5.1
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 {
@@ -174,27 +174,44 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			HLSLPROGRAM
 
+			
+
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
 			#define _SURFACE_TYPE_TRANSPARENT 1
-			#define ASE_SRP_VERSION 120108
+			#define ASE_SRP_VERSION 140010
 			#define REQUIRE_DEPTH_TEXTURE 1
 
 
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+			
+
+			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+
+			
 
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
 			#pragma multi_compile_fragment _ DEBUG_DISPLAY
 
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-
 			#pragma vertex vert
 			#pragma fragment frag
 
 			#define SHADERPASS SHADERPASS_UNLIT
+
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
+
+			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -202,6 +219,15 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
+
+			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
+
+			
+
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -209,6 +235,11 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/Debugging3D.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl"
 
+			#if defined(LOD_FADE_CROSSFADE)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
+			#define ASE_NEEDS_FRAG_SCREEN_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 
 
@@ -223,16 +254,17 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			struct VertexOutput
 			{
 				float4 positionCS : SV_POSITION;
+				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
+					float3 positionWS : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD1;
+					float4 shadowCoord : TEXCOORD2;
 				#endif
 				#ifdef ASE_FOG
-					float fogFactor : TEXCOORD2;
+					float fogFactor : TEXCOORD3;
 				#endif
-				float4 ase_texcoord3 : TEXCOORD3;
+				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -277,9 +309,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			float CZY_FogSmoothness;
 			float CZY_FogOffset;
 			float CZY_FogIntensity;
-			float _UnderwaterRenderingEnabled;
-			float _FullySubmerged;
-			sampler2D _UnderwaterMask;
 
 
 			float3 HSVToRGB( float3 c )
@@ -307,26 +336,13 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				return UV;
 			}
 			
-			float3 InvertDepthDirURP75_g83( float3 In )
+			float3 InvertDepthDirURP75_g155( float3 In )
 			{
 				float3 result = In;
 				#if !defined(ASE_SRP_VERSION) || ASE_SRP_VERSION <= 70301 || ASE_SRP_VERSION == 70503 || ASE_SRP_VERSION == 70600 || ASE_SRP_VERSION == 70700 || ASE_SRP_VERSION == 70701 || ASE_SRP_VERSION >= 80301
 				result *= float3(1,1,-1);
 				#endif
 				return result;
-			}
-			
-			float HLSL20_g81( bool enabled, bool submerged, float textureSample )
-			{
-				if(enabled)
-				{
-					if(submerged) return 1.0;
-					else return textureSample;
-				}
-				else
-				{
-					return 0.0;
-				}
 			}
 			
 
@@ -337,9 +353,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 ase_clipPos = TransformObjectToHClip((v.positionOS).xyz);
-				float4 screenPos = ComputeScreenPos(ase_clipPos);
-				o.ase_texcoord3 = screenPos;
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -358,26 +371,22 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 				v.normalOS = v.normalOS;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
-				float4 positionCS = TransformWorldToHClip( positionWS );
+				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
-				#endif
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
-					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = positionCS;
-					o.shadowCoord = GetShadowCoord( vertexInput );
+					o.positionWS = vertexInput.positionWS;
 				#endif
 
 				#ifdef ASE_FOG
-					o.fogFactor = ComputeFogFactor( positionCS.z );
+					o.fogFactor = ComputeFogFactor( vertexInput.positionCS.z );
 				#endif
 
-				o.positionCS = positionCS;
+				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					o.shadowCoord = GetShadowCoord( vertexInput );
+				#endif
 
+				o.positionCS = vertexInput.positionCS;
+				o.clipPosV = vertexInput.positionCS;
 				return o;
 			}
 
@@ -460,7 +469,11 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			}
 			#endif
 
-			half4 frag ( VertexOutput IN  ) : SV_Target
+			half4 frag ( VertexOutput IN
+				#ifdef _WRITE_RENDERING_LAYERS
+				, out float4 outRenderingLayers : SV_Target1
+				#endif
+				 ) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID( IN );
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
@@ -471,6 +484,9 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
 
+				float4 ClipPos = IN.clipPosV;
+				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
+
 				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 						ShadowCoords = IN.shadowCoord;
@@ -479,67 +495,62 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 					#endif
 				#endif
 
-				float4 screenPos = IN.ase_texcoord3;
-				float4 ase_screenPosNorm = screenPos / screenPos.w;
+				float4 ase_screenPosNorm = ScreenPos / ScreenPos.w;
 				ase_screenPosNorm.z = ( UNITY_NEAR_CLIP_VALUE >= 0 ) ? ase_screenPosNorm.z : ase_screenPosNorm.z * 0.5 + 0.5;
-				float2 UV22_g84 = ase_screenPosNorm.xy;
-				float2 localUnStereo22_g84 = UnStereo( UV22_g84 );
-				float2 break64_g83 = localUnStereo22_g84;
-				float clampDepth69_g83 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
+				float2 UV22_g156 = ase_screenPosNorm.xy;
+				float2 localUnStereo22_g156 = UnStereo( UV22_g156 );
+				float2 break64_g155 = localUnStereo22_g156;
+				float clampDepth69_g155 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
 				#ifdef UNITY_REVERSED_Z
-				float staticSwitch38_g83 = ( 1.0 - clampDepth69_g83 );
+				float staticSwitch38_g155 = ( 1.0 - clampDepth69_g155 );
 				#else
-				float staticSwitch38_g83 = clampDepth69_g83;
+				float staticSwitch38_g155 = clampDepth69_g155;
 				#endif
-				float3 appendResult39_g83 = (float3(break64_g83.x , break64_g83.y , staticSwitch38_g83));
-				float4 appendResult42_g83 = (float4((appendResult39_g83*2.0 + -1.0) , 1.0));
-				float4 temp_output_43_0_g83 = mul( unity_CameraInvProjection, appendResult42_g83 );
-				float3 temp_output_46_0_g83 = ( (temp_output_43_0_g83).xyz / (temp_output_43_0_g83).w );
-				float3 In75_g83 = temp_output_46_0_g83;
-				float3 localInvertDepthDirURP75_g83 = InvertDepthDirURP75_g83( In75_g83 );
-				float4 appendResult49_g83 = (float4(localInvertDepthDirURP75_g83 , 1.0));
-				float4 temp_output_97_0_g82 = mul( unity_CameraToWorld, appendResult49_g83 );
-				float preDepth120_g82 = distance( temp_output_97_0_g82 , float4( _WorldSpaceCameraPos , 0.0 ) );
-				float lerpResult114_g82 = lerp( preDepth120_g82 , ( preDepth120_g82 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g82).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g82 / CZY_VariationDistance ) ) ));
-				float newFogDepth103_g82 = lerpResult114_g82;
-				float temp_output_15_0_g82 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g82 ) );
-				float temp_output_1_0_g87 = temp_output_15_0_g82;
-				float4 lerpResult28_g87 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g87 / CZY_FogColorStart1 ) ));
-				float4 lerpResult41_g87 = lerp( saturate( lerpResult28_g87 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g87 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
-				float4 lerpResult35_g87 = lerp( lerpResult41_g87 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g87 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
-				float4 lerpResult113_g87 = lerp( lerpResult35_g87 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g87 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
-				float4 temp_output_142_0_g82 = lerpResult113_g87;
-				float3 hsvTorgb32_g82 = RGBToHSV( temp_output_142_0_g82.rgb );
-				float3 temp_output_91_0_g82 = WorldPosition;
-				float3 appendResult73_g82 = (float3(1.0 , CZY_LightFlareSquish , 1.0));
-				float3 normalizeResult5_g82 = normalize( ( ( temp_output_91_0_g82 * appendResult73_g82 ) - _WorldSpaceCameraPos ) );
-				float dotResult6_g82 = dot( normalizeResult5_g82 , CZY_SunDirection );
-				half LightMask27_g82 = saturate( pow( abs( ( (dotResult6_g82*0.5 + 0.5) * CZY_LightIntensity ) ) , CZY_LightFalloff ) );
-				float temp_output_26_0_g82 = ( (temp_output_142_0_g82).a * saturate( temp_output_15_0_g82 ) );
-				float3 hsvTorgb2_g86 = RGBToHSV( ( CZY_LightColor * hsvTorgb32_g82.z * saturate( ( LightMask27_g82 * ( 1.5 * temp_output_26_0_g82 ) ) ) ).rgb );
-				float3 hsvTorgb3_g86 = HSVToRGB( float3(hsvTorgb2_g86.x,saturate( ( hsvTorgb2_g86.y + CZY_FilterSaturation ) ),( hsvTorgb2_g86.z + CZY_FilterValue )) );
-				float4 temp_output_10_0_g86 = ( float4( hsvTorgb3_g86 , 0.0 ) * CZY_FilterColor );
-				float3 direction90_g82 = ( temp_output_91_0_g82 - _WorldSpaceCameraPos );
-				float3 normalizeResult93_g82 = normalize( direction90_g82 );
-				float3 normalizeResult88_g82 = normalize( CZY_MoonDirection );
-				float dotResult49_g82 = dot( normalizeResult93_g82 , normalizeResult88_g82 );
-				half MoonMask47_g82 = saturate( pow( abs( ( saturate( (dotResult49_g82*1.0 + 0.0) ) * CZY_LightIntensity ) ) , ( CZY_LightFalloff * 3.0 ) ) );
-				float3 hsvTorgb2_g85 = RGBToHSV( ( temp_output_142_0_g82 + ( hsvTorgb32_g82.z * saturate( ( temp_output_26_0_g82 * MoonMask47_g82 ) ) * CZY_FogMoonFlareColor ) ).rgb );
-				float3 hsvTorgb3_g85 = HSVToRGB( float3(hsvTorgb2_g85.x,saturate( ( hsvTorgb2_g85.y + CZY_FilterSaturation ) ),( hsvTorgb2_g85.z + CZY_FilterValue )) );
-				float4 temp_output_10_0_g85 = ( float4( hsvTorgb3_g85 , 0.0 ) * CZY_FilterColor );
+				float3 appendResult39_g155 = (float3(break64_g155.x , break64_g155.y , staticSwitch38_g155));
+				float4 appendResult42_g155 = (float4((appendResult39_g155*2.0 + -1.0) , 1.0));
+				float4 temp_output_43_0_g155 = mul( unity_CameraInvProjection, appendResult42_g155 );
+				float3 temp_output_46_0_g155 = ( (temp_output_43_0_g155).xyz / (temp_output_43_0_g155).w );
+				float3 In75_g155 = temp_output_46_0_g155;
+				float3 localInvertDepthDirURP75_g155 = InvertDepthDirURP75_g155( In75_g155 );
+				float4 appendResult49_g155 = (float4(localInvertDepthDirURP75_g155 , 1.0));
+				float4 temp_output_97_0_g154 = mul( unity_CameraToWorld, appendResult49_g155 );
+				float preDepth120_g154 = distance( temp_output_97_0_g154 , float4( _WorldSpaceCameraPos , 0.0 ) );
+				float lerpResult114_g154 = lerp( preDepth120_g154 , ( preDepth120_g154 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g154).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g154 / CZY_VariationDistance ) ) ));
+				float newFogDepth103_g154 = lerpResult114_g154;
+				float temp_output_15_0_g154 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g154 ) );
+				float temp_output_1_0_g159 = temp_output_15_0_g154;
+				float4 lerpResult28_g159 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g159 / CZY_FogColorStart1 ) ));
+				float4 lerpResult41_g159 = lerp( saturate( lerpResult28_g159 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g159 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
+				float4 lerpResult35_g159 = lerp( lerpResult41_g159 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g159 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
+				float4 lerpResult113_g159 = lerp( lerpResult35_g159 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g159 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
+				float4 temp_output_157_0_g154 = lerpResult113_g159;
+				float3 hsvTorgb32_g154 = RGBToHSV( temp_output_157_0_g154.rgb );
+				float3 normalizeResult160_g154 = normalize( ( WorldPosition - _WorldSpaceCameraPos ) );
+				float3 temp_output_91_0_g154 = ( normalizeResult160_g154 * _ProjectionParams.z );
+				float3 appendResult73_g154 = (float3(1.0 , CZY_LightFlareSquish , 1.0));
+				float3 normalizeResult5_g154 = normalize( ( ( temp_output_91_0_g154 * appendResult73_g154 ) - _WorldSpaceCameraPos ) );
+				float dotResult6_g154 = dot( normalizeResult5_g154 , CZY_SunDirection );
+				half LightMask27_g154 = saturate( pow( abs( ( (dotResult6_g154*0.5 + 0.5) * CZY_LightIntensity ) ) , CZY_LightFalloff ) );
+				float temp_output_26_0_g154 = ( (temp_output_157_0_g154).a * saturate( temp_output_15_0_g154 ) );
+				float3 hsvTorgb2_g158 = RGBToHSV( ( CZY_LightColor * hsvTorgb32_g154.z * saturate( ( LightMask27_g154 * ( 1.5 * temp_output_26_0_g154 ) ) ) ).rgb );
+				float3 hsvTorgb3_g158 = HSVToRGB( float3(hsvTorgb2_g158.x,saturate( ( hsvTorgb2_g158.y + CZY_FilterSaturation ) ),( hsvTorgb2_g158.z + CZY_FilterValue )) );
+				float4 temp_output_10_0_g158 = ( float4( hsvTorgb3_g158 , 0.0 ) * CZY_FilterColor );
+				float3 direction90_g154 = ( temp_output_91_0_g154 - _WorldSpaceCameraPos );
+				float3 normalizeResult93_g154 = normalize( direction90_g154 );
+				float3 normalizeResult88_g154 = normalize( CZY_MoonDirection );
+				float dotResult49_g154 = dot( normalizeResult93_g154 , normalizeResult88_g154 );
+				half MoonMask47_g154 = saturate( pow( abs( ( saturate( (dotResult49_g154*1.0 + 0.0) ) * CZY_LightIntensity ) ) , ( CZY_LightFalloff * 3.0 ) ) );
+				float3 hsvTorgb2_g157 = RGBToHSV( ( temp_output_157_0_g154 + ( hsvTorgb32_g154.z * saturate( ( temp_output_26_0_g154 * MoonMask47_g154 ) ) * CZY_FogMoonFlareColor ) ).rgb );
+				float3 hsvTorgb3_g157 = HSVToRGB( float3(hsvTorgb2_g157.x,saturate( ( hsvTorgb2_g157.y + CZY_FilterSaturation ) ),( hsvTorgb2_g157.z + CZY_FilterValue )) );
+				float4 temp_output_10_0_g157 = ( float4( hsvTorgb3_g157 , 0.0 ) * CZY_FilterColor );
 				
-				float finalAlpha141_g82 = temp_output_26_0_g82;
+				float finalAlpha141_g154 = temp_output_26_0_g154;
 				float3 ase_objectScale = float3( length( GetObjectToWorldMatrix()[ 0 ].xyz ), length( GetObjectToWorldMatrix()[ 1 ].xyz ), length( GetObjectToWorldMatrix()[ 2 ].xyz ) );
-				float temp_output_75_0_g82 = ( finalAlpha141_g82 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g82.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) );
-				bool enabled20_g81 =(bool)_UnderwaterRenderingEnabled;
-				bool submerged20_g81 =(bool)_FullySubmerged;
-				float textureSample20_g81 = tex2Dlod( _UnderwaterMask, float4( ase_screenPosNorm.xy, 0, 0.0) ).r;
-				float localHLSL20_g81 = HLSL20_g81( enabled20_g81 , submerged20_g81 , textureSample20_g81 );
 				
 				float3 BakedAlbedo = 0;
 				float3 BakedEmission = 0;
-				float3 Color = ( ( temp_output_10_0_g86 * CZY_SunFilterColor ) + temp_output_10_0_g85 ).rgb;
-				float Alpha = ( temp_output_75_0_g82 * ( 1.0 - localHLSL20_g81 ) );
+				float3 Color = ( ( temp_output_10_0_g158 * CZY_SunFilterColor ) + temp_output_10_0_g157 ).rgb;
+				float Alpha = ( ( finalAlpha141_g154 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g154.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) ) * ( 1.0 - 0.0 ) );
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 
@@ -551,16 +562,17 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 					ApplyDecalToBaseColor(IN.positionCS, Color);
 				#endif
 
-				#if defined(_ALPHAPREMULTIPLY_ON)
-				Color *= Alpha;
-				#endif
-
 				#ifdef LOD_FADE_CROSSFADE
-					LODDitheringTransition( IN.positionCS.xyz, unity_LODFade.x );
+					LODFadeCrossFade( IN.positionCS );
 				#endif
 
 				#ifdef ASE_FOG
 					Color = MixFog( Color, IN.fogFactor );
+				#endif
+
+				#ifdef _WRITE_RENDERING_LAYERS
+					uint renderingLayers = GetMeshRenderingLayer();
+					outRenderingLayers = float4( EncodeMeshRenderingLayer( renderingLayers ), 0, 0, 0 );
 				#endif
 
 				return half4( Color, Alpha );
@@ -581,22 +593,35 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			HLSLPROGRAM
 
-            #pragma multi_compile_instancing
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_SRP_VERSION 120108
-            #define REQUIRE_DEPTH_TEXTURE 1
+			
+
+			#pragma multi_compile_instancing
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_SRP_VERSION 140010
+			#define REQUIRE_DEPTH_TEXTURE 1
 
 
-            #pragma multi_compile _ DOTS_INSTANCING_ON
+			
 
 			#pragma vertex vert
 			#pragma fragment frag
+
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
+			#if defined(LOD_FADE_CROSSFADE)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
+			#define ASE_NEEDS_FRAG_SCREEN_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 
 
@@ -611,13 +636,14 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			struct VertexOutput
 			{
 				float4 positionCS : SV_POSITION;
+				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-				float3 positionWS : TEXCOORD0;
+				float3 positionWS : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-				float4 shadowCoord : TEXCOORD1;
+				float4 shadowCoord : TEXCOORD2;
 				#endif
-				float4 ase_texcoord2 : TEXCOORD2;
+				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -651,9 +677,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			float CZY_FogSmoothness;
 			float CZY_FogOffset;
 			float CZY_FogIntensity;
-			float _UnderwaterRenderingEnabled;
-			float _FullySubmerged;
-			sampler2D _UnderwaterMask;
 
 
 			float2 UnStereo( float2 UV )
@@ -665,26 +688,13 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				return UV;
 			}
 			
-			float3 InvertDepthDirURP75_g83( float3 In )
+			float3 InvertDepthDirURP75_g155( float3 In )
 			{
 				float3 result = In;
 				#if !defined(ASE_SRP_VERSION) || ASE_SRP_VERSION <= 70301 || ASE_SRP_VERSION == 70503 || ASE_SRP_VERSION == 70600 || ASE_SRP_VERSION == 70700 || ASE_SRP_VERSION == 70701 || ASE_SRP_VERSION >= 80301
 				result *= float3(1,1,-1);
 				#endif
 				return result;
-			}
-			
-			float HLSL20_g81( bool enabled, bool submerged, float textureSample )
-			{
-				if(enabled)
-				{
-					if(submerged) return 1.0;
-					else return textureSample;
-				}
-				else
-				{
-					return 0.0;
-				}
 			}
 			
 
@@ -695,9 +705,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 ase_clipPos = TransformObjectToHClip((v.positionOS).xyz);
-				float4 screenPos = ComputeScreenPos(ase_clipPos);
-				o.ase_texcoord2 = screenPos;
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -716,20 +723,18 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 				v.normalOS = v.normalOS;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
+					o.positionWS = vertexInput.positionWS;
 				#endif
 
-				o.positionCS = TransformWorldToHClip( positionWS );
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
-					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = o.positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
+				o.positionCS = vertexInput.positionCS;
+				o.clipPosV = vertexInput.positionCS;
 				return o;
 			}
 
@@ -823,6 +828,9 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
 
+				float4 ClipPos = IN.clipPosV;
+				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
+
 				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 						ShadowCoords = IN.shadowCoord;
@@ -831,49 +839,44 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 					#endif
 				#endif
 
-				float4 screenPos = IN.ase_texcoord2;
-				float4 ase_screenPosNorm = screenPos / screenPos.w;
+				float4 ase_screenPosNorm = ScreenPos / ScreenPos.w;
 				ase_screenPosNorm.z = ( UNITY_NEAR_CLIP_VALUE >= 0 ) ? ase_screenPosNorm.z : ase_screenPosNorm.z * 0.5 + 0.5;
-				float2 UV22_g84 = ase_screenPosNorm.xy;
-				float2 localUnStereo22_g84 = UnStereo( UV22_g84 );
-				float2 break64_g83 = localUnStereo22_g84;
-				float clampDepth69_g83 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
+				float2 UV22_g156 = ase_screenPosNorm.xy;
+				float2 localUnStereo22_g156 = UnStereo( UV22_g156 );
+				float2 break64_g155 = localUnStereo22_g156;
+				float clampDepth69_g155 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
 				#ifdef UNITY_REVERSED_Z
-				float staticSwitch38_g83 = ( 1.0 - clampDepth69_g83 );
+				float staticSwitch38_g155 = ( 1.0 - clampDepth69_g155 );
 				#else
-				float staticSwitch38_g83 = clampDepth69_g83;
+				float staticSwitch38_g155 = clampDepth69_g155;
 				#endif
-				float3 appendResult39_g83 = (float3(break64_g83.x , break64_g83.y , staticSwitch38_g83));
-				float4 appendResult42_g83 = (float4((appendResult39_g83*2.0 + -1.0) , 1.0));
-				float4 temp_output_43_0_g83 = mul( unity_CameraInvProjection, appendResult42_g83 );
-				float3 temp_output_46_0_g83 = ( (temp_output_43_0_g83).xyz / (temp_output_43_0_g83).w );
-				float3 In75_g83 = temp_output_46_0_g83;
-				float3 localInvertDepthDirURP75_g83 = InvertDepthDirURP75_g83( In75_g83 );
-				float4 appendResult49_g83 = (float4(localInvertDepthDirURP75_g83 , 1.0));
-				float4 temp_output_97_0_g82 = mul( unity_CameraToWorld, appendResult49_g83 );
-				float preDepth120_g82 = distance( temp_output_97_0_g82 , float4( _WorldSpaceCameraPos , 0.0 ) );
-				float lerpResult114_g82 = lerp( preDepth120_g82 , ( preDepth120_g82 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g82).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g82 / CZY_VariationDistance ) ) ));
-				float newFogDepth103_g82 = lerpResult114_g82;
-				float temp_output_15_0_g82 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g82 ) );
-				float temp_output_1_0_g87 = temp_output_15_0_g82;
-				float4 lerpResult28_g87 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g87 / CZY_FogColorStart1 ) ));
-				float4 lerpResult41_g87 = lerp( saturate( lerpResult28_g87 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g87 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
-				float4 lerpResult35_g87 = lerp( lerpResult41_g87 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g87 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
-				float4 lerpResult113_g87 = lerp( lerpResult35_g87 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g87 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
-				float4 temp_output_142_0_g82 = lerpResult113_g87;
-				float temp_output_26_0_g82 = ( (temp_output_142_0_g82).a * saturate( temp_output_15_0_g82 ) );
-				float finalAlpha141_g82 = temp_output_26_0_g82;
-				float3 temp_output_91_0_g82 = WorldPosition;
-				float3 direction90_g82 = ( temp_output_91_0_g82 - _WorldSpaceCameraPos );
+				float3 appendResult39_g155 = (float3(break64_g155.x , break64_g155.y , staticSwitch38_g155));
+				float4 appendResult42_g155 = (float4((appendResult39_g155*2.0 + -1.0) , 1.0));
+				float4 temp_output_43_0_g155 = mul( unity_CameraInvProjection, appendResult42_g155 );
+				float3 temp_output_46_0_g155 = ( (temp_output_43_0_g155).xyz / (temp_output_43_0_g155).w );
+				float3 In75_g155 = temp_output_46_0_g155;
+				float3 localInvertDepthDirURP75_g155 = InvertDepthDirURP75_g155( In75_g155 );
+				float4 appendResult49_g155 = (float4(localInvertDepthDirURP75_g155 , 1.0));
+				float4 temp_output_97_0_g154 = mul( unity_CameraToWorld, appendResult49_g155 );
+				float preDepth120_g154 = distance( temp_output_97_0_g154 , float4( _WorldSpaceCameraPos , 0.0 ) );
+				float lerpResult114_g154 = lerp( preDepth120_g154 , ( preDepth120_g154 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g154).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g154 / CZY_VariationDistance ) ) ));
+				float newFogDepth103_g154 = lerpResult114_g154;
+				float temp_output_15_0_g154 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g154 ) );
+				float temp_output_1_0_g159 = temp_output_15_0_g154;
+				float4 lerpResult28_g159 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g159 / CZY_FogColorStart1 ) ));
+				float4 lerpResult41_g159 = lerp( saturate( lerpResult28_g159 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g159 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
+				float4 lerpResult35_g159 = lerp( lerpResult41_g159 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g159 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
+				float4 lerpResult113_g159 = lerp( lerpResult35_g159 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g159 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
+				float4 temp_output_157_0_g154 = lerpResult113_g159;
+				float temp_output_26_0_g154 = ( (temp_output_157_0_g154).a * saturate( temp_output_15_0_g154 ) );
+				float finalAlpha141_g154 = temp_output_26_0_g154;
+				float3 normalizeResult160_g154 = normalize( ( WorldPosition - _WorldSpaceCameraPos ) );
+				float3 temp_output_91_0_g154 = ( normalizeResult160_g154 * _ProjectionParams.z );
+				float3 direction90_g154 = ( temp_output_91_0_g154 - _WorldSpaceCameraPos );
 				float3 ase_objectScale = float3( length( GetObjectToWorldMatrix()[ 0 ].xyz ), length( GetObjectToWorldMatrix()[ 1 ].xyz ), length( GetObjectToWorldMatrix()[ 2 ].xyz ) );
-				float temp_output_75_0_g82 = ( finalAlpha141_g82 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g82.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) );
-				bool enabled20_g81 =(bool)_UnderwaterRenderingEnabled;
-				bool submerged20_g81 =(bool)_FullySubmerged;
-				float textureSample20_g81 = tex2Dlod( _UnderwaterMask, float4( ase_screenPosNorm.xy, 0, 0.0) ).r;
-				float localHLSL20_g81 = HLSL20_g81( enabled20_g81 , submerged20_g81 , textureSample20_g81 );
 				
 
-				float Alpha = ( temp_output_75_0_g82 * ( 1.0 - localHLSL20_g81 ) );
+				float Alpha = ( ( finalAlpha141_g154 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g154.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) ) * ( 1.0 - 0.0 ) );
 				float AlphaClipThreshold = 0.5;
 
 				#ifdef _ALPHATEST_ON
@@ -881,7 +884,7 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				#endif
 
 				#ifdef LOD_FADE_CROSSFADE
-					LODDitheringTransition( IN.positionCS.xyz, unity_LODFade.x );
+					LODFadeCrossFade( IN.positionCS );
 				#endif
 				return 0;
 			}
@@ -900,12 +903,14 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			HLSLPROGRAM
 
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_SRP_VERSION 120108
-            #define REQUIRE_DEPTH_TEXTURE 1
+			
+
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_SRP_VERSION 140010
+			#define REQUIRE_DEPTH_TEXTURE 1
 
 
-            #pragma multi_compile _ DOTS_INSTANCING_ON
+			
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -914,11 +919,32 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			#define ATTRIBUTES_NEED_TANGENT
 			#define SHADERPASS SHADERPASS_DEPTHONLY
 
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
+
+			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
+
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
+
+			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
+
+			
+
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -970,9 +996,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			float CZY_FogSmoothness;
 			float CZY_FogOffset;
 			float CZY_FogIntensity;
-			float _UnderwaterRenderingEnabled;
-			float _FullySubmerged;
-			sampler2D _UnderwaterMask;
 
 
 			float2 UnStereo( float2 UV )
@@ -984,26 +1007,13 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				return UV;
 			}
 			
-			float3 InvertDepthDirURP75_g83( float3 In )
+			float3 InvertDepthDirURP75_g155( float3 In )
 			{
 				float3 result = In;
 				#if !defined(ASE_SRP_VERSION) || ASE_SRP_VERSION <= 70301 || ASE_SRP_VERSION == 70503 || ASE_SRP_VERSION == 70600 || ASE_SRP_VERSION == 70700 || ASE_SRP_VERSION == 70701 || ASE_SRP_VERSION >= 80301
 				result *= float3(1,1,-1);
 				#endif
 				return result;
-			}
-			
-			float HLSL20_g81( bool enabled, bool submerged, float textureSample )
-			{
-				if(enabled)
-				{
-					if(submerged) return 1.0;
-					else return textureSample;
-				}
-				else
-				{
-					return 0.0;
-				}
 			}
 			
 
@@ -1144,47 +1154,43 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				float4 screenPos = IN.ase_texcoord;
 				float4 ase_screenPosNorm = screenPos / screenPos.w;
 				ase_screenPosNorm.z = ( UNITY_NEAR_CLIP_VALUE >= 0 ) ? ase_screenPosNorm.z : ase_screenPosNorm.z * 0.5 + 0.5;
-				float2 UV22_g84 = ase_screenPosNorm.xy;
-				float2 localUnStereo22_g84 = UnStereo( UV22_g84 );
-				float2 break64_g83 = localUnStereo22_g84;
-				float clampDepth69_g83 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
+				float2 UV22_g156 = ase_screenPosNorm.xy;
+				float2 localUnStereo22_g156 = UnStereo( UV22_g156 );
+				float2 break64_g155 = localUnStereo22_g156;
+				float clampDepth69_g155 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
 				#ifdef UNITY_REVERSED_Z
-				float staticSwitch38_g83 = ( 1.0 - clampDepth69_g83 );
+				float staticSwitch38_g155 = ( 1.0 - clampDepth69_g155 );
 				#else
-				float staticSwitch38_g83 = clampDepth69_g83;
+				float staticSwitch38_g155 = clampDepth69_g155;
 				#endif
-				float3 appendResult39_g83 = (float3(break64_g83.x , break64_g83.y , staticSwitch38_g83));
-				float4 appendResult42_g83 = (float4((appendResult39_g83*2.0 + -1.0) , 1.0));
-				float4 temp_output_43_0_g83 = mul( unity_CameraInvProjection, appendResult42_g83 );
-				float3 temp_output_46_0_g83 = ( (temp_output_43_0_g83).xyz / (temp_output_43_0_g83).w );
-				float3 In75_g83 = temp_output_46_0_g83;
-				float3 localInvertDepthDirURP75_g83 = InvertDepthDirURP75_g83( In75_g83 );
-				float4 appendResult49_g83 = (float4(localInvertDepthDirURP75_g83 , 1.0));
-				float4 temp_output_97_0_g82 = mul( unity_CameraToWorld, appendResult49_g83 );
-				float preDepth120_g82 = distance( temp_output_97_0_g82 , float4( _WorldSpaceCameraPos , 0.0 ) );
-				float lerpResult114_g82 = lerp( preDepth120_g82 , ( preDepth120_g82 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g82).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g82 / CZY_VariationDistance ) ) ));
-				float newFogDepth103_g82 = lerpResult114_g82;
-				float temp_output_15_0_g82 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g82 ) );
-				float temp_output_1_0_g87 = temp_output_15_0_g82;
-				float4 lerpResult28_g87 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g87 / CZY_FogColorStart1 ) ));
-				float4 lerpResult41_g87 = lerp( saturate( lerpResult28_g87 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g87 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
-				float4 lerpResult35_g87 = lerp( lerpResult41_g87 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g87 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
-				float4 lerpResult113_g87 = lerp( lerpResult35_g87 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g87 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
-				float4 temp_output_142_0_g82 = lerpResult113_g87;
-				float temp_output_26_0_g82 = ( (temp_output_142_0_g82).a * saturate( temp_output_15_0_g82 ) );
-				float finalAlpha141_g82 = temp_output_26_0_g82;
+				float3 appendResult39_g155 = (float3(break64_g155.x , break64_g155.y , staticSwitch38_g155));
+				float4 appendResult42_g155 = (float4((appendResult39_g155*2.0 + -1.0) , 1.0));
+				float4 temp_output_43_0_g155 = mul( unity_CameraInvProjection, appendResult42_g155 );
+				float3 temp_output_46_0_g155 = ( (temp_output_43_0_g155).xyz / (temp_output_43_0_g155).w );
+				float3 In75_g155 = temp_output_46_0_g155;
+				float3 localInvertDepthDirURP75_g155 = InvertDepthDirURP75_g155( In75_g155 );
+				float4 appendResult49_g155 = (float4(localInvertDepthDirURP75_g155 , 1.0));
+				float4 temp_output_97_0_g154 = mul( unity_CameraToWorld, appendResult49_g155 );
+				float preDepth120_g154 = distance( temp_output_97_0_g154 , float4( _WorldSpaceCameraPos , 0.0 ) );
+				float lerpResult114_g154 = lerp( preDepth120_g154 , ( preDepth120_g154 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g154).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g154 / CZY_VariationDistance ) ) ));
+				float newFogDepth103_g154 = lerpResult114_g154;
+				float temp_output_15_0_g154 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g154 ) );
+				float temp_output_1_0_g159 = temp_output_15_0_g154;
+				float4 lerpResult28_g159 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g159 / CZY_FogColorStart1 ) ));
+				float4 lerpResult41_g159 = lerp( saturate( lerpResult28_g159 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g159 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
+				float4 lerpResult35_g159 = lerp( lerpResult41_g159 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g159 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
+				float4 lerpResult113_g159 = lerp( lerpResult35_g159 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g159 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
+				float4 temp_output_157_0_g154 = lerpResult113_g159;
+				float temp_output_26_0_g154 = ( (temp_output_157_0_g154).a * saturate( temp_output_15_0_g154 ) );
+				float finalAlpha141_g154 = temp_output_26_0_g154;
 				float3 ase_worldPos = IN.ase_texcoord1.xyz;
-				float3 temp_output_91_0_g82 = ase_worldPos;
-				float3 direction90_g82 = ( temp_output_91_0_g82 - _WorldSpaceCameraPos );
+				float3 normalizeResult160_g154 = normalize( ( ase_worldPos - _WorldSpaceCameraPos ) );
+				float3 temp_output_91_0_g154 = ( normalizeResult160_g154 * _ProjectionParams.z );
+				float3 direction90_g154 = ( temp_output_91_0_g154 - _WorldSpaceCameraPos );
 				float3 ase_objectScale = float3( length( GetObjectToWorldMatrix()[ 0 ].xyz ), length( GetObjectToWorldMatrix()[ 1 ].xyz ), length( GetObjectToWorldMatrix()[ 2 ].xyz ) );
-				float temp_output_75_0_g82 = ( finalAlpha141_g82 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g82.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) );
-				bool enabled20_g81 =(bool)_UnderwaterRenderingEnabled;
-				bool submerged20_g81 =(bool)_FullySubmerged;
-				float textureSample20_g81 = tex2Dlod( _UnderwaterMask, float4( ase_screenPosNorm.xy, 0, 0.0) ).r;
-				float localHLSL20_g81 = HLSL20_g81( enabled20_g81 , submerged20_g81 , textureSample20_g81 );
 				
 
-				surfaceDescription.Alpha = ( temp_output_75_0_g82 * ( 1.0 - localHLSL20_g81 ) );
+				surfaceDescription.Alpha = ( ( finalAlpha141_g154 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g154.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) ) * ( 1.0 - 0.0 ) );
 				surfaceDescription.AlphaClipThreshold = 0.5;
 
 				#if _ALPHATEST_ON
@@ -1212,12 +1218,14 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			HLSLPROGRAM
 
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_SRP_VERSION 120108
-            #define REQUIRE_DEPTH_TEXTURE 1
+			
+
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_SRP_VERSION 140010
+			#define REQUIRE_DEPTH_TEXTURE 1
 
 
-            #pragma multi_compile _ DOTS_INSTANCING_ON
+			
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -1227,13 +1235,38 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			#define SHADERPASS SHADERPASS_DEPTHONLY
 
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
+
+			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
+
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
+
+			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
+
+			
+
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
+
+			#if defined(LOD_FADE_CROSSFADE)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
 			
 
@@ -1283,9 +1316,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			float CZY_FogSmoothness;
 			float CZY_FogOffset;
 			float CZY_FogIntensity;
-			float _UnderwaterRenderingEnabled;
-			float _FullySubmerged;
-			sampler2D _UnderwaterMask;
 
 
 			float2 UnStereo( float2 UV )
@@ -1297,26 +1327,13 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				return UV;
 			}
 			
-			float3 InvertDepthDirURP75_g83( float3 In )
+			float3 InvertDepthDirURP75_g155( float3 In )
 			{
 				float3 result = In;
 				#if !defined(ASE_SRP_VERSION) || ASE_SRP_VERSION <= 70301 || ASE_SRP_VERSION == 70503 || ASE_SRP_VERSION == 70600 || ASE_SRP_VERSION == 70700 || ASE_SRP_VERSION == 70701 || ASE_SRP_VERSION >= 80301
 				result *= float3(1,1,-1);
 				#endif
 				return result;
-			}
-			
-			float HLSL20_g81( bool enabled, bool submerged, float textureSample )
-			{
-				if(enabled)
-				{
-					if(submerged) return 1.0;
-					else return textureSample;
-				}
-				else
-				{
-					return 0.0;
-				}
 			}
 			
 
@@ -1454,47 +1471,43 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				float4 screenPos = IN.ase_texcoord;
 				float4 ase_screenPosNorm = screenPos / screenPos.w;
 				ase_screenPosNorm.z = ( UNITY_NEAR_CLIP_VALUE >= 0 ) ? ase_screenPosNorm.z : ase_screenPosNorm.z * 0.5 + 0.5;
-				float2 UV22_g84 = ase_screenPosNorm.xy;
-				float2 localUnStereo22_g84 = UnStereo( UV22_g84 );
-				float2 break64_g83 = localUnStereo22_g84;
-				float clampDepth69_g83 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
+				float2 UV22_g156 = ase_screenPosNorm.xy;
+				float2 localUnStereo22_g156 = UnStereo( UV22_g156 );
+				float2 break64_g155 = localUnStereo22_g156;
+				float clampDepth69_g155 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
 				#ifdef UNITY_REVERSED_Z
-				float staticSwitch38_g83 = ( 1.0 - clampDepth69_g83 );
+				float staticSwitch38_g155 = ( 1.0 - clampDepth69_g155 );
 				#else
-				float staticSwitch38_g83 = clampDepth69_g83;
+				float staticSwitch38_g155 = clampDepth69_g155;
 				#endif
-				float3 appendResult39_g83 = (float3(break64_g83.x , break64_g83.y , staticSwitch38_g83));
-				float4 appendResult42_g83 = (float4((appendResult39_g83*2.0 + -1.0) , 1.0));
-				float4 temp_output_43_0_g83 = mul( unity_CameraInvProjection, appendResult42_g83 );
-				float3 temp_output_46_0_g83 = ( (temp_output_43_0_g83).xyz / (temp_output_43_0_g83).w );
-				float3 In75_g83 = temp_output_46_0_g83;
-				float3 localInvertDepthDirURP75_g83 = InvertDepthDirURP75_g83( In75_g83 );
-				float4 appendResult49_g83 = (float4(localInvertDepthDirURP75_g83 , 1.0));
-				float4 temp_output_97_0_g82 = mul( unity_CameraToWorld, appendResult49_g83 );
-				float preDepth120_g82 = distance( temp_output_97_0_g82 , float4( _WorldSpaceCameraPos , 0.0 ) );
-				float lerpResult114_g82 = lerp( preDepth120_g82 , ( preDepth120_g82 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g82).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g82 / CZY_VariationDistance ) ) ));
-				float newFogDepth103_g82 = lerpResult114_g82;
-				float temp_output_15_0_g82 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g82 ) );
-				float temp_output_1_0_g87 = temp_output_15_0_g82;
-				float4 lerpResult28_g87 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g87 / CZY_FogColorStart1 ) ));
-				float4 lerpResult41_g87 = lerp( saturate( lerpResult28_g87 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g87 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
-				float4 lerpResult35_g87 = lerp( lerpResult41_g87 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g87 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
-				float4 lerpResult113_g87 = lerp( lerpResult35_g87 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g87 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
-				float4 temp_output_142_0_g82 = lerpResult113_g87;
-				float temp_output_26_0_g82 = ( (temp_output_142_0_g82).a * saturate( temp_output_15_0_g82 ) );
-				float finalAlpha141_g82 = temp_output_26_0_g82;
+				float3 appendResult39_g155 = (float3(break64_g155.x , break64_g155.y , staticSwitch38_g155));
+				float4 appendResult42_g155 = (float4((appendResult39_g155*2.0 + -1.0) , 1.0));
+				float4 temp_output_43_0_g155 = mul( unity_CameraInvProjection, appendResult42_g155 );
+				float3 temp_output_46_0_g155 = ( (temp_output_43_0_g155).xyz / (temp_output_43_0_g155).w );
+				float3 In75_g155 = temp_output_46_0_g155;
+				float3 localInvertDepthDirURP75_g155 = InvertDepthDirURP75_g155( In75_g155 );
+				float4 appendResult49_g155 = (float4(localInvertDepthDirURP75_g155 , 1.0));
+				float4 temp_output_97_0_g154 = mul( unity_CameraToWorld, appendResult49_g155 );
+				float preDepth120_g154 = distance( temp_output_97_0_g154 , float4( _WorldSpaceCameraPos , 0.0 ) );
+				float lerpResult114_g154 = lerp( preDepth120_g154 , ( preDepth120_g154 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g154).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g154 / CZY_VariationDistance ) ) ));
+				float newFogDepth103_g154 = lerpResult114_g154;
+				float temp_output_15_0_g154 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g154 ) );
+				float temp_output_1_0_g159 = temp_output_15_0_g154;
+				float4 lerpResult28_g159 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g159 / CZY_FogColorStart1 ) ));
+				float4 lerpResult41_g159 = lerp( saturate( lerpResult28_g159 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g159 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
+				float4 lerpResult35_g159 = lerp( lerpResult41_g159 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g159 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
+				float4 lerpResult113_g159 = lerp( lerpResult35_g159 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g159 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
+				float4 temp_output_157_0_g154 = lerpResult113_g159;
+				float temp_output_26_0_g154 = ( (temp_output_157_0_g154).a * saturate( temp_output_15_0_g154 ) );
+				float finalAlpha141_g154 = temp_output_26_0_g154;
 				float3 ase_worldPos = IN.ase_texcoord1.xyz;
-				float3 temp_output_91_0_g82 = ase_worldPos;
-				float3 direction90_g82 = ( temp_output_91_0_g82 - _WorldSpaceCameraPos );
+				float3 normalizeResult160_g154 = normalize( ( ase_worldPos - _WorldSpaceCameraPos ) );
+				float3 temp_output_91_0_g154 = ( normalizeResult160_g154 * _ProjectionParams.z );
+				float3 direction90_g154 = ( temp_output_91_0_g154 - _WorldSpaceCameraPos );
 				float3 ase_objectScale = float3( length( GetObjectToWorldMatrix()[ 0 ].xyz ), length( GetObjectToWorldMatrix()[ 1 ].xyz ), length( GetObjectToWorldMatrix()[ 2 ].xyz ) );
-				float temp_output_75_0_g82 = ( finalAlpha141_g82 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g82.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) );
-				bool enabled20_g81 =(bool)_UnderwaterRenderingEnabled;
-				bool submerged20_g81 =(bool)_FullySubmerged;
-				float textureSample20_g81 = tex2Dlod( _UnderwaterMask, float4( ase_screenPosNorm.xy, 0, 0.0) ).r;
-				float localHLSL20_g81 = HLSL20_g81( enabled20_g81 , submerged20_g81 , textureSample20_g81 );
 				
 
-				surfaceDescription.Alpha = ( temp_output_75_0_g82 * ( 1.0 - localHLSL20_g81 ) );
+				surfaceDescription.Alpha = ( ( finalAlpha141_g154 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g154.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) ) * ( 1.0 - 0.0 ) );
 				surfaceDescription.AlphaClipThreshold = 0.5;
 
 				#if _ALPHATEST_ON
@@ -1526,13 +1539,19 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			HLSLPROGRAM
 
-            #pragma multi_compile_instancing
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_SRP_VERSION 120108
-            #define REQUIRE_DEPTH_TEXTURE 1
+			
+
+        	#pragma multi_compile_instancing
+        	#define _SURFACE_TYPE_TRANSPARENT 1
+        	#define ASE_SRP_VERSION 140010
+        	#define REQUIRE_DEPTH_TEXTURE 1
 
 
-            #pragma multi_compile _ DOTS_INSTANCING_ON
+			
+
+        	#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+			
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -1543,15 +1562,41 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 			#define SHADERPASS SHADERPASS_DEPTHNORMALSONLY
 
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
+
+			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
+
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
+
+			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
+
+			
+
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
-			
+            #if defined(LOD_FADE_CROSSFADE)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
+			#define ASE_NEEDS_FRAG_SCREEN_POSITION
+
 
 			struct VertexInput
 			{
@@ -1564,8 +1609,8 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			struct VertexOutput
 			{
 				float4 positionCS : SV_POSITION;
-				float3 normalWS : TEXCOORD0;
-				float4 ase_texcoord1 : TEXCOORD1;
+				float4 clipPosV : TEXCOORD0;
+				float3 normalWS : TEXCOORD1;
 				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -1600,9 +1645,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			float CZY_FogSmoothness;
 			float CZY_FogOffset;
 			float CZY_FogIntensity;
-			float _UnderwaterRenderingEnabled;
-			float _FullySubmerged;
-			sampler2D _UnderwaterMask;
 
 
 			float2 UnStereo( float2 UV )
@@ -1614,26 +1656,13 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				return UV;
 			}
 			
-			float3 InvertDepthDirURP75_g83( float3 In )
+			float3 InvertDepthDirURP75_g155( float3 In )
 			{
 				float3 result = In;
 				#if !defined(ASE_SRP_VERSION) || ASE_SRP_VERSION <= 70301 || ASE_SRP_VERSION == 70503 || ASE_SRP_VERSION == 70600 || ASE_SRP_VERSION == 70700 || ASE_SRP_VERSION == 70701 || ASE_SRP_VERSION >= 80301
 				result *= float3(1,1,-1);
 				#endif
 				return result;
-			}
-			
-			float HLSL20_g81( bool enabled, bool submerged, float textureSample )
-			{
-				if(enabled)
-				{
-					if(submerged) return 1.0;
-					else return textureSample;
-				}
-				else
-				{
-					return 0.0;
-				}
 			}
 			
 
@@ -1652,9 +1681,6 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 ase_clipPos = TransformObjectToHClip((v.positionOS).xyz);
-				float4 screenPos = ComputeScreenPos(ase_clipPos);
-				o.ase_texcoord1 = screenPos;
 				float3 ase_worldPos = TransformObjectToWorld( (v.positionOS).xyz );
 				o.ase_texcoord2.xyz = ase_worldPos;
 				
@@ -1678,12 +1704,11 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 
 				v.normalOS = v.normalOS;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
-				float3 normalWS = TransformObjectToWorldNormal(v.normalOS);
+				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
 
-				o.positionCS = TransformWorldToHClip(positionWS);
-				o.normalWS.xyz =  normalWS;
-
+				o.positionCS = vertexInput.positionCS;
+				o.clipPosV = vertexInput.positionCS;
+				o.normalWS = TransformObjectToWorldNormal( v.normalOS );
 				return o;
 			}
 
@@ -1766,67 +1791,80 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 			}
 			#endif
 
-			half4 frag(VertexOutput IN ) : SV_TARGET
+			void frag( VertexOutput IN
+				, out half4 outNormalWS : SV_Target0
+			#ifdef _WRITE_RENDERING_LAYERS
+				, out float4 outRenderingLayers : SV_Target1
+			#endif
+				 )
 			{
-				SurfaceDescription surfaceDescription = (SurfaceDescription)0;
+				float4 ClipPos = IN.clipPosV;
+				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
 
-				float4 screenPos = IN.ase_texcoord1;
-				float4 ase_screenPosNorm = screenPos / screenPos.w;
+				float4 ase_screenPosNorm = ScreenPos / ScreenPos.w;
 				ase_screenPosNorm.z = ( UNITY_NEAR_CLIP_VALUE >= 0 ) ? ase_screenPosNorm.z : ase_screenPosNorm.z * 0.5 + 0.5;
-				float2 UV22_g84 = ase_screenPosNorm.xy;
-				float2 localUnStereo22_g84 = UnStereo( UV22_g84 );
-				float2 break64_g83 = localUnStereo22_g84;
-				float clampDepth69_g83 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
+				float2 UV22_g156 = ase_screenPosNorm.xy;
+				float2 localUnStereo22_g156 = UnStereo( UV22_g156 );
+				float2 break64_g155 = localUnStereo22_g156;
+				float clampDepth69_g155 = SHADERGRAPH_SAMPLE_SCENE_DEPTH( ase_screenPosNorm.xy );
 				#ifdef UNITY_REVERSED_Z
-				float staticSwitch38_g83 = ( 1.0 - clampDepth69_g83 );
+				float staticSwitch38_g155 = ( 1.0 - clampDepth69_g155 );
 				#else
-				float staticSwitch38_g83 = clampDepth69_g83;
+				float staticSwitch38_g155 = clampDepth69_g155;
 				#endif
-				float3 appendResult39_g83 = (float3(break64_g83.x , break64_g83.y , staticSwitch38_g83));
-				float4 appendResult42_g83 = (float4((appendResult39_g83*2.0 + -1.0) , 1.0));
-				float4 temp_output_43_0_g83 = mul( unity_CameraInvProjection, appendResult42_g83 );
-				float3 temp_output_46_0_g83 = ( (temp_output_43_0_g83).xyz / (temp_output_43_0_g83).w );
-				float3 In75_g83 = temp_output_46_0_g83;
-				float3 localInvertDepthDirURP75_g83 = InvertDepthDirURP75_g83( In75_g83 );
-				float4 appendResult49_g83 = (float4(localInvertDepthDirURP75_g83 , 1.0));
-				float4 temp_output_97_0_g82 = mul( unity_CameraToWorld, appendResult49_g83 );
-				float preDepth120_g82 = distance( temp_output_97_0_g82 , float4( _WorldSpaceCameraPos , 0.0 ) );
-				float lerpResult114_g82 = lerp( preDepth120_g82 , ( preDepth120_g82 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g82).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g82 / CZY_VariationDistance ) ) ));
-				float newFogDepth103_g82 = lerpResult114_g82;
-				float temp_output_15_0_g82 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g82 ) );
-				float temp_output_1_0_g87 = temp_output_15_0_g82;
-				float4 lerpResult28_g87 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g87 / CZY_FogColorStart1 ) ));
-				float4 lerpResult41_g87 = lerp( saturate( lerpResult28_g87 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g87 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
-				float4 lerpResult35_g87 = lerp( lerpResult41_g87 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g87 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
-				float4 lerpResult113_g87 = lerp( lerpResult35_g87 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g87 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
-				float4 temp_output_142_0_g82 = lerpResult113_g87;
-				float temp_output_26_0_g82 = ( (temp_output_142_0_g82).a * saturate( temp_output_15_0_g82 ) );
-				float finalAlpha141_g82 = temp_output_26_0_g82;
+				float3 appendResult39_g155 = (float3(break64_g155.x , break64_g155.y , staticSwitch38_g155));
+				float4 appendResult42_g155 = (float4((appendResult39_g155*2.0 + -1.0) , 1.0));
+				float4 temp_output_43_0_g155 = mul( unity_CameraInvProjection, appendResult42_g155 );
+				float3 temp_output_46_0_g155 = ( (temp_output_43_0_g155).xyz / (temp_output_43_0_g155).w );
+				float3 In75_g155 = temp_output_46_0_g155;
+				float3 localInvertDepthDirURP75_g155 = InvertDepthDirURP75_g155( In75_g155 );
+				float4 appendResult49_g155 = (float4(localInvertDepthDirURP75_g155 , 1.0));
+				float4 temp_output_97_0_g154 = mul( unity_CameraToWorld, appendResult49_g155 );
+				float preDepth120_g154 = distance( temp_output_97_0_g154 , float4( _WorldSpaceCameraPos , 0.0 ) );
+				float lerpResult114_g154 = lerp( preDepth120_g154 , ( preDepth120_g154 * (( 1.0 - CZY_VariationAmount ) + (tex2D( _FogVariationTexture, (( (temp_output_97_0_g154).xz + ( (CZY_VariationWindDirection).xz * _TimeParameters.x ) )*( 0.1 / CZY_VariationScale ) + 0.0) ).r - 0.0) * (1.0 - ( 1.0 - CZY_VariationAmount )) / (1.0 - 0.0)) ) , ( 1.0 - saturate( ( preDepth120_g154 / CZY_VariationDistance ) ) ));
+				float newFogDepth103_g154 = lerpResult114_g154;
+				float temp_output_15_0_g154 = ( CZY_FogDepthMultiplier * sqrt( newFogDepth103_g154 ) );
+				float temp_output_1_0_g159 = temp_output_15_0_g154;
+				float4 lerpResult28_g159 = lerp( CZY_FogColor1 , CZY_FogColor2 , saturate( ( temp_output_1_0_g159 / CZY_FogColorStart1 ) ));
+				float4 lerpResult41_g159 = lerp( saturate( lerpResult28_g159 ) , CZY_FogColor3 , saturate( ( ( CZY_FogColorStart1 - temp_output_1_0_g159 ) / ( CZY_FogColorStart1 - CZY_FogColorStart2 ) ) ));
+				float4 lerpResult35_g159 = lerp( lerpResult41_g159 , CZY_FogColor4 , saturate( ( ( CZY_FogColorStart2 - temp_output_1_0_g159 ) / ( CZY_FogColorStart2 - CZY_FogColorStart3 ) ) ));
+				float4 lerpResult113_g159 = lerp( lerpResult35_g159 , CZY_FogColor5 , saturate( ( ( CZY_FogColorStart3 - temp_output_1_0_g159 ) / ( CZY_FogColorStart3 - CZY_FogColorStart4 ) ) ));
+				float4 temp_output_157_0_g154 = lerpResult113_g159;
+				float temp_output_26_0_g154 = ( (temp_output_157_0_g154).a * saturate( temp_output_15_0_g154 ) );
+				float finalAlpha141_g154 = temp_output_26_0_g154;
 				float3 ase_worldPos = IN.ase_texcoord2.xyz;
-				float3 temp_output_91_0_g82 = ase_worldPos;
-				float3 direction90_g82 = ( temp_output_91_0_g82 - _WorldSpaceCameraPos );
+				float3 normalizeResult160_g154 = normalize( ( ase_worldPos - _WorldSpaceCameraPos ) );
+				float3 temp_output_91_0_g154 = ( normalizeResult160_g154 * _ProjectionParams.z );
+				float3 direction90_g154 = ( temp_output_91_0_g154 - _WorldSpaceCameraPos );
 				float3 ase_objectScale = float3( length( GetObjectToWorldMatrix()[ 0 ].xyz ), length( GetObjectToWorldMatrix()[ 1 ].xyz ), length( GetObjectToWorldMatrix()[ 2 ].xyz ) );
-				float temp_output_75_0_g82 = ( finalAlpha141_g82 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g82.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) );
-				bool enabled20_g81 =(bool)_UnderwaterRenderingEnabled;
-				bool submerged20_g81 =(bool)_FullySubmerged;
-				float textureSample20_g81 = tex2Dlod( _UnderwaterMask, float4( ase_screenPosNorm.xy, 0, 0.0) ).r;
-				float localHLSL20_g81 = HLSL20_g81( enabled20_g81 , submerged20_g81 , textureSample20_g81 );
 				
 
-				surfaceDescription.Alpha = ( temp_output_75_0_g82 * ( 1.0 - localHLSL20_g81 ) );
-				surfaceDescription.AlphaClipThreshold = 0.5;
+				float Alpha = ( ( finalAlpha141_g154 * saturate( ( ( 1.0 - saturate( ( ( ( direction90_g154.y * 0.1 ) * ( 1.0 / ( ( CZY_FogSmoothness * length( ase_objectScale ) ) * 10.0 ) ) ) + ( 1.0 - CZY_FogOffset ) ) ) ) * CZY_FogIntensity ) ) ) * ( 1.0 - 0.0 ) );
+				float AlphaClipThreshold = 0.5;
 
 				#if _ALPHATEST_ON
-					clip(surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold);
+					clip( Alpha - AlphaClipThreshold );
 				#endif
 
 				#ifdef LOD_FADE_CROSSFADE
-					LODDitheringTransition( IN.positionCS.xyz, unity_LODFade.x );
+					LODFadeCrossFade( IN.positionCS );
 				#endif
 
-				float3 normalWS = IN.normalWS;
+				#if defined(_GBUFFER_NORMALS_OCT)
+					float3 normalWS = normalize(IN.normalWS);
+					float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms
+					float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
+					half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
+					outNormalWS = half4(packedNormalWS, 0.0);
+				#else
+					float3 normalWS = IN.normalWS;
+					outNormalWS = half4(NormalizeNormalPerPixel(normalWS), 0.0);
+				#endif
 
-				return half4(NormalizeNormalPerPixel(normalWS), 0.0);
+				#ifdef _WRITE_RENDERING_LAYERS
+					uint renderingLayers = GetMeshRenderingLayer();
+					outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+				#endif
 			}
 
 			ENDHLSL
@@ -1841,11 +1879,11 @@ Shader "Distant Lands/Cozy/URP/Stylized Fog (Desktop)"
 	Fallback "Hidden/InternalErrorShader"
 }
 /*ASEBEGIN
-Version=19303
-Node;AmplifyShaderEditor.ScreenPosInputsNode;311;-944,240;Float;False;0;False;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.FunctionNode;312;-752,240;Inherit;False;UnderwaterMask;0;;81;0235d51736c6e194b836edf3abdfc244;0;1;4;FLOAT2;0,0;False;1;FLOAT;0
+Version=19501
 Node;AmplifyShaderEditor.OneMinusNode;313;-464,240;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;310;-688,80;Inherit;False;Stylized Fog (Desktop);2;;82;649d2917c22fd754aa7be82b00ec0d80;0;2;151;FLOAT;0;False;91;FLOAT3;0,0,0;False;2;COLOR;0;FLOAT;56
+Node;AmplifyShaderEditor.FunctionNode;326;-688,80;Inherit;False;Stylized Fog (Desktop);0;;154;649d2917c22fd754aa7be82b00ec0d80;0;2;151;FLOAT;0;False;91;FLOAT3;0,0,0;False;2;COLOR;0;FLOAT;56
+Node;AmplifyShaderEditor.ScreenPosInputsNode;311;-944,240;Float;False;0;False;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.FunctionNode;312;-752,240;Inherit;False;UnderwaterMask;-1;;81;;0;0;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;314;-304,144;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;219;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraphUnlitGUI;0;13;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;255;False;;255;False;;255;False;;7;False;;1;False;;1;False;;1;False;;7;False;;1;False;;1;False;;1;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;255;False;;255;False;;255;False;;7;False;;1;False;;1;False;;1;False;;7;False;;1;False;;1;False;;1;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;221;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraphUnlitGUI;0;13;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;255;False;;255;False;;255;False;;7;False;;1;False;;1;False;;1;False;;7;False;;1;False;;1;False;;1;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
@@ -1856,12 +1894,10 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;225;-82,289.5714;Float;Fals
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;226;-82,289.5714;Float;False;False;-1;2;UnityEditor.ShaderGraphUnlitGUI;0;13;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ScenePickingPass;0;7;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;227;-82,289.5714;Float;False;False;-1;2;UnityEditor.ShaderGraphUnlitGUI;0;13;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthNormals;0;8;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormalsOnly;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;228;-82,289.5714;Float;False;False;-1;2;UnityEditor.ShaderGraphUnlitGUI;0;13;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthNormalsOnly;0;9;DepthNormalsOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormalsOnly;False;True;9;d3d11;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;220;-128,80;Float;False;True;-1;2;EmptyShaderGUI;0;13;Distant Lands/Cozy/URP/Stylized Fog (Desktop);2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;8;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;1;False;;False;False;False;False;False;False;False;False;True;True;True;221;False;;221;False;;221;False;;6;False;;1;False;;0;False;;0;False;;7;False;;1;False;;1;False;;1;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Transparent=RenderType;Queue=Transparent=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;5;False;;10;False;;1;1;False;;10;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;255;False;;255;False;;255;False;;7;False;;1;False;;1;False;;1;False;;7;False;;1;False;;1;False;;1;False;;True;True;2;False;;True;7;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;21;Surface;1;637952249253035686;  Blend;0;637995432025269262;Two Sided;2;637952249225540023;Forward Only;0;0;Cast Shadows;0;637995432229917414;  Use Shadow Threshold;0;0;GPU Instancing;1;0;LOD CrossFade;0;0;Built-in Fog;0;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Vertex Position,InvertActionOnDeselection;1;0;0;10;False;True;False;True;False;False;True;True;True;False;False;;False;0
-WireConnection;312;4;311;0
-WireConnection;313;0;312;0
-WireConnection;314;0;310;56
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;220;-128,80;Float;False;True;-1;2;EmptyShaderGUI;0;13;Distant Lands/Cozy/URP/Stylized Fog (Desktop);2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;8;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;1;False;;False;False;False;False;False;False;False;False;True;True;True;221;False;;221;False;;221;False;;6;False;;1;False;;0;False;;0;False;;7;False;;1;False;;1;False;;1;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Transparent=RenderType;Queue=Transparent=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;5;False;;10;False;;1;1;False;;10;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;255;False;;255;False;;255;False;;7;False;;1;False;;1;False;;1;False;;7;False;;1;False;;1;False;;1;False;;True;True;2;False;;True;7;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;22;Surface;1;637952249253035686;  Blend;0;637995432025269262;Two Sided;2;637952249225540023;Forward Only;0;0;Cast Shadows;0;637995432229917414;  Use Shadow Threshold;0;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;0;0;Built-in Fog;0;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Vertex Position,InvertActionOnDeselection;1;0;0;10;False;True;False;True;False;False;True;True;True;False;False;;False;0
+WireConnection;314;0;326;56
 WireConnection;314;1;313;0
-WireConnection;220;2;310;0
+WireConnection;220;2;326;0
 WireConnection;220;3;314;0
 ASEEND*/
-//CHKSM=55981569910762F98AD4B17887A2D2E881453297
+//CHKSM=7A6A69AEB18F81EDC97223849E313B972A8C2A80

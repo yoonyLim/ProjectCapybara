@@ -12,43 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 940bc5c08f23e3947a38c262be3e3dfc, type: 3}
   m_Name: Cozy Time Default
   m_EditorClassIdentifier: 
-  temperatureOverYear:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  humidityOverYear:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  temperatureOverDay:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  humidityOverDay:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  temperatureFilter: 0
-  humidityFilter: 0
-  dayAndTime: 14.619445
   pauseTime: 1
   realisticYear: 0
-  useLeapYear: 0
+  useLeapYear: 1
   resetTimeOnStart: 0
   startTime:
-    hours: 9
-    minutes: 0
-    seconds: 0
-    milliseconds: 0
+    timeAsPercentage: 0.375
   timeMovementSpeed: 1
+  modulateTimeSpeed: 1
   timeSpeedMultiplier:
     serializedVersion: 2
     m_Curve:
@@ -99,8 +70,6 @@ MonoBehaviour:
     days: 30
   - name: December
     days: 31
-  - name: December
-    days: 31
   leapYear:
   - name: January
     days: 31
@@ -126,5 +95,4 @@ MonoBehaviour:
     days: 30
   - name: December
     days: 31
-  timeCurveSettings: 2
   daysPerYear: 48

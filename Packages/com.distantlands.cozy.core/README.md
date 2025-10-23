@@ -12,10 +12,12 @@ Keller Bowman | Distant Lands<br><br>
 Create stunning weather patterns for your game worlds! From time-of-day to annual seasons, from puffy clouds to raging storms, from sunny days to dense fog, COZY does it all with ease! Focus on your scene's colors and easily tweak all variables for ultimate customization!
 
 # 📦 Check out our extension modules:
- - BLOCKS: Atmosphere Control Module
- - LINK: Multiplayer Module
- - PLUME: Volumetric Clouds Module
- - HABITS: Extended Calendar Module
+ - [COZY: Blocks - Atmosphere Control Module](https://assetstore.unity.com/packages/tools/utilities/cozy-blocks-preset-based-atmosphere-module-238051)
+ - [COZY: Link - Multiplayer Module](https://assetstore.unity.com/packages/tools/network/cozy-link-multiplayer-module-238669)
+ - [COZY: Plume - Volumetric Clouds Module](https://assetstore.unity.com/packages/tools/particles-effects/cozy-plume-volumetric-clouds-module-243905)
+ - [COZY: Habits - Extended Calendar Module](https://assetstore.unity.com/packages/tools/utilities/cozy-habits-extended-calendar-module-259983)
+ - [COZY: Eclipse - Sun Occlusion Module](https://assetstore.unity.com/packages/vfx/shaders/cozy-eclipse-sun-occlusion-module-277785)
+ - [COZY: ReSound - Dynamic Soundtrack Module](https://assetstore.unity.com/packages/tools/audio/cozy-resound-adaptive-soundtrack-module-278334)
 
 # 📐 Setup Guide
 For detailed instructions see the COZY: Stylized Weather 3 [documentation](https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/getting-started/setting-up-your-project)

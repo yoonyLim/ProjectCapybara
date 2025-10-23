@@ -24,6 +24,8 @@ namespace DistantLands.Cozy.Data
         public float windAmount;
         [Range(0, 2)]
         public float windSpeed;
+        [Range(0, 2)]
+        public float windGusting;
         [Range(0, 10)]
         public float windChangeSpeed = 1;
         CozyWindModule windModule;
@@ -40,6 +42,7 @@ namespace DistantLands.Cozy.Data
             }
 
             windModule.windAmount += windAmount * weight;
+            windModule.windGusting += windGusting * weight;
             windModule.windSpeed += windSpeed * weight;
             windModule.windChangeSpeed += windChangeSpeed * weight;
         }
@@ -77,6 +80,7 @@ namespace DistantLands.Cozy.Data
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("windAmount"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("windSpeed"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("windGusting"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("windChangeSpeed"));
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(serializedObject.FindProperty("transitionTimeModifier"));
@@ -92,15 +96,14 @@ namespace DistantLands.Cozy.Data
             var propPosB = new Rect(pos.x, pos.y + space * 2, pos.width, EditorGUIUtility.singleLineHeight);
             var propPosC = new Rect(pos.x, pos.y + space * 3, pos.width, EditorGUIUtility.singleLineHeight);
             var propPosD = new Rect(pos.x, pos.y + space * 4, pos.width, EditorGUIUtility.singleLineHeight);
-            var propPosE = new Rect(pos.x, pos.y + space * 5, pos.width, EditorGUIUtility.singleLineHeight);
-            var propPosF = new Rect(pos.x, pos.y + space * 6, pos.width, EditorGUIUtility.singleLineHeight);
 
             serializedObject.Update();
 
             EditorGUI.PropertyField(propPosA, serializedObject.FindProperty("windAmount"));
             EditorGUI.PropertyField(propPosB, serializedObject.FindProperty("windSpeed"));
+            EditorGUI.PropertyField(propPosC, serializedObject.FindProperty("windGusting"));
 
-            EditorGUI.PropertyField(propPosC, serializedObject.FindProperty("transitionTimeModifier"));
+            EditorGUI.PropertyField(propPosD, serializedObject.FindProperty("transitionTimeModifier"));
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -108,7 +111,7 @@ namespace DistantLands.Cozy.Data
         public override float GetLineHeight()
         {
 
-            return 3;
+            return 4;
 
         }
 

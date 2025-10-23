@@ -15,6 +15,35 @@ MonoBehaviour:
   minTime: 0.0625
   maxTime: 0.14583333
   likelihood: 1.355
+  chance:
+    baseChance: 1
+    chanceEffectors:
+    - limitType: 0
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      customChanceEffector: {fileID: 0}
   dontPlayDuring: []
   chances:
   - limitType: 0
@@ -42,7 +71,6 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    customChanceEffector: {fileID: 0}
   FX:
   - {fileID: 11400000, guid: ff77bc23b7f8c56498a62485ddbe3ff7, type: 2}
-  FXVolume: 1
-  useVFX: 0

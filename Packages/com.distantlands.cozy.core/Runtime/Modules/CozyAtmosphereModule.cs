@@ -6,10 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using DistantLands.Cozy.Data;
 
 namespace DistantLands.Cozy
@@ -17,7 +13,7 @@ namespace DistantLands.Cozy
     [ExecuteAlways]
     public class CozyAtmosphereModule : CozyBiomeModuleBase<CozyAtmosphereModule>
     {
-        [CozyProfile]
+        [CozySearchable(true, "sky", "atmosphere", "fog", "lighting", "clouds")]
         public AtmosphereProfile atmosphereProfile;
         public bool transitioningAtmosphere = false;
 
@@ -77,10 +73,10 @@ namespace DistantLands.Cozy
             weatherSphere.fogColor3 = atmosphereProfile.fogColor3.GetColorValue(i);
             weatherSphere.fogColor4 = atmosphereProfile.fogColor4.GetColorValue(i);
             weatherSphere.fogColor5 = atmosphereProfile.fogColor5.GetColorValue(i);
-            weatherSphere.fogStart1 = atmosphereProfile.fogStart1;
-            weatherSphere.fogStart2 = atmosphereProfile.fogStart2;
-            weatherSphere.fogStart3 = atmosphereProfile.fogStart3;
-            weatherSphere.fogStart4 = atmosphereProfile.fogStart4;
+            weatherSphere.fogStart1 = atmosphereProfile.fogStart1.GetFloatValue(i);
+            weatherSphere.fogStart2 = atmosphereProfile.fogStart2.GetFloatValue(i);
+            weatherSphere.fogStart3 = atmosphereProfile.fogStart3.GetFloatValue(i);
+            weatherSphere.fogStart4 = atmosphereProfile.fogStart4.GetFloatValue(i);
             weatherSphere.fogDensityMultiplier = atmosphereProfile.fogDensityMultiplier.GetFloatValue(i);
             weatherSphere.fogFlareColor = atmosphereProfile.fogFlareColor.GetColorValue(i);
             weatherSphere.fogMoonFlareColor = atmosphereProfile.fogMoonFlareColor.GetColorValue(i);
@@ -122,6 +118,8 @@ namespace DistantLands.Cozy
             weatherSphere.sunFalloff = atmosphereProfile.sunFalloff.GetFloatValue(i);
             weatherSphere.sunFlareColor = atmosphereProfile.sunFlareColor.GetColorValue(i);
             weatherSphere.sunlightColor = atmosphereProfile.sunlightColor.GetColorValue(i);
+            weatherSphere.moonlightShadows = atmosphereProfile.moonlightShadows;
+            weatherSphere.sunlightShadows = atmosphereProfile.sunlightShadows;
             weatherSphere.sunPitch = atmosphereProfile.sunPitch.GetFloatValue(i);
             weatherSphere.sunSize = atmosphereProfile.sunSize.GetFloatValue(i);
             weatherSphere.textureAmount = atmosphereProfile.textureAmount.GetFloatValue(i);
@@ -196,13 +194,13 @@ namespace DistantLands.Cozy
                 if (biome.atmosphereProfile.fogColor5)
                     weatherSphere.fogColor5 = Color.Lerp(weatherSphere.fogColor5, biome.atmosphereProfile.fogColor5.GetColorValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogStart1)
-                    weatherSphere.fogStart1 = Mathf.Lerp(weatherSphere.fogStart1, biome.atmosphereProfile.fogStart1, biome.weight);
+                    weatherSphere.fogStart1 = Mathf.Lerp(weatherSphere.fogStart1, biome.atmosphereProfile.fogStart1.GetFloatValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogStart2)
-                    weatherSphere.fogStart2 = Mathf.Lerp(weatherSphere.fogStart2, biome.atmosphereProfile.fogStart2, biome.weight);
+                    weatherSphere.fogStart2 = Mathf.Lerp(weatherSphere.fogStart2, biome.atmosphereProfile.fogStart2.GetFloatValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogStart3)
-                    weatherSphere.fogStart3 = Mathf.Lerp(weatherSphere.fogStart3, biome.atmosphereProfile.fogStart3, biome.weight);
+                    weatherSphere.fogStart3 = Mathf.Lerp(weatherSphere.fogStart3, biome.atmosphereProfile.fogStart3.GetFloatValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogStart4)
-                    weatherSphere.fogStart4 = Mathf.Lerp(weatherSphere.fogStart4, biome.atmosphereProfile.fogStart4, biome.weight);
+                    weatherSphere.fogStart4 = Mathf.Lerp(weatherSphere.fogStart4, biome.atmosphereProfile.fogStart4.GetFloatValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogDensityMultiplier)
                     weatherSphere.fogDensityMultiplier = Mathf.Lerp(weatherSphere.fogDensityMultiplier, biome.atmosphereProfile.fogDensityMultiplier.GetFloatValue(i), biome.weight);
                 if (biome.atmosphereProfile.fogFlareColor)
@@ -404,10 +402,10 @@ namespace DistantLands.Cozy
                 weatherSphere.fogColor3 = Color.Lerp(fogColor3Start, end.fogColor3.GetColorValue(weatherSphere.modifiedDayPercentage), div);
                 weatherSphere.fogColor4 = Color.Lerp(fogColor4Start, end.fogColor4.GetColorValue(weatherSphere.modifiedDayPercentage), div);
                 weatherSphere.fogColor5 = Color.Lerp(fogColor5Start, end.fogColor5.GetColorValue(weatherSphere.modifiedDayPercentage), div);
-                weatherSphere.fogStart1 = Mathf.Lerp(fogStart1Start, end.fogStart1, div);
-                weatherSphere.fogStart2 = Mathf.Lerp(fogStart2Start, end.fogStart2, div);
-                weatherSphere.fogStart3 = Mathf.Lerp(fogStart3Start, end.fogStart3, div);
-                weatherSphere.fogStart4 = Mathf.Lerp(fogStart4Start, end.fogStart4, div);
+                weatherSphere.fogStart1 = Mathf.Lerp(fogStart1Start, end.fogStart1.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
+                weatherSphere.fogStart2 = Mathf.Lerp(fogStart2Start, end.fogStart2.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
+                weatherSphere.fogStart3 = Mathf.Lerp(fogStart3Start, end.fogStart3.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
+                weatherSphere.fogStart4 = Mathf.Lerp(fogStart4Start, end.fogStart4.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
                 weatherSphere.fogDensityMultiplier = Mathf.Lerp(fogDensityMultiplierStart, end.fogDensityMultiplier.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
                 weatherSphere.fogFlareColor = Color.Lerp(fogFlareColorStart, end.fogFlareColor.GetColorValue(weatherSphere.modifiedDayPercentage), div);
                 weatherSphere.fogHeight = Mathf.Lerp(fogHeightStart, end.fogHeight.GetFloatValue(weatherSphere.modifiedDayPercentage), div);
@@ -449,111 +447,4 @@ namespace DistantLands.Cozy
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyAtmosphereModule))]
-    [CanEditMultipleObjects]
-    public class E_CozyAtmosphereModule : E_CozyModule, E_BiomeModule, IControlPanel
-    {
-        public static bool fogOptionsWindow;
-        public static bool atmosphereOptionsWindow;
-        public static bool atmosphereSelectionOptionsWindow;
-        public static bool cloudsOptionsWindow;
-        public static bool celestialsOptionsWindow;
-        public static Editor atmosEditor;
-        bool tooltips;
-        CozyAtmosphereModule atmosphereModule;
-
-
-        public override GUIContent GetGUIContent()
-        {
-            return new GUIContent("    Atmosphere", (Texture)Resources.Load("Atmosphere"), "Manage skydome, fog, and lighting settings.");
-        }
-
-        public void GetControlPanel()
-        {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("atmosphereProfile"));
-        }
-
-        void OnEnable()
-        {
-            atmosphereModule = (CozyAtmosphereModule)target;
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/modules/atmosphere-module");
-        }
-
-        public override void GetDebugInformation()
-        {
-
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            tooltips = EditorPrefs.GetBool("CZY_Tooltips", true);
-
-            GUIStyle labelStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
-            labelStyle.fontStyle = FontStyle.Bold;
-
-            atmosphereSelectionOptionsWindow = EditorGUILayout.BeginFoldoutHeaderGroup(atmosphereSelectionOptionsWindow,
-                new GUIContent("    Selection Settings"), EditorUtilities.FoldoutStyle);
-
-
-            if (atmosphereSelectionOptionsWindow)
-            {
-                if (tooltips)
-                    EditorGUILayout.HelpBox("How should this weather system manage atmosphere settings? Native sets all settings locally to this system, Profile sets global settings on the atmosphere profile.", MessageType.Info);
-
-
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("atmosphereProfile"));
-                if (serializedObject.hasModifiedProperties)
-                    atmosEditor = CreateEditor(serializedObject.FindProperty("atmosphereProfile").objectReferenceValue);
-
-                EditorGUILayout.Space();
-
-                if (tooltips)
-                    EditorGUILayout.HelpBox("Set the shader model used for the sky, clouds, and fog here.", MessageType.Info);
-
-            }
-
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            EditorGUI.indentLevel = 0;
-
-            if (serializedObject.FindProperty("atmosphereProfile").objectReferenceValue)
-                if (atmosEditor == null)
-                {
-                    atmosEditor = CreateEditor(serializedObject.FindProperty("atmosphereProfile").objectReferenceValue);
-                    (atmosEditor as E_AtmosphereProfile).OnInspectorGUIInline(atmosphereModule.weatherSphere);
-                }
-                else
-                    (atmosEditor as E_AtmosphereProfile).OnInspectorGUIInline(atmosphereModule.weatherSphere);
-            else
-            {
-                EditorGUILayout.HelpBox("Assign an atmosphere profile!", MessageType.Error);
-
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-        public void DrawBiomeReports()
-        {
-
-        }
-
-        public void DrawInlineBiomeUI()
-        {
-            if (!target) return;
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("atmosphereProfile"));
-            serializedObject.ApplyModifiedProperties();
-        }
-    }
-#endif
 }

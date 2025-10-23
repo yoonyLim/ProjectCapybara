@@ -40,7 +40,7 @@ namespace DistantLands.Cozy
         [SerializeField]
         private AmbienceProfile m_AmbienceProfile;
         [SerializeField]
-        [MeridiemTimeAttriute]
+        [MeridiemTimeAttribute]
         private float time;
         [SerializeField]
         private int day;

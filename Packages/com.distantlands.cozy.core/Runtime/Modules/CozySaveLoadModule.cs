@@ -6,11 +6,6 @@ using UnityEngine;
 using DistantLands.Cozy.Data;
 using System.Collections.Generic;
 
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace DistantLands.Cozy
 {
     public class CozySaveLoadModule : CozyModule
@@ -166,64 +161,4 @@ namespace DistantLands.Cozy
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozySaveLoadModule))]
-    public class E_CozySaveLoad : E_CozyModule, IControlPanel
-    {
-
-        CozySaveLoadModule saveLoad;
-        public static int saveSlot = 0;
-
-        void OnEnable()
-        {
-
-            saveLoad = (CozySaveLoadModule)target;
-
-        }
-
-        public override GUIContent GetGUIContent()
-        {
-
-            return new GUIContent("    Save & Load", (Texture)Resources.Load("Save"), "Manage save and load commands within the COZY system.");
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/save-and-load-module");
-        }
-
-        public override void OnInspectorGUI()
-        {
-
-
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginHorizontal();
-
-            saveSlot = EditorGUILayout.IntPopup(saveSlot,
-            new GUIContent[5] { new GUIContent("Save Slot 0 (Default)"), new GUIContent("Save Slot 1"), new GUIContent("Save Slot 2"), new GUIContent("Save Slot 3"), new GUIContent("Save Slot 4") },
-            new int[5] { 0, 1, 2, 3, 4 });
-
-            if (GUILayout.Button("Save"))
-                saveLoad.Save(saveSlot);
-            if (GUILayout.Button("Load"))
-                saveLoad.Load(saveSlot);
-
-            EditorGUILayout.EndHorizontal();
-
-        }
-        public void GetControlPanel()
-        {
-            if (GUILayout.Button("Save"))
-                saveLoad.Save();
-            if (GUILayout.Button("Load"))
-                saveLoad.Load();
-        }
-
-    }
-#endif
 }

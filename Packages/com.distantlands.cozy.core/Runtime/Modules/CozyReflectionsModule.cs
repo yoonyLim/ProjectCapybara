@@ -3,13 +3,6 @@
 //  All code included in this file is protected under the Unity Asset Store Eula
 
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-using System.Collections.Generic;
-using UnityEngine.Rendering;
-
-
-#endif
 #if COZY_URP
 using UnityEngine.Rendering.Universal;
 #endif
@@ -21,19 +14,24 @@ namespace DistantLands.Cozy
     {
 
         public enum UpdateFrequency { everyFrame, onAwake, onHour, viaScripting }
+        [CozySearchable("Reflection")]
         public UpdateFrequency updateFrequency;
+        [CozySearchable]
         public Cubemap reflectionCubemap;
         public Camera reflectionCamera;
         [Tooltip("How many frames should pass before the cubemap renders again? A value of 0 renders every frame and a value of 30 renders once every 30 frames.")]
         [Range(0, 30)]
+        [CozySearchable]
         public int framesBetweenRenders = 10;
         [Tooltip("What layers should be rendered into the skybox reflections?.")]
+        [CozySearchable]
         public LayerMask layerMask = 2;
         public bool automaticallySetLayer;
         private int framesLeft;
         public int minimumQualityLevel;
 
         [Tooltip("Refresh the skybox reflections when the scene loads or unloads.")]
+        [CozySearchable]
         public bool refreshOnSceneChange;
 #if COZY_URP
         public int rendererOverride;
@@ -70,7 +68,7 @@ namespace DistantLands.Cozy
                 base.InitializeModule();
             }
 
-            if (weatherSphere.freezeUpdateInEditMode && !Application.isPlaying)
+            if (CozyWeather.FreezeUpdateInEditMode && !Application.isPlaying)
             {
                 return;
             }
@@ -190,70 +188,5 @@ namespace DistantLands.Cozy
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozyReflectionsModule))]
-    [CanEditMultipleObjects]
-    public class E_CozyReflect : E_CozyModule
-    {
-        private CozyReflectionsModule reflect;
-        private SerializedProperty minQLevel;
 
-        /// <summary>
-        /// This function is called when the object becomes enabled and active.
-        /// </summary>
-        void OnEnable()
-        {
-            minQLevel = serializedObject.FindProperty("minimumQualityLevel");
-        }
-
-        public override GUIContent GetGUIContent()
-        {
-
-            //Place your module's GUI content here.
-            return new GUIContent("    Reflections", (Texture)Resources.Load("Reflections"), "Sets up a cubemap for reflections with COZY.");
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/reflections-module");
-        }
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            if (reflect == null)
-            {
-                reflect = (CozyReflectionsModule)target;
-            }
-
-            serializedObject.Update();
-
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("updateFrequency"));
-            if (reflect.updateFrequency == CozyReflectionsModule.UpdateFrequency.everyFrame)
-            {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("framesBetweenRenders"));
-            }
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("refreshOnSceneChange"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("reflectionCubemap"));
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("layerMask"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("automaticallySetLayer"));
-            EditorGUILayout.Space();
-#if COZY_URP
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("rendererOverride"));
-#endif
-            string[] qualityLevels = QualitySettings.names;
-            minQLevel.intValue = EditorGUILayout.Popup("Minimum Quality Level", minQLevel.intValue, qualityLevels);
-
-
-
-            serializedObject.ApplyModifiedProperties();
-
-        }
-
-    }
-#endif
 }
