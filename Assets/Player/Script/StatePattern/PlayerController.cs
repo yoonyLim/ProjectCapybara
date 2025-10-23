@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     
 
     
+
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
     [HideInInspector] public Vector3 platformVelocity;
@@ -122,6 +123,7 @@ public class PlayerController : MonoBehaviour
     private MountController mountController;
     void Awake()
     {
+        originalModelScale = playerModelTransform.localScale;
         mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
@@ -242,10 +244,27 @@ public class PlayerController : MonoBehaviour
     {
         if (coyoteTimeCounter > 0f && !isJumping)
         {
+            //JumpSoundPlay();
             ChangeState(new JumpState());
-            playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
+            //playerHapticEvent.TriggerPlayerEvent(PlayerEventType.Jumped);
             coyoteTimeCounter = 0f; // 점프하면 즉시 시간 초기화
         }
+    }
+
+    
+    public void FootStepSoundPlay()
+    {
+        //string soundToPlay = footstepSoundNames[Random.Range(0, footstepSoundNames.Length)];
+        //soundManager.PlaySFX(soundToPlay);
+    }
+
+    public void JumpSoundPlay()
+    {
+        soundManager.PlaySFX("JumpSound");
+    }
+    public void LandSoundPlay()
+    {
+        soundManager.PlaySFX("LandSound");
     }
 
     // 글라이드 
@@ -347,6 +366,56 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #region 납작해지는 코루틴
+
+    public void StartSquashAndRecover()
+    {
+        
+        StartCoroutine(SquashAndRecoverCoroutine());
+    }
+
+    // 스케일을 변경하고, 기다렸다가, 복구하는 실제 로직
+    private System.Collections.IEnumerator SquashAndRecoverCoroutine()
+    {
+        if (playerModelTransform == null)
+        {
+            ChangeState(new RunningState());
+            yield break;
+        }
+
+        // 원래 스케일 저장 및 목표 스케일 계산
+        Vector3 targetScale = new Vector3(
+            originalModelScale.x * squashWidenAmount,
+            originalModelScale.y * squashWidenAmount,
+            originalModelScale.z * squashAmount
+        );
+
+        // 납작해지는 애니메이션
+        float t = 0;
+        while (t < 1.0f)
+        {
+            t += Time.deltaTime * squashAnimSpeed;
+            playerModelTransform.localScale = Vector3.Lerp(originalModelScale, targetScale, t);
+            yield return null;
+        }
+        playerModelTransform.localScale = targetScale; 
+
+        yield return new WaitForSeconds(squashDuration);
+
+        // 원래대로 돌아오는 애니메이션
+        t = 0;
+        while (t < 1.0f)
+        {
+            t += Time.deltaTime * squashAnimSpeed;
+            playerModelTransform.localScale = Vector3.Lerp(targetScale, originalModelScale, t);
+            yield return null;
+        }
+        playerModelTransform.localScale = originalModelScale; 
+
+        ChangeState(new RunningState());
+    }
+
+    #endregion
     //SphereCast Gizmo 그리는 코드
     void OnDrawGizmosSelected()
     {

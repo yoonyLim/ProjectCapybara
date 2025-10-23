@@ -43,8 +43,7 @@ public class HeadbuttState : IPlayerState
                 if (hit.collider.CompareTag(obstacleTag))
                 {
                     if (hit.collider.TryGetComponent<DestructibleRock>(out var rock))
-                    {
-                        rock.brokenPosition = hit.point; // ★ 먼저 세팅
+                    {                      
                         rock.Hit();                      // ★ 그 다음에 터뜨리기
                     }
                 }
