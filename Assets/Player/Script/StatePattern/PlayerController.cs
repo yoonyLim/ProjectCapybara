@@ -22,20 +22,18 @@ public class PlayerController : MonoBehaviour
     // input reader
     [SerializeField] private CapybaraInputReader inputReader;
     [SerializeField] private PlayerHapticEvent playerHapticEvent;
-
+    [SerializeField] private SoundManager soundManager;
+    [SerializeField] private string[] footstepSoundNames;
     // State 관련
     private IPlayerState currentState;
 
     // main camera 위치
     public Transform cameraTransform;
     private bool isInWindZone = false;
-    
+
     public Animator animator;
     public Rigidbody rb;
 
-    
-
-    
 
     [HideInInspector] public Vector2 LastMoveInput { get; private set; }
     [HideInInspector] public Vector2 MoveInput { get; private set; }
@@ -46,6 +44,7 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed = 3f;
     public float sprintSpeed = 7f;
     public float gravity = 9.81f;
+    public float fallGravity = 20f;
     [HideInInspector] public Vector3 moveDirection;
     [HideInInspector] public bool isRunning;
     #endregion
@@ -120,10 +119,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private string obstacleTag = "Obstacle"; // 장애물에 사용할 태그
     #endregion
 
+    #region Y Mesh 
+    [Header("Squash 설정")]
+    [Tooltip("플레이어의 시각적 모델(메시)의 Transform")]
+    [SerializeField] private Transform playerModelTransform;
+    [Tooltip("납작해져 있는 시간 (초)")]
+    [SerializeField] private float squashDuration = 2f;
+    [Tooltip("Y축 스케일 (0.2 = 20%)")]
+    [SerializeField] private float squashAmount = 0.2f;
+    [Tooltip("X, Z축 스케일 (1.5 = 150%)")]
+    [SerializeField] private float squashWidenAmount = 1.5f;
+    [Tooltip("납작해지는 애니메이션 속도")]
+    [SerializeField] private float squashAnimSpeed = 10f;
+    #endregion 
+
+    private Vector3 originalModelScale;
+    private Transform originalModelTransform;
     private MountController mountController;
     void Awake()
     {
-        originalModelScale = playerModelTransform.localScale;
         mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
@@ -233,11 +247,13 @@ public class PlayerController : MonoBehaviour
     private void HandleSprint()
     {
         isRunning = true;
+        airSpeed = sprintSpeed;
     }
 
     private void HandleSprintCanceled()
     {
         isRunning = false;
+        airSpeed = walkSpeed;
     }
 
     private void HandleJump()
@@ -251,7 +267,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
+
     public void FootStepSoundPlay()
     {
         //string soundToPlay = footstepSoundNames[Random.Range(0, footstepSoundNames.Length)];
@@ -282,11 +298,12 @@ public class PlayerController : MonoBehaviour
     }
 
 
+
     public bool IsOnIceGround()
-        {
-            // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
-            return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
-        }
+    {
+        // 플레이어 발밑으로 레이쏴서 iceLayer만 맞는지 확인
+        return Physics.Raycast(transform.position, Vector3.down, out _, raycastDistance + sphereRadius, iceLayer);
+    }
 
     /// <summary>
     /// 플레이어가 땅에 닿아있는지 체크하는 함수
@@ -364,13 +381,19 @@ public class PlayerController : MonoBehaviour
 
             rb.linearVelocity = Vector3.zero;
         }
+        else if (collision.gameObject.CompareTag("BreakableRock"))
+        {
+            Debug.Log("BreakableRock과 충돌");
+            //ChangeState(new SquashState());
+        }
     }
 
     #region 납작해지는 코루틴
 
     public void StartSquashAndRecover()
     {
-        
+        // 이전에 실행 중이던 코루틴이 있다면 중지 (중복 실행 방지)
+        StopCoroutine("SquashAndRecoverCoroutine");
         StartCoroutine(SquashAndRecoverCoroutine());
     }
 
@@ -379,39 +402,40 @@ public class PlayerController : MonoBehaviour
     {
         if (playerModelTransform == null)
         {
-            ChangeState(new RunningState());
+            ChangeState(new RunningState()); // 오류 발생 시 강제로 상태 복구
             yield break;
         }
 
-        // 원래 스케일 저장 및 목표 스케일 계산
-        Vector3 targetScale = new Vector3(
-            originalModelScale.x * squashWidenAmount,
-            originalModelScale.y * squashWidenAmount,
-            originalModelScale.z * squashAmount
-        );
+        // 1. 원래 스케일 저장 및 목표 스케일 계산
+        originalModelScale = playerModelTransform.localScale;
+        Vector3 squashedScale = new Vector3(originalModelScale.x * squashWidenAmount,
+                                           originalModelScale.y * squashAmount,
+                                           originalModelScale.z * squashWidenAmount);
 
-        // 납작해지는 애니메이션
+        // --- 2. 납작해지는 애니메이션 (Lerp 사용) ---
         float t = 0;
         while (t < 1.0f)
         {
             t += Time.deltaTime * squashAnimSpeed;
-            playerModelTransform.localScale = Vector3.Lerp(originalModelScale, targetScale, t);
+            playerModelTransform.localScale = Vector3.Lerp(originalModelScale, squashedScale, t);
             yield return null;
         }
-        playerModelTransform.localScale = targetScale; 
+        playerModelTransform.localScale = squashedScale; // 정확히 목표 스케일로 설정
 
+        // --- 3. 납작한 상태로 대기 ---
         yield return new WaitForSeconds(squashDuration);
 
-        // 원래대로 돌아오는 애니메이션
+        // --- 4. 원래대로 돌아오는 애니메이션 (Lerp 사용) ---
         t = 0;
         while (t < 1.0f)
         {
             t += Time.deltaTime * squashAnimSpeed;
-            playerModelTransform.localScale = Vector3.Lerp(targetScale, originalModelScale, t);
+            playerModelTransform.localScale = Vector3.Lerp(squashedScale, originalModelScale, t);
             yield return null;
         }
-        playerModelTransform.localScale = originalModelScale; 
+        playerModelTransform.localScale = originalModelScale; // 정확히 원래 스케일로 복구
 
+        // --- 5. 상태를 RunningState로 복구 ---
         ChangeState(new RunningState());
     }
 
@@ -452,18 +476,65 @@ public class PlayerController : MonoBehaviour
 
     // 경사 위에서의 각도를 계산하는 코드
     // 평지에서는 Quaternion.Euler(0, 0, 0)로 설정
+    //public Quaternion SurfaceAlignment()
+    //{
+    //    Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
+
+    //    if (IsOnSlope())
+    //    {
+    //        Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    //        Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
+    //        RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+    //    }
+
+    //    return RotationRef;
+    //}
+    // PlayerController.cs의 기존 SurfaceAlignment 함수를 삭제하고 아래 코드로 붙여넣으세요.
     public Quaternion SurfaceAlignment()
     {
-        Quaternion RotationRef = Quaternion.Euler(0, 0, 0);
+        Quaternion targetRotation;
 
-        if (IsOnSlope())
+        if (IsOnSlope() && isGrounded)
         {
-            Vector3 adjustedForward = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
-            RotationRef = Quaternion.Lerp(transform.rotation, targetRotation, animCurve.Evaluate(timer));
+            // 경사로에 있을 때
+            // 1. 사용할 전방 벡터 결정 (움직일 땐 입력 방향, 멈췄을 땐 현재 바라보는 방향)
+            Vector3 forwardToUse = moveDirection.magnitude > 0.01f ? moveDirection : transform.forward;
+
+            // 2. 전방 벡터를 경사면 법선(normal)에 투영하여 경사면에 평행한 방향 계산
+            Vector3 adjustedForward = Vector3.ProjectOnPlane(forwardToUse, slopeHit.normal).normalized;
+
+            // 3. 만약 정면이 경사면과 거의 수직이라 계산이 0에 가까워지면(드문 경우), transform.up을 대신 사용
+            if (adjustedForward.sqrMagnitude < 0.01f)
+            {
+                adjustedForward = Vector3.ProjectOnPlane(transform.up, slopeHit.normal).normalized;
+            }
+
+            // 4. 경사면에 맞춘 최종 목표 회전값 계산 (바라볼 방향: adjustedForward, 위쪽: slopeHit.normal)
+            targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
+        }
+        else
+        {
+            // 평지에 있거나 공중에 있을 때
+            // 1. 사용할 전방 벡터 결정
+            Vector3 forwardToUse = moveDirection.magnitude > 0.01f
+                ? moveDirection // 움직일 땐 입력 방향
+                : new Vector3(transform.forward.x, 0, transform.forward.z).normalized; // 멈췄을 땐 현재 y축 회전만
+
+            // 2. 캐릭터가 기울어지지 않도록 y축 회전만 계산 (바라볼 방향: forwardToUse, 위쪽: Vector3.up)
+            if (forwardToUse.sqrMagnitude > 0.01f)
+            {
+                targetRotation = Quaternion.LookRotation(forwardToUse, Vector3.up);
+            }
+            else
+            {
+                // 완전히 멈췄고 입력도 없으면 현재 y축 회전 유지
+                targetRotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+            }
         }
 
-        return RotationRef;
+        // 5. 현재 회전에서 목표 회전으로 부드럽게 보간 (Slerp 사용)
+        // 이 함수는 FixedUpdate에서 호출될 것이므로 Time.fixedDeltaTime 사용
+        return Quaternion.Slerp(transform.rotation, targetRotation, 8f * Time.fixedDeltaTime);
     }
 
     //이거 뭐더라 기억안남

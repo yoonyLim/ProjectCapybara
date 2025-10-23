@@ -9,7 +9,7 @@ public class DestructibleRock : MonoBehaviour, IDestructible
     private Collider rockCollider;
     private Rigidbody rockRigidbody;
     private MeshRenderer rockMeshRenderer;
-    private bool destroyed = false;
+
     private void Awake()
     {
         rockParticleSystem = GetComponent<ParticleSystem>();
