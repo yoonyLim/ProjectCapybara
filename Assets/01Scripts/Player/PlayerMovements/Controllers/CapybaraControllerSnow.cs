@@ -52,7 +52,7 @@ namespace Capybara
         private bool isOverBreakDistance = false;
         
         private Vector2 moveInput;
-        
+
         private Vector3 slopeNormal;
         // private Vector3 slopeForward;
         
@@ -70,7 +70,7 @@ namespace Capybara
             inputReader.JumpEvent += HandleJump;
         }
 
-        private void Start()
+        private void Awake()
         {
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();

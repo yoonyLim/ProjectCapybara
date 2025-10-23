@@ -1898,7 +1898,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    floatVal: 0.574
+    floatVal: 0.41
     curveVal:
       serializedVersion: 2
       m_Curve:
@@ -2016,7 +2016,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    floatVal: 107
+    floatVal: 24
     curveVal:
       serializedVersion: 2
       m_Curve:
@@ -2252,7 +2252,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    floatVal: 0.48
+    floatVal: 0.5
     curveVal:
       serializedVersion: 2
       m_Curve:
@@ -2843,7 +2843,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    floatVal: 0.44
+    floatVal: 0.3
     curveVal:
       serializedVersion: 2
       m_Curve:
@@ -2994,7 +2994,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareIntensity:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3071,7 +3071,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareFalloff:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3175,7 +3175,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   fogLightFlareSquish:
-    overrideValue: 1
+    overrideValue: 0
     mode: 0
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3501,7 +3501,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   cloudWindSpeed:
-    overrideValue: 1
+    overrideValue: 0
     mode: 1
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3855,7 +3855,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   cirroMoveSpeed:
-    overrideValue: 1
+    overrideValue: 0
     mode: 1
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3914,7 +3914,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   cirrusMoveSpeed:
-    overrideValue: 1
+    overrideValue: 0
     mode: 1
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -3973,7 +3973,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   chemtrailsMoveSpeed:
-    overrideValue: 1
+    overrideValue: 0
     mode: 1
     colorVal: {r: 1, g: 1, b: 1, a: 1}
     gradientVal:
@@ -4406,45 +4406,36 @@ MonoBehaviour:
       m_RotationOrder: 4
   texturePanDirection: {x: 0, y: 0, z: 0}
   sunFlare:
-    flare: {fileID: 11400000, guid: b7bd2fcbf47c015488d42ef693c6db7d, type: 2}
+    flare: {fileID: 11400000, guid: 5f80bcd3845c22841b3ae28bd89da6f8, type: 2}
     intensity: 1
     scale: 1
     screenAttenuation:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 0.5125
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.81036377
+        time: -1e+13
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1.0729218
-        value: 0.5186798
+        time: 1e+18
+        value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    useOcclusion: 1
-    occlusionRadius: 0.5
-    allowOffscreen: 0
+    useOcclusion: 0
+    occlusionRadius: 0
+    allowOffscreen: 1
   moonFlare:
     flare: {fileID: 11400000, guid: e3db97a2c8764cf4d9b4e3a9a81e38a7, type: 2}
     intensity: 1

@@ -91,6 +91,7 @@ public class RockSpawner : MonoBehaviour
                 break;
         }
         
+        
         if (spawnLeft) Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
         if (spawnMiddle) Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
         if (spawnRight) Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
