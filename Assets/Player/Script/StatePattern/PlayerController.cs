@@ -390,6 +390,10 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("BreakableRock"))
         {
+            if (currentState is HeadbuttState)
+            {
+                return; // SquashState로 변경되지 않고 튕겨나가지 않음
+            }
             Debug.Log("BreakableRock과 충돌");
             ChangeState(new SquashState());
         }
