@@ -381,9 +381,9 @@ public class PlayerController : MonoBehaviour
 
             rb.linearVelocity = Vector3.zero;
         }
-        else if (collision.gameObject.CompareTag("BreakableRock"))
+        else if (collision.gameObject.CompareTag("FallingRock"))
         {
-            Debug.Log("BreakableRock과 충돌");
+            Debug.Log("FallingRock과 충돌");
             ChangeState(new SquashState());
         }
     }
