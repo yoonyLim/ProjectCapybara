@@ -12,10 +12,91 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dccf7172616748499437c285a6d18fe, type: 3}
   m_Name: Fireflies
   m_EditorClassIdentifier: 
-  playTime: {x: 20, y: 40}
   minTime: 0.0625
   maxTime: 0.14583333
   likelihood: 1
+  chance:
+    baseChance: 1
+    chanceEffectors:
+    - limitType: 0
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: -0.026620183
+          outSlope: -0.026620183
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.088597834
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1.2245266
+          outSlope: 1.2245266
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.042372942
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+      customChanceEffector: {fileID: 0}
+    - limitType: 3
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.2
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.65
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.7
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0.7
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+      customChanceEffector: {fileID: 0}
   dontPlayDuring:
   - {fileID: 11400000, guid: 94bbf17d66f5c6b4ebcd9189ba34367d, type: 2}
   - {fileID: 11400000, guid: e2fbee6f21ca32740a76a387cf2a0abc, type: 2}
@@ -48,6 +129,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
+    customChanceEffector: {fileID: 0}
   - limitType: 3
     curve:
       serializedVersion: 2
@@ -100,6 +182,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
+    customChanceEffector: {fileID: 0}
   FX:
   - {fileID: 11400000, guid: bf7f46c5732d34d4e96d29c5cee44a76, type: 2}
   - {fileID: 11400000, guid: 7def3e3be949d714b9103b2351b3d736, type: 2}

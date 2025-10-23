@@ -93,7 +93,8 @@ float4 BlendStylizedFog(float3 worldPos, float4 inColor) {
 
 
 	//SUN FLARE
-	float sunFlare = dot( normalize( ( ( worldPos * (float3(1.0 , CZY_LightFlareSquish , 1.0)) ) - _WorldSpaceCameraPos ) ) , CZY_SunDirection );
+	float3 directionAndLengthToClipPlane = normalize(worldPos - _WorldSpaceCameraPos) * _ProjectionParams.z;
+	float sunFlare = dot( normalize( ( ( directionAndLengthToClipPlane * (float3(1.0 , CZY_LightFlareSquish , 1.0)) ) - _WorldSpaceCameraPos ) ) , CZY_SunDirection );
 	half modifiedSunFlare = saturate( pow( abs( ( (sunFlare*0.5 + 0.5) * CZY_LightIntensity ) ) , CZY_LightFalloff ) );
 	float3 hsvTorgb2_g56 = RGBToHSV( ( CZY_LightColor * fogHSV.z * saturate( ( modifiedSunFlare * ( 1.5 * newFogAlpha ) ) ) ).rgb );
 	float3 filteredFogColor = ( float4( HSVToRGB( float3(hsvTorgb2_g56.x,saturate( ( hsvTorgb2_g56.y + CZY_FilterSaturation ) ),( hsvTorgb2_g56.z + CZY_FilterValue )) ) , 0.0 ) * CZY_FilterColor );

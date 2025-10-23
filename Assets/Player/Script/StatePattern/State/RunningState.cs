@@ -56,7 +56,7 @@ public class RunningState : IPlayerState
 
             //------------------------------------
 
-            float speed = player.isRunning ? 7f : 3.5f;
+            float speed = player.isRunning ? player.sprintSpeed : player.walkSpeed;
 
             // 캐릭터 회전 계산
             Quaternion rotRef = player.SurfaceAlignment();
@@ -69,7 +69,8 @@ public class RunningState : IPlayerState
             }
 
             Vector3 velocity = player.CalculateNextFrameGroundAngle(speed) < 60f ? player.moveDirection : Vector3.zero;
-            Vector3 gravity = Vector3.down * Mathf.Abs(player.rb.linearVelocity.y);
+            //Vector3 gravity = Vector3.down * Mathf.Abs(player.rb.linearVelocity.y);
+            
 
             //------------------------------------
 
@@ -78,8 +79,8 @@ public class RunningState : IPlayerState
             if (isOnSlope && player.isGrounded)
             {
                 velocity = player.AdjustDirectionToSlope(player.moveDirection);
-                gravity = Vector3.zero;
-                player.rb.useGravity = false;
+                Vector3 gravity = Vector3.zero;
+                //player.rb.useGravity = false;
 
                 if (player.moveDirection.magnitude < 0.01f)
                 {
@@ -90,11 +91,21 @@ public class RunningState : IPlayerState
                     player.rb.linearVelocity = velocity * speed + gravity;
                 }
             }
-            else
+            else // 평지 or 공중에 있을 때
             {
-                player.rb.useGravity = true;
+                //player.rb.useGravity = true;
                 Vector3 currentVelocity = player.rb.linearVelocity;
-                Vector3 targetVelocity = new Vector3(velocity.x * speed, currentVelocity.y, velocity.z * speed);
+                float verticalVelocity = player.rb.linearVelocity.y;
+                verticalVelocity -= player.gravity * Time.fixedDeltaTime;
+
+
+                // 목표 속도 = (플레이어 입력 속도) + (플랫폼 속도)
+                Vector3 targetVelocity = new Vector3(
+                    velocity.x * speed + player.platformVelocity.x,
+                    verticalVelocity,
+                    velocity.z * speed + player.platformVelocity.z
+                );
+
                 player.rb.linearVelocity = targetVelocity;
             }
 

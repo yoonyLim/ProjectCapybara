@@ -5,10 +5,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DistantLands.Cozy.Data;
-using System.Linq;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 #if COZY_URP || COZY_HDRP
 using UnityEngine.Rendering;
 #endif
@@ -20,14 +16,17 @@ namespace DistantLands.Cozy
     {
 
 
+        [CozySearchable("moon", "satellite")]
         public SatelliteProfile[] satellites = new SatelliteProfile[0];
         [HideInInspector]
         public Transform satHolder = null;
+        [CozySearchable]
         public bool hideInHierarchy = true;
         private Light moonLight;
+        [CozySearchable]
         public int mainMoon;
+        [CozySearchable]
         public bool useLight = true;
-        public LightShadows moonlightShadows = LightShadows.Soft;
 #if COZY_URP || COZY_HDRP
         public LensFlareComponentSRP moonLensFlare;
 #endif
@@ -62,7 +61,7 @@ namespace DistantLands.Cozy
         // Update is called once per frame
         void Update()
         {
-            if (weatherSphere.freezeUpdateInEditMode && !Application.isPlaying)
+            if (CozyWeather.FreezeUpdateInEditMode && !Application.isPlaying)
                 return;
 
             if (satHolder == null)
@@ -95,10 +94,10 @@ namespace DistantLands.Cozy
 
                     if (sat.linkToDay && weatherSphere.timeModule)
                     {
-                        float dec = sat.declination * Mathf.Sin(Mathf.PI * 2 * ((weatherSphere.modifiedDayPercentage + (float)((weatherSphere.timeModule.currentDay + sat.declinationPeriodOffset + weatherSphere.timeModule.GetDaysPerYear() * weatherSphere.timeModule.currentYear)) % sat.declinationPeriod) / sat.declinationPeriod));
+                        float dec = sat.declination * Mathf.Sin(Mathf.PI * 2 * (((weatherSphere.modifiedDayPercentage - 0.5f) + (float)(weatherSphere.timeModule.currentDay + sat.rotationPeriodOffset + weatherSphere.timeModule.GetDaysPerYear() * weatherSphere.timeModule.currentYear) % sat.declinationPeriod) / sat.declinationPeriod));
                         sat.orbitRef.localEulerAngles = new Vector3(0, weatherSphere.sunDirection + sat.satelliteDirection, weatherSphere.sunPitch + sat.satellitePitch + dec);
-                        sat.satelliteRotation = (weatherSphere.modifiedDayPercentage + (float)((weatherSphere.timeModule.currentDay + sat.rotationPeriodOffset + weatherSphere.timeModule.GetDaysPerYear() * weatherSphere.timeModule.currentYear)) % sat.rotationPeriod) / sat.rotationPeriod * 360;
-                        sat.orbitRef.GetChild(0).localEulerAngles = Vector3.right * ((360 * weatherSphere.modifiedDayPercentage) + sat.satelliteRotation + sat.orbitOffset);
+                        sat.satelliteRotation = (weatherSphere.modifiedDayPercentage - 0.5f + (float)(sat.rotationPeriodOffset + weatherSphere.timeModule.AbsoluteDay) % sat.rotationPeriod) / sat.rotationPeriod * 360;
+                        sat.orbitRef.GetChild(0).localEulerAngles = Vector3.right * ((360 * weatherSphere.modifiedDayPercentage) + sat.satelliteRotation + sat.orbitOffset - 90);
                     }
                     else
                     {
@@ -120,11 +119,11 @@ namespace DistantLands.Cozy
                 mainMoon = satellites.Length - 1;
 
             float moonBrightness = Mathf.Clamp01(Mathf.Sin((weatherSphere.dayPercentage + 0.25f) * 2 * Mathf.PI) + 0.25f) * Mathf.Clamp01(4 * Vector3.Dot(moonLight.transform.forward, Vector3.down));
-            
+
             moonLight.transform.forward = satellites[mainMoon].orbitRef.GetChild(0).forward;
             moonLight.enabled = weatherSphere.moonlightColor.grayscale > 0.05f && satellites.Length > 0 && useLight && !weatherSphere.sunLight.enabled;
             moonLight.color = weatherSphere.moonlightColor * weatherSphere.sunFilter * moonBrightness;
-            moonLight.shadows = moonLight.enabled ? moonlightShadows : LightShadows.None;
+            moonLight.shadows = moonLight.enabled ? weatherSphere. moonlightShadows : LightShadows.None;
 
 #if COZY_URP || COZY_HDRP
             if (moonLensFlare)
@@ -233,89 +232,54 @@ namespace DistantLands.Cozy
             satellites = profiles.ToArray();
         }
 
-
         public MoonPhase GetMoonPhase()
         {
+            if (!weatherSphere.timeModule)
+                return MoonPhase.newMoon;
+
             SatelliteProfile moon = satellites[mainMoon];
-            int phase = Mathf.FloorToInt((weatherSphere.timeModule.currentDay + moon.rotationPeriodOffset + 1 + weatherSphere.timeModule.GetDaysPerYear() * weatherSphere.timeModule.currentYear) % moon.rotationPeriod / (moon.rotationPeriod / 8));
+
+
+            int phase = Mathf.FloorToInt(
+                ((weatherSphere.timeModule.AbsoluteDay + moon.rotationPeriodOffset + 1) % moon.rotationPeriod) / (moon.rotationPeriod / 8f));
 
             return (MoonPhase)Mathf.Clamp(phase, 0, 7);
 
         }
-    }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(CozySatelliteModule))]
-    [CanEditMultipleObjects]
-    public class E_SatelliteManager : E_CozyModule
-    {
-
-        CozySatelliteModule t;
-        static bool manageSatellites;
-
-        private void OnEnable()
+        public string GetMoonPhaseName()
         {
-            t = (CozySatelliteModule)target;
-        }
-
-        public override GUIContent GetGUIContent()
-        {
-
-            return new GUIContent("    Satellites", (Texture)Resources.Load("CozyMoon"), "Manage satellites and moons within the COZY system.");
-
-        }
-
-        public override void OpenDocumentationURL()
-        {
-            Application.OpenURL("https://distant-lands.gitbook.io/cozy-stylized-weather-documentation/how-it-works/modules/satellite-module");
-        }
-
-
-        public override void DisplayInCozyWindow()
-        {
-            EditorGUI.indentLevel = 0;
-            serializedObject.Update();
-            manageSatellites = EditorGUILayout.BeginFoldoutHeaderGroup(manageSatellites, new GUIContent("    Manage Satellites"), EditorUtilities.FoldoutStyle);
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            if (manageSatellites)
+            string name = "New Moon";
+            switch (GetMoonPhase())
             {
-                List<string> moonNames = new List<string>();
-                foreach (SatelliteProfile satelliteProfile in t.satellites)
-                {
-                    moonNames.Add(satelliteProfile.name);
-                }
-
-                EditorGUILayout.Space();
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("satellites"), true);
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("hideInHierarchy"));
-                t.mainMoon = Mathf.Clamp(EditorGUILayout.Popup("Main Moon", t.mainMoon, moonNames.ToArray()), 0, t.satellites.Length);
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("useLight"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("moonlightShadows"));
-                EditorGUILayout.HelpBox("Edit moon light settings in the Atmosphere Module", MessageType.Info);
-                EditorGUI.indentLevel--;
+                case MoonPhase.newMoon:
+                    name = "New Moon";
+                    break;
+                case MoonPhase.waxingCrescent:
+                    name = "Waxing Crescent";
+                    break;
+                case MoonPhase.firstQuarter:
+                    name = "First Quarter";
+                    break;
+                case MoonPhase.waxingGibbous:
+                    name = "Waxing Gibbous";
+                    break;
+                case MoonPhase.fullMoon:
+                    name = "Full Moon";
+                    break;
+                case MoonPhase.waningGibbous:
+                    name = "Waning Gibbous";
+                    break;
+                case MoonPhase.thirdQuarter:
+                    name = "Third Quarter";
+                    break;
+                case MoonPhase.waningCrescent:
+                    name = "Waning Crescent";
+                    break;
             }
 
-            EditorGUI.indentLevel++;
-            if (t.satellites != null)
-                foreach (SatelliteProfile i in t.satellites)
-                {
-                    if (i)
-                        (CreateEditor(i) as E_SatelliteProfile).NestedGUI();
-                }
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Space();
-            if (GUILayout.Button("Refresh Satellites"))
-                ((CozySatelliteModule)target).UpdateSatellites();
-
-            serializedObject.ApplyModifiedProperties();
-
-
+            return name;
         }
-
     }
 
-#endif
 }

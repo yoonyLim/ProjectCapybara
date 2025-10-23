@@ -1,6 +1,8 @@
 using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Capybara
@@ -12,6 +14,11 @@ namespace Capybara
         // SKI CHANGE: We need the camera's orientation for relative controls.
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
+        [SerializeField] private ParticleSystem windSpeedParticles;
+        [SerializeField] private GameObject Clouds;
+
+        [Header("Snow Level Specifics")] [SerializeField]
+        private float breakDistance = 1200f;
 
         // SKI CHANGE: Movement is now controlled by physics forces, not constant speeds.
         [Header("Skiing Settings")]
@@ -27,6 +34,7 @@ namespace Capybara
         
         [Header("Layer Detection Settings")]
         public LayerMask groundLayer;
+        public LayerMask snowRampLayer;
         // public LayerMask waterLayer;
         
         [Header("Default Settings")]
@@ -39,15 +47,18 @@ namespace Capybara
         // Current State Values
         private bool isGrounded = true;
         private bool isSwimming = false;
+        private bool isWindZoned = false;
+        private bool isOverBreakDistance = false;
         
         private Vector2 moveInput;
-        
+
         private Vector3 slopeNormal;
         // private Vector3 slopeForward;
         
         // Animation Cached Property Index
-        private static readonly int Walk = Animator.StringToHash("Walk");
-        private static readonly int IsInAir = Animator.StringToHash("isJump");
+        // private static readonly int Walk = Animator.StringToHash("Walk");
+        private static readonly int IsInAir = Animator.StringToHash("isFly");
+        private static readonly int IsOnIce = Animator.StringToHash("isIced");
 
         private void OnEnable()
         {
@@ -58,7 +69,7 @@ namespace Capybara
             inputReader.JumpEvent += HandleJump;
         }
 
-        private void Start()
+        private void Awake()
         {
             rb = GetComponent<Rigidbody>();
             anim = GetComponent<Animator>();
@@ -68,6 +79,17 @@ namespace Capybara
             {
                 cameraTransform = Camera.main.transform;
             }
+        }
+
+        void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("SnowGround"))
+            {
+                Debug.Log("snow ramp Collision Enter");
+                Quaternion targetRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.linearVelocity, slopeNormal).normalized, slopeNormal);
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f));
+            }
+                
         }
         
         private void Update()
@@ -88,21 +110,57 @@ namespace Capybara
             }
             
             // Animation: Set speed based on the rigidbody's actual velocity magnitude.
-            float currentSpeed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
-            anim.SetFloat(Walk, currentSpeed / maxSpeed);
+            // float currentSpeed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
+            // anim.SetFloat(Walk, currentSpeed / maxSpeed);
+
+            if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, constGroundRaycastDistance, snowRampLayer))
+            {
+                DualSenseInputManager.Instance.RumbleControllerForDuration(0.1f, 0.1f);
+                var mainParticleSystem = windSpeedParticles.main;
+                mainParticleSystem.startSpeed = rb.linearVelocity.magnitude;
+                anim.SetBool(IsOnIce, true);
+                anim.SetBool(IsInAir, false);
+            }
+            else
+            {
+                var mainParticleSystem = windSpeedParticles.main;
+                mainParticleSystem.startSpeed = 0f;
+                anim.SetBool(IsOnIce, false);
+
+                if (!isGrounded)
+                {
+                    anim.SetBool(IsInAir, true);
+                }
+            }
+
+            if (transform.position.z >= breakDistance && !isOverBreakDistance)
+            {
+                Debug.Log("BreakPoint over " + breakDistance);
+
+                isOverBreakDistance = true;
+                isWindZoned = false;
+                Instantiate(Clouds, transform.position + Vector3.down * 100, Quaternion.identity);
+                rb.linearVelocity = Vector3.zero;
+            }
+        }
+
+        public void SetIsWindZoned(bool val)
+        {
+            isWindZoned = val;
         }
 
         private void FixedUpdate()
         {
+            // --- WINDZONED MOVEMENT ---
+            if (isWindZoned)
+                return;
+            
             // --- SKIING MOVEMENT ---
             
             // 1. DETERMINE FORWARD DIRECTION RELATIVE TO CAMERA AND SLOPE
             Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
             Vector3 cameraRight = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
             Vector3 worldInputDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
-            
-            // Project the player's desired direction onto the slope plane
-            // slopeForward = Vector3.ProjectOnPlane(transform.forward, slopeNormal).normalized;
             
             // 2. APPLY FORCES
             if (isGrounded)

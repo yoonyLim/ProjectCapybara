@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using DistantLands.Cozy.Data;
+using UnityEngine.Serialization;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -67,8 +69,8 @@ namespace DistantLands.Cozy
 
 
 #if UNITY_EDITOR
-    [UnityEditor.CustomPropertyDrawer(typeof(CozyPropertyTypeAttribute))]
-    public class CustomPropertyDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(CozyPropertyTypeAttribute))]
+    public class CustomAtmospherePropertyDrawer : PropertyDrawer
     {
 
         bool color;
@@ -166,205 +168,7 @@ namespace DistantLands.Cozy
         }
     }
 
-    [UnityEditor.CustomPropertyDrawer(typeof(ModulatedPropertyAttribute))]
-    public class ModulatedPropertyDrawer : PropertyDrawer
-    {
-
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-
-
-            EditorGUI.BeginProperty(position, label, property);
-
-            // Rect newPosition = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Keyboard), new GUIContent("Modulate From"));
-
-            var indent = EditorGUI.indentLevel;
-            // EditorGUI.indentLevel = 0;
-            float space = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            float height = EditorGUIUtility.singleLineHeight;
-
-            var titleRect = new Rect(position.x + 30, position.y, position.width, height);
-            var unitARect = new Rect(position.x + 15, position.y + 10 + space, (position.width / 2) - 3, height);
-            var unitBRect = new Rect((position.width / 2) + 15, position.y + 10 + space, (position.width / 2), height);
-            var unitCRect = new Rect(position.x + 30, position.y + 10 + space * 2, position.width - 30, height);
-            var unitDRect = new Rect(position.x + 30, position.y + 10 + space * 3, position.width - 30, height);
-            var unitERect = new Rect(position.x + 30, position.y + 10 + space * 4, position.width - 30, height);
-            var source = property.FindPropertyRelative("modulationSource");
-            var target = property.FindPropertyRelative("modulationTarget");
-            GUI.Box(titleRect, GUIContent.none, EditorStyles.toolbar);
-
-            property.FindPropertyRelative("expanded").boolValue = EditorGUI.Foldout(titleRect, property.FindPropertyRelative("expanded").boolValue, GetTitle(property), true);
-
-            if (property.FindPropertyRelative("expanded").boolValue)
-            {
-                SerializedProperty map = null;
-                if ((MaterialManagerProfile.ModulatedValue.ModulationTarget)target.enumValueIndex == Data.MaterialManagerProfile.ModulatedValue.ModulationTarget.globalValue ||
-                (MaterialManagerProfile.ModulatedValue.ModulationTarget)target.enumValueIndex == Data.MaterialManagerProfile.ModulatedValue.ModulationTarget.materialValue)
-                    map = property.FindPropertyRelative("mappedCurve");
-                else
-                    map = property.FindPropertyRelative("mappedGradient");
-
-                var targetLayer = property.FindPropertyRelative("targetLayer");
-                var targetMaterial = property.FindPropertyRelative("targetMaterial");
-                var targetVariableName = property.FindPropertyRelative("targetVariableName");
-
-                EditorGUI.PropertyField(unitARect, target, GUIContent.none);
-                EditorGUI.PropertyField(unitBRect, source, GUIContent.none);
-                EditorGUI.PropertyField(unitCRect, map);
-
-                List<string> names = new List<string>();
-                int selected = -1;
-
-                if ((MaterialManagerProfile.ModulatedValue.ModulationTarget)target.enumValueIndex == MaterialManagerProfile.ModulatedValue.ModulationTarget.materialValue)
-                {
-                    if (property.FindPropertyRelative("targetMaterial").objectReferenceValue)
-                    {
-                        for (int i = 0; i < (targetMaterial.objectReferenceValue as Material).shader.GetPropertyCount(); i++)
-                            if ((targetMaterial.objectReferenceValue as Material).shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Float)
-                                names.Add((targetMaterial.objectReferenceValue as Material).shader.GetPropertyName(i));
-
-
-                        if (names.Contains(targetVariableName.stringValue))
-                            selected = names.IndexOf(targetVariableName.stringValue);
-                        else
-                            selected = 0;
-                    }
-                }
-                else if ((MaterialManagerProfile.ModulatedValue.ModulationTarget)target.enumValueIndex == MaterialManagerProfile.ModulatedValue.ModulationTarget.materialColor)
-                {
-                    if (property.FindPropertyRelative("targetMaterial").objectReferenceValue)
-                    {
-                        for (int i = 0; i < (targetMaterial.objectReferenceValue as Material).shader.GetPropertyCount(); i++)
-                            if ((targetMaterial.objectReferenceValue as Material).shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Color)
-                                names.Add((targetMaterial.objectReferenceValue as Material).shader.GetPropertyName(i));
-
-
-                        if (names.Contains(targetVariableName.stringValue))
-                            selected = names.IndexOf(targetVariableName.stringValue);
-                        else
-                            selected = 0;
-                    }
-                }
-
-                switch ((MaterialManagerProfile.ModulatedValue.ModulationTarget)target.enumValueIndex)
-                {
-                    case (MaterialManagerProfile.ModulatedValue.ModulationTarget.globalColor):
-                        EditorGUI.PropertyField(unitDRect, property.FindPropertyRelative("targetVariableName"), new GUIContent("Global Color Property Name", "The name of the global shader property to set."));
-                        break;
-                    case (MaterialManagerProfile.ModulatedValue.ModulationTarget.globalValue):
-                        EditorGUI.PropertyField(unitDRect, property.FindPropertyRelative("targetVariableName"), new GUIContent("Global Value Property Name", "The name of the global shader property to set."));
-                        break;
-                    case (MaterialManagerProfile.ModulatedValue.ModulationTarget.materialColor):
-                        EditorGUI.PropertyField(unitDRect, targetMaterial);
-                        if (names.Count > 0)
-                            property.FindPropertyRelative("targetVariableName").stringValue = names[EditorGUI.Popup(unitERect, "Material Value Property Name", selected, names.ToArray())];
-                        break;
-                    case (MaterialManagerProfile.ModulatedValue.ModulationTarget.materialValue):
-                        EditorGUI.PropertyField(unitDRect, targetMaterial);
-                        if (names.Count > 0)
-                            property.FindPropertyRelative("targetVariableName").stringValue = names[EditorGUI.Popup(unitERect, "Material Value Property Name", selected, names.ToArray())];
-                        break;
-                    case (MaterialManagerProfile.ModulatedValue.ModulationTarget.terrainLayerColor | MaterialManagerProfile.ModulatedValue.ModulationTarget.terrainLayerTint):
-                        EditorGUI.PropertyField(unitDRect, targetLayer);
-                        break;
-                }
-            }
-
-            EditorGUI.indentLevel = indent;
-
-            EditorGUI.EndProperty();
-        }
-
-        string GetTitle(SerializedProperty property)
-        {
-
-            int value = property.FindPropertyRelative("modulationTarget").intValue;
-
-            switch ((MaterialManagerProfile.ModulatedValue.ModulationTarget)value)
-            {
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.globalColor):
-                    if (property.FindPropertyRelative("targetVariableName").stringValue != "")
-                        return $"   {property.FindPropertyRelative("targetVariableName").stringValue}";
-                    else
-                        return "   Global Shader Color";
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.globalValue):
-                    if (property.FindPropertyRelative("targetVariableName").stringValue != "")
-                        return $"   {property.FindPropertyRelative("targetVariableName").stringValue}";
-                    else
-                        return "   Global Shader Value";
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.materialColor):
-                    if (property.FindPropertyRelative("targetMaterial").objectReferenceValue)
-                        return $"   {property.FindPropertyRelative("targetMaterial").objectReferenceValue.name}";
-                    else
-                        return "   Local Material Color";
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.materialValue):
-                    if (property.FindPropertyRelative("targetMaterial").objectReferenceValue)
-                        return $"   {property.FindPropertyRelative("targetMaterial").objectReferenceValue.name}";
-                    else
-                        return "   Local Material Value";
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.terrainLayerColor):
-                    if (property.FindPropertyRelative("targetLayer").objectReferenceValue)
-                        return $"   {property.FindPropertyRelative("targetLayer").objectReferenceValue.name}";
-                    else
-                        return "   Terrain Layer Color";
-                case (MaterialManagerProfile.ModulatedValue.ModulationTarget.terrainLayerTint):
-                    if (property.FindPropertyRelative("targetLayer").objectReferenceValue)
-                        return $"   {property.FindPropertyRelative("targetLayer").objectReferenceValue.name}";
-                    else
-                        return "   Terrain Layer Tint";
-
-            }
-
-            return "";
-
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            float lineCount = 1.25f;
-
-            if (property.FindPropertyRelative("expanded").boolValue)
-                lineCount += 3.5f;
-
-            return (property.FindPropertyRelative("expanded").boolValue ? 10 : 0) + EditorGUIUtility.singleLineHeight * lineCount + EditorGUIUtility.standardVerticalSpacing * 2f * (lineCount - 1);
-        }
-    }
-
-    [UnityEditor.CustomPropertyDrawer(typeof(MeridiemTime))]
-    public class FormattedTimeDrawer : PropertyDrawer
-    {
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-
-            EditorGUI.BeginProperty(position, label, property);
-
-
-
-            position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Keyboard), label);
-
-            var indent = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
-            float div = position.width / 2;
-
-            var hoursRect = new Rect(position.x, position.y, div - 10, position.height);
-            var minutesRect = new Rect(position.x + div, position.y, div - 10, position.height);
-
-            var hours = property.FindPropertyRelative("hours");
-            var minutes = property.FindPropertyRelative("minutes");
-
-
-            hours.intValue = Mathf.Clamp(EditorGUI.IntField(hoursRect, GUIContent.none, hours.intValue), 0, 23);
-            minutes.intValue = Mathf.Clamp(EditorGUI.IntField(minutesRect, GUIContent.none, minutes.intValue), 0, 59);
-
-            EditorGUI.indentLevel = indent;
-
-            EditorGUI.EndProperty();
-        }
-    }
-
-    [UnityEditor.CustomPropertyDrawer(typeof(MeridiemTimeAttriute))]
+    [UnityEditor.CustomPropertyDrawer(typeof(MeridiemTimeAttribute))]
     public class MeridiemTimeDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -787,101 +591,7 @@ namespace DistantLands.Cozy
             EditorGUI.EndProperty();
         }
     }
-    [UnityEditor.CustomPropertyDrawer(typeof(CozyProfile))]
-    public class CozyProfileDrawer : PropertyDrawer
-    {
-        CozyProfile _attribute;
-        public static string path;
 
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-
-            _attribute = (CozyProfile)attribute;
-
-            EditorGUI.BeginProperty(position, label, property);
-
-            var profileRect = new Rect(position.x, position.y, position.width - 110, position.height);
-            var cloneRect = new Rect(position.width - 85, position.y, 50, position.height);
-            var newRect = new Rect(position.width - 35, position.y, 50, position.height);
-
-            EditorGUI.PropertyField(profileRect, property, GUIContent.none);
-            EditorGUI.BeginDisabledGroup(!property.objectReferenceValue);
-            if (GUI.Button(cloneRect, "Clone"))
-            {
-                path = EditorUtility.SaveFolderPanel("Select a Folder", path, "");
-
-                if (string.IsNullOrEmpty(path))
-                {
-                    GUIUtility.ExitGUI();
-                    return;
-                }
-
-                path = "Assets" + path.Substring(Application.dataPath.Length);
-
-                if (typeof(ScriptableObject).IsAssignableFrom(fieldInfo.FieldType))
-                {
-
-                    ScriptableObject newInstance = ScriptableObject.CreateInstance(fieldInfo.FieldType);
-
-                    string duplication = JsonUtility.ToJson(property.objectReferenceValue);
-                    JsonUtility.FromJsonOverwrite(duplication, newInstance);
-
-                    path = $"{path}/{property.objectReferenceValue.name} Clone.asset";
-                    AssetDatabase.CreateAsset(newInstance, path);
-                    AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
-
-                    property.objectReferenceValue = newInstance;
-                    property.serializedObject.ApplyModifiedProperties();
-                    property.serializedObject.Update();
-
-                }
-                else
-                {
-                    Debug.LogError("Type is not a scriptable object.");
-                }
-
-                GUIUtility.ExitGUI();
-            }
-
-            if (GUI.Button(newRect, "New"))
-            {
-                path = EditorUtility.SaveFolderPanel("Select a Folder", path, "");
-
-                if (string.IsNullOrEmpty(path))
-                {
-                    GUIUtility.ExitGUI();
-                    return;
-                }
-
-                path = "Assets" + path.Substring(Application.dataPath.Length);
-
-                if (typeof(ScriptableObject).IsAssignableFrom(fieldInfo.FieldType))
-                {
-
-                    ScriptableObject newInstance = ScriptableObject.CreateInstance(fieldInfo.FieldType);
-
-                    path = $"{path}/New {fieldInfo.Name}.asset";
-                    AssetDatabase.CreateAsset(newInstance, path);
-                    AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
-
-                    property.objectReferenceValue = newInstance;
-                    property.serializedObject.ApplyModifiedProperties();
-
-                }
-                else
-                {
-                    Debug.LogError("Type is not a scriptable object.");
-                }
-
-                GUIUtility.ExitGUI();
-            }
-
-            EditorGUI.EndDisabledGroup();
-            EditorGUI.EndProperty();
-        }
-    }
 
 #endif
     public class CozyPropertyTypeAttribute : PropertyAttribute
@@ -1029,7 +739,7 @@ namespace DistantLands.Cozy
 
     }
 
-    public class MeridiemTimeAttriute : PropertyAttribute
+    public class MeridiemTimeAttribute : PropertyAttribute
     {
 
     }
@@ -1071,11 +781,6 @@ namespace DistantLands.Cozy
 
         }
 
-    }
-
-
-    public class CozyProfile : PropertyAttribute
-    {
     }
 
 

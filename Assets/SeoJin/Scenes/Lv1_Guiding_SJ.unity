@@ -29295,31 +29295,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0.5125
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.81036377
+      time: -1000
       value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0729218
-      value: 0.5186798
+      time: 1000
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -29353,44 +29344,35 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0.5125
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.81036377
+      time: -1000
       value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1.0729218
-      value: 0.5186798
+      time: 1000
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  useOcclusion: 1
+  useOcclusion: 0
   useBackgroundCloudOcclusion: 0
   environmentOcclusion: 0
   useWaterOcclusion: 0
-  occlusionRadius: 0.5
+  occlusionRadius: 0
   sampleCount: 32
   occlusionOffset: 0.5
   scale: 1
-  allowOffScreen: 0
+  allowOffScreen: 1
   volumetricCloudOcclusion: 0
   occlusionRemapCurve:
     <length>k__BackingField: 2
@@ -41801,7 +41783,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 744716412}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.8038569, z: -0, w: 0.5948228}
+  m_LocalRotation: {x: -0, y: 0.2079117, z: -0, w: 0.9781476}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -42306,27 +42288,6 @@ MonoBehaviour:
   m_DeprecatedInstances: []
   m_AutoRefresh: 1
   m_Seed: 1232132324
---- !u!1 &815682934
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 2653215083969983028, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
-  m_PrefabInstance: {fileID: 8843318538035749984}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1302858331}
-  - component: {fileID: 1302858330}
-  - component: {fileID: 1302858324}
-  - component: {fileID: 1302858329}
-  - component: {fileID: 1302858327}
-  - component: {fileID: 1302858328}
-  m_Layer: 0
-  m_Name: FlyModeCineCam
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!4 &819319256 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8379513098455428959, guid: 20410a3ee2854b278f9eebc5f5395ddb, type: 3}
@@ -60857,8 +60818,8 @@ MonoBehaviour:
   borderEffect: 1
   borderVariation: 0.95
   fogDensity: 1
-  filterSaturation: -0.5
-  filterValue: -0.06
+  filterSaturation: 0.09
+  filterValue: -0.09
   filterColor: {r: 0.5647059, g: 0.6627451, b: 0.69803923, a: 0}
   sunFilter: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
   cloudFilter: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 0}
@@ -77103,231 +77064,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8031b0d0b5a94836ab8afc41c2792012, type: 3}
---- !u!114 &1302858324
+--- !u!114 &1302858324 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 882993588990021975, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
   m_PrefabInstance: {fileID: 8843318538035749984}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b5d7c088409d9a40b7b09aa707777f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetOffset: {x: 0, y: 0, z: 0}
-  TrackerSettings:
-    BindingMode: 1
-    PositionDamping: {x: 0.2, y: 0.2, z: 0.2}
-    AngularDampingMode: 1
-    RotationDamping: {x: 0.3, y: 0.3, z: 0.3}
-    QuaternionDamping: 0.3
-  OrbitStyle: 0
-  Radius: 10
-  Orbits:
-    Top:
-      Radius: 2
-      Height: 5
-    Center:
-      Radius: 4
-      Height: 2.25
-    Bottom:
-      Radius: 2.5
-      Height: 0.1
-    SplineCurvature: 0.5
-  RecenteringTarget: 2
-  HorizontalAxis:
-    Value: 0
-    Center: 0
-    Range: {x: -180, y: 180}
-    Wrap: 1
-    Recentering:
-      Enabled: 0
-      Wait: 0
-      Time: 2
-    Restrictions: 0
-  VerticalAxis:
-    Value: 25
-    Center: 25
-    Range: {x: -20, y: 45}
-    Wrap: 0
-    Recentering:
-      Enabled: 0
-      Wait: 0
-      Time: 1.3
-    Restrictions: 0
-  RadialAxis:
-    Value: 1
-    Center: 1
-    Range: {x: 1, y: 1}
-    Wrap: 0
-    Recentering:
-      Enabled: 0
-      Wait: 1
-      Time: 2
-    Restrictions: 0
---- !u!114 &1302858327
+--- !u!114 &1302858327 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 3073910681811991889, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
   m_PrefabInstance: {fileID: 8843318538035749984}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
-  PivotOffset: {x: 0, y: 0, z: 0}
-  AmplitudeGain: 0
-  FrequencyGain: 1
-  m_NoiseOffsets: {x: -409.9923, y: 652.9601, z: 778.1732}
---- !u!114 &1302858328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5394991931679757765, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
-  m_PrefabInstance: {fileID: 8843318538035749984}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ScanRecursively: 0
-  SuppressInputWhileBlending: 0
-  IgnoreTimeScale: 0
-  m_ControllerManager:
-    Controllers:
-    - Name: Look Orbit X
-      Owner: {fileID: 1302858324}
-      Enabled: 0
-      Input:
-        InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0.2
-        DecelTime: 0.2
-    - Name: Look Orbit Y
-      Owner: {fileID: 1302858324}
-      Enabled: 0
-      Input:
-        InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: -1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0.2
-        DecelTime: 0.2
-    - Name: Orbit Scale
-      Owner: {fileID: 1302858324}
-      Enabled: 0
-      Input:
-        InputAction: {fileID: -423771258819551211, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: -1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0
-        DecelTime: 0
-  PlayerIndex: -1
-  AutoEnableInputs: 0
---- !u!114 &1302858329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5387023731065499570, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
-  m_PrefabInstance: {fileID: 8843318538035749984}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f38bda98361e1de48a4ca2bd86ea3c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Composition:
-    ScreenPosition: {x: 0, y: 0.2}
-    DeadZone:
-      Enabled: 0
-      Size: {x: 0.2, y: 0.2}
-    HardLimits:
-      Enabled: 0
-      Size: {x: 0.8, y: 0.8}
-      Offset: {x: 0, y: 0}
-  CenterOnActivate: 0
-  TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 0, y: 0}
-  Lookahead:
-    Enabled: 0
-    Time: 0.2
-    Smoothing: 1
-    IgnoreY: 1
---- !u!114 &1302858330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 314277337075623871, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
-  m_PrefabInstance: {fileID: 8843318538035749984}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Priority:
-    Enabled: 1
-    m_Value: 0
-  OutputChannel: 1
-  StandbyUpdate: 2
-  m_StreamingVersion: 20241001
-  m_LegacyPriority: 0
-  Target:
-    TrackingTarget: {fileID: 6288189240172421391}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
-  Lens:
-    FieldOfView: 80
-    OrthographicSize: 5
-    NearClipPlane: 0.3
-    FarClipPlane: 1000
-    Dutch: 0
-    ModeOverride: 0
-    PhysicalProperties:
-      GateFit: 2
-      SensorSize: {x: 24.89, y: 18.66}
-      LensShift: {x: 0, y: 0}
-      FocusDistance: 69.12
-      Iso: 200
-      ShutterSpeed: 0.005
-      Aperture: 32
-      BladeCount: 5
-      Curvature: {x: 2, y: 11}
-      BarrelClipping: 0.25
-      Anamorphism: -0.03
-  BlendHint: 0
---- !u!4 &1302858331
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 8361696212483756258, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
-  m_PrefabInstance: {fileID: 8843318538035749984}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 815682934}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.056224007, y: 0.000000015646709, z: -8.8111435e-10, w: 0.9984182}
-  m_LocalPosition: {x: 3.8339252, y: 1.5886879, z: 41.91194}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -14.036, z: 0}
 --- !u!1 &1305876092
 GameObject:
   m_ObjectHideFlags: 0
@@ -78122,7 +77880,7 @@ MonoBehaviour:
   borderVariation: 0.95
   fogDensity: 1
   usePhysicalSunHeight: 1
-  sunDirection: 107
+  sunDirection: 24
   sunPitch: 0
   moonDirection: {x: 0.35741958, y: -0.933944, z: 0.0000166893}
   skyZenithColor: {r: 0, g: 0.11450216, b: 0.35686275, a: 1}
@@ -78145,11 +77903,11 @@ MonoBehaviour:
   fogMoonFlareColor: {r: 0, g: 0, b: 0, a: 1}
   fogShadowColor: {r: 0, g: 0, b: 0, a: 0}
   fogLitColor: {r: 0, g: 0, b: 0, a: 0}
-  gradientExponent: 0.574
+  gradientExponent: 0.41
   sunSize: 1
   sunColor: {r: 10.432951, g: 10.432951, b: 10.432951, a: 1}
   moonColor: {r: 2, g: 2, b: 2, a: 0.2510258}
-  sunFalloff: 0.48
+  sunFalloff: 0.5
   sunFlareColor: {r: 2.7294118, g: 2.7137256, b: 2.0705884, a: 1}
   moonFalloff: 0.752
   moonlightColor: {r: 0, g: 0, b: 0, a: 1}
@@ -78165,7 +77923,7 @@ MonoBehaviour:
   fogStart3: 24
   fogStart4: 35
   fogHeight: 1
-  fogDensityMultiplier: 0.44
+  fogDensityMultiplier: 0.3
   fogLightFlareIntensity: 1
   fogLightFlareFalloff: 25.17635
   fogLightFlareSquish: 1
@@ -78231,38 +77989,29 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 0.5125
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.81036377
+        time: -1000
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1.0729218
-        value: 0.5186798
+        time: 1000
+        value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    useOcclusion: 1
-    occlusionRadius: 0.5
-    allowOffscreen: 0
+    useOcclusion: 0
+    occlusionRadius: 0
+    allowOffscreen: 1
   moonFlare:
     flare: {fileID: 11400000, guid: e3db97a2c8764cf4d9b4e3a9a81e38a7, type: 2}
     intensity: 1
@@ -78303,8 +78052,8 @@ MonoBehaviour:
     useOcclusion: 1
     occlusionRadius: 0.5
     allowOffscreen: 1
-  filterSaturation: -0.5
-  filterValue: -0.06
+  filterSaturation: 0.09
+  filterValue: -0.09
   filterColor: {r: 0.5647059, g: 0.6627451, b: 0.69803923, a: 0}
   sunFilter: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
   cloudFilter: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 0}
@@ -78366,7 +78115,7 @@ Transform:
   m_GameObject: {fileID: 1400902367}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.8339252, y: 1.5886879, z: 41.91194}
+  m_LocalPosition: {x: -2.4259748, y: 3.978694, z: 51.924366}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -87359,13 +87108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ddf7d07c92172146b086fa490662cdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTransform: {fileID: 0}
-  nearestKnotIndex: 0
   directionIndicator: {fileID: 891432602}
   directionIndicatorRotationSpeed: 10
   indicatorEnableThresholdAngle: 80
   indicatorFadeSpeed: 10
-  mainCamera: {fileID: 0}
   indicatorCanvasGroup: {fileID: 891432605}
   guideLine: {fileID: 1460544632}
 --- !u!4 &1466969681 stripped
@@ -87404,7 +87150,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 12.727922, y: 12.727922, z: 12.727922}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1400118131}

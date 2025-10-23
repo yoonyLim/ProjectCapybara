@@ -110,6 +110,23 @@ namespace Capybara
          */
         public event Action ResumeEvent;
 
+        /**
+         * @Description: Called when the UI navigation input is registered
+         * @Params: Vector2 Input Direction
+         */
+        public event Action<Vector2> NavigateEvent;
+
+        /**
+         * @Description: Called when the UI submit key is pressed down
+         */
+        public event Action SubmitEvent;
+
+        /**
+         * @Description: Called when the UI cancel key is pressed down
+         */
+        public event Action CancelEvent;
+
+
         public void OnMove(InputAction.CallbackContext context)
         {
             // Debug.Log($"Move Phase: {context.phase}, Value: {context.ReadValue<Vector2>()}");
@@ -186,6 +203,36 @@ namespace Capybara
                 ResumeEvent?.Invoke();
                 EnableGamePlayActionInputs();
             }
+        }
+
+        public void OnNavigate(InputAction.CallbackContext context)
+        {
+            // Debug.Log($"Resume Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
+            if (context.phase == InputActionPhase.Performed)
+                NavigateEvent?.Invoke(context.ReadValue<Vector2>());
+        }
+
+        public void OnSubmit(InputAction.CallbackContext context)
+        {
+            // Debug.Log($"Resume Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
+            if (context.phase == InputActionPhase.Started)
+                SubmitEvent?.Invoke();
+        }
+
+        public void OnCancel(InputAction.CallbackContext context)
+        {
+            // Debug.Log($"Resume Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
+            if (context.phase == InputActionPhase.Started)
+                CancelEvent?.Invoke();
+        }
+        public void OnPoint(InputAction.CallbackContext context)
+        {
+
+        }
+
+        public void OnClick(InputAction.CallbackContext context)
+        {
+
         }
     }
 }
