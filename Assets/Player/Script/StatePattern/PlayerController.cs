@@ -123,7 +123,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("플레이어의 시각적 모델(메시)의 Transform")]
     [SerializeField] private Transform playerModelTransform;
     [Tooltip("납작해져 있는 시간 (초)")]
-    [SerializeField] private float squashDuration = 2f;
+    [SerializeField] private float squashDuration = 1f;
     [Tooltip("Y축 스케일 (0.2 = 20%)")]
     [SerializeField] private float squashAmount = 0.2f;
     [Tooltip("X, Z축 스케일 (1.5 = 150%)")]
@@ -137,6 +137,7 @@ public class PlayerController : MonoBehaviour
     private MountController mountController;
     void Awake()
     {
+        originalModelScale = playerModelTransform.localScale;
         mountController = GetComponent<MountController>();
         ChangeState(new RunningState());
         rb = GetComponent<Rigidbody>();
@@ -406,10 +407,9 @@ public class PlayerController : MonoBehaviour
         }
 
         // 1. 원래 스케일 저장 및 목표 스케일 계산
-        originalModelScale = playerModelTransform.localScale;
         Vector3 squashedScale = new Vector3(originalModelScale.x * squashWidenAmount,
-                                           originalModelScale.y * squashAmount,
-                                           originalModelScale.z * squashWidenAmount);
+                                           originalModelScale.y * squashWidenAmount,
+                                           originalModelScale.z * squashAmount);
 
         // --- 2. 납작해지는 애니메이션 (Lerp 사용) ---
         float t = 0;
