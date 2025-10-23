@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58971c84a8da56f46bc72a85a31d8a2d, type: 3}
-  m_Name: Default Atmosphere
+  m_Name: Atmosphere_SJ
   m_EditorClassIdentifier: 
   skyZenithColor:
     overrideValue: 1
@@ -1460,7 +1460,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    floatVal: 1
+    floatVal: 0.119
     curveVal:
       serializedVersion: 2
       m_Curve:
@@ -1671,8 +1671,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0.75624996
         value: 50
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 1
@@ -2852,8 +2852,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0.9175132
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -2870,8 +2870,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0.24533333
         value: 1.0857804
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -2879,8 +2879,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0.34666643
         value: 0.98653376
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -2888,8 +2888,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0.6524708
         value: 0.98653376
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -2915,8 +2915,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 0.9175132
-        inSlope: -0
-        outSlope: -0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
