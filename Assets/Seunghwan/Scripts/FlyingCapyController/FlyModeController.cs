@@ -8,12 +8,12 @@ public class FlyModeController : MonoBehaviour
     private Rigidbody capyRigidBody;
     private readonly float forwardFlightStrength = 150f;
     private readonly float upwardFlightStrength = 200f;
-    private readonly float yawRotationSpeed = 100f;
+    private readonly float yawRotationSpeed = 130f;
     private readonly float obstacleHitRotationSpeed = 800f;
     private readonly float maxMeshRoll = 25f;
     private readonly float maxMeshPitch = 40f;
     private readonly float bounceStrength = 40f;
-    private readonly float maxSpeed = 100f;
+    private readonly float maxSpeed = 50f;
 
     private readonly float normalLinearDamping = 1f;
     private readonly float obstacleHitLinearDamping = 1f;
@@ -93,7 +93,7 @@ public class FlyModeController : MonoBehaviour
         cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 3f);
 
         float speedRatio = capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity;
-        float targetEffectAlpha = 0.1f * Mathf.Clamp01(1f / (1f- 0.7f) * (speedRatio - 0.7f));
+        float targetEffectAlpha = 0.1f * Mathf.Clamp01(1f / (1f- 0.5f) * (speedRatio - 0.5f));
         speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
     }
 
