@@ -37,7 +37,7 @@ public class PlayerStateMachine : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         audioSourceHolder = GetComponentInChildren<PlayerAudioSourceHolder>();
         headbuttVFXPlayer = GetComponentInChildren<HeadbuttVFXPlayer>();
-        scanEffect = GetComponent<ScanEffect>();
+        scanEffect = GetComponentInChildren<ScanEffect>();
     }
 
     private void Start()
@@ -53,6 +53,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (playerInput.SoundWaveInput)
         {
             playerInput.ClearSoundwaveInput();
+            Debug.Log($"scanEffect is Null ? {scanEffect == null}");
             scanEffect.Execute();            
         }
         

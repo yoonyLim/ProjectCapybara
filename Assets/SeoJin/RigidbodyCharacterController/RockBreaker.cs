@@ -12,7 +12,7 @@ public class RockBreaker : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("BreakableRock"))
+        if (other.CompareTag("BreakableRock") || other.CompareTag("BreakableTree"))
         {
             other.TryGetComponent<IDestructible>(out IDestructible destructible);
             destructible.Hit();
