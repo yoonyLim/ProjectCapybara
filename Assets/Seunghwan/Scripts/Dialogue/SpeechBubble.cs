@@ -9,14 +9,14 @@ public class SpeechBubble : MonoBehaviour
 
     private void OnEnable()
     {
-        // InteractionComponent.OnDialogStart += DisableSpeechBubble();
-        // InteractionComponent.OnDialogEnd += EnableSpeechBubble;
+        InteractionComponent.OnDialogStart += DisableSpeechBubble;
+        InteractionComponent.OnDialogEnd += EnableSpeechBubble;
     }
 
     private void OnDisable()
     {
-        // InteractionComponent.OnDialogStart -= DisableSpeechBubble();
-        // InteractionComponent.OnDialogEnd -= EnableSpeechBubble;
+        InteractionComponent.OnDialogStart -= DisableSpeechBubble;
+        InteractionComponent.OnDialogEnd -= EnableSpeechBubble;
     }
 
     private void Awake()

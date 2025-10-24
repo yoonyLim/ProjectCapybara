@@ -43345,6 +43345,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 148360255}
     - target: {fileID: 280600691330549272, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
+      propertyPath: globalVolume
+      value: 
+      objectReference: {fileID: 1379134753}
+    - target: {fileID: 280600691330549272, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
       propertyPath: cmOrbitalFollow
       value: 
       objectReference: {fileID: 148360257}
@@ -70346,6 +70350,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1046669134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1379134753 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3066846716627067188, guid: 765c94b7a01dfe047b1219ed69f6258b, type: 3}
+  m_PrefabInstance: {fileID: 5005930135485506358}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1383561296
 PrefabInstance:
   m_ObjectHideFlags: 0
