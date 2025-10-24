@@ -15,6 +15,7 @@ public class PlayerStateMachine : MonoBehaviour
     public CharacterMotor motor { get; private set; }
     public Animator animator { get; private set; }
     public Rigidbody rb { get; private set; }
+    public HeadbuttVFXPlayer headbuttVFXPlayer { get; private set; }
     
     public bool canMove;
 
@@ -34,6 +35,7 @@ public class PlayerStateMachine : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         rb = GetComponent<Rigidbody>();
         audioSourceHolder = GetComponentInChildren<PlayerAudioSourceHolder>();
+        headbuttVFXPlayer = GetComponentInChildren<HeadbuttVFXPlayer>();
     }
 
     private void Start()
