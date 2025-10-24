@@ -119,6 +119,14 @@ public class DualSenseInputManager : MonoBehaviour
         
         dualSenseRumbleCoroutine = StartCoroutine(RumblePattern(intensity, duration));
     }
+
+    public void RumbleControllerShort(float intensity)
+    {
+        if (dualSenseRumbleCoroutine != null)
+            StopCoroutine(dualSenseRumbleCoroutine);
+        
+        dualSenseRumbleCoroutine = StartCoroutine(RumblePattern(intensity, 0.2f));
+    }
     
     IEnumerator RumblePattern(float intensity, float duration)
     {
