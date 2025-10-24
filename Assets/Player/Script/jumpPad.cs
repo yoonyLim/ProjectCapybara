@@ -1,4 +1,5 @@
 using System;
+using Moko;
 using UnityEngine;
 
 public class jumPad : MonoBehaviour
@@ -17,18 +18,12 @@ public class jumPad : MonoBehaviour
     {
         if (player.CompareTag("Player"))
         {
-            Rigidbody rb = player.attachedRigidbody;
-            var anim = player.GetComponent<Animator>();
+            PlayerGravity playerGravity = player.GetComponentInParent<PlayerGravity>();
+            PlayerJump playerJump = player.GetComponentInParent<PlayerJump>();
 
-            if (rb != null)
-            {
-                Vector3 vel = rb.linearVelocity;
-                vel.y = 0;
-                rb.linearVelocity = vel;
-                
-                rb.AddForce(direction.normalized * strength, ForceMode.Impulse);
-            }
-            
+            playerJump.DisableGroundCheck(0.2f);
+            playerGravity.SetVerticalVelocity(strength);
+
             jumpPadAnimator.SetTrigger(springAnimTrigger);
         }
     }

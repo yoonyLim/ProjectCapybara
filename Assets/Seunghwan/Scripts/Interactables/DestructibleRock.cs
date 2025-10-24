@@ -10,6 +10,8 @@ public class DestructibleRock : MonoBehaviour, IDestructible
     private Rigidbody rockRigidbody;
     private MeshRenderer[] meshRenderers;
 
+    private RockBreakSound rockBreakSFX;
+    
     private bool gotHit = false;
 
     private void Awake()
@@ -18,6 +20,7 @@ public class DestructibleRock : MonoBehaviour, IDestructible
         rockCollider = GetComponent<Collider>();
         meshRenderers = GetComponentsInChildren<MeshRenderer>();
         rockRigidbody = GetComponent<Rigidbody>();
+        rockBreakSFX = GetComponent<RockBreakSound>();
     }
 
     private void Update()
@@ -35,6 +38,7 @@ public class DestructibleRock : MonoBehaviour, IDestructible
         rockRigidbody.isKinematic = true;
         rockParticleSystem.Play();
         rockCollider.enabled = false;
+        rockBreakSFX.PlayRockBreakSound();
         foreach (var meshRenderer in meshRenderers)
         {
             meshRenderer.enabled = false;
