@@ -1,10 +1,17 @@
+using System;
 using System.Collections;
 using Capybara;
+using DistantLands.Cozy;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class FlyModeController : MonoBehaviour
 {
+    public event Action OnJumpKeyPressed;
+    public event Action OnWeatherVolumeTriggerEnter;
+    
     private Rigidbody capyRigidBody;
     private readonly float forwardFlightStrength = 100f;
     private readonly float upwardFlightStrength = 150f;
@@ -29,15 +36,21 @@ public class FlyModeController : MonoBehaviour
     
     private Vector2 moveInput;
 
+    private bool dodgeAnimLeft = true;
+
     private readonly int Alpha = Shader.PropertyToID("_Alpha");
 
-    [SerializeField] private Transform meshTransform;
+    [SerializeField] private Transform meshRoot;
     [SerializeField] private Animator capyAnimator;
     [SerializeField] private Animator birdAnimator;
+    [SerializeField] Animator meshAnimator;
 
     private readonly int hitAnimTrigger = Animator.StringToHash("Hit");
     private readonly int eyesSpinAnimState = Animator.StringToHash("Eyes_Spin");
     private readonly int eyesIdleAnimState = Animator.StringToHash("Eyes_Idle");
+    
+    private readonly int leftDodgeRoll = Animator.StringToHash("LeftDodgeRoll");
+    private readonly int rightDodgeRoll = Animator.StringToHash("RightDodgeRoll");
     
     [SerializeField] private CinemachineOrbitalFollow cmOrbitalFollow;
     [SerializeField] private CinemachineBasicMultiChannelPerlin cmPerlin;
@@ -49,11 +62,20 @@ public class FlyModeController : MonoBehaviour
     [SerializeField] private BirdHitSound hitSoundComponent;
 
     private float targetEffectAlpha = 0f;
+
+    public bool DodgedLightning { get; set; }
+    public bool HitLightning { get; set; }
+
+    private float dodgedLightningTime = 0f;
+    private bool dodgedLightningSlowmo = false;
+
+    private Vignette vignette;
     
-    enum FlyModeState
+    public enum FlyModeState
     {
         Normal,
-        ObstacleHit
+        ObstacleHit,
+        LightningHit,
     }
     
     private void Awake()
@@ -61,6 +83,11 @@ public class FlyModeController : MonoBehaviour
         capyRigidBody = GetComponent<Rigidbody>();
         capyRigidBody.maxLinearVelocity = maxSpeed;
         capyRigidBody.linearDamping = normalLinearDamping;
+        
+        Volume volume = FindFirstObjectByType<Volume>();
+        volume.profile.TryGet<Vignette>(out vignette);
+        
+        
     }
 
     private void OnEnable()
@@ -68,12 +95,14 @@ public class FlyModeController : MonoBehaviour
         capybaraInputReader.EnableGamePlayActionInputs();
         capybaraInputReader.MoveEvent += OnMove;
         capybaraInputReader.MoveCanceledEvent += OnMoveCanceled;
+        capybaraInputReader.JumpEvent += OnJump;
     }
 
     private void OnDisable()
     {
         capybaraInputReader.MoveEvent -= OnMove;
         capybaraInputReader.MoveCanceledEvent -= OnMoveCanceled;
+        capybaraInputReader.JumpEvent -= OnJump;
         speedEffectMaterial.SetFloat(Alpha, 0f);
     }
 
@@ -88,21 +117,71 @@ public class FlyModeController : MonoBehaviour
         moveInput = Vector2.zero;
     }
 
+    private void OnJump()
+    {
+        OnJumpKeyPressed?.Invoke();
+    }
+
+    IEnumerator PlayVignetteEffect()
+    {
+        float increaseElapsedTime = 0f;
+        while (increaseElapsedTime < 0.2f)
+        {
+            increaseElapsedTime += Time.deltaTime;
+            vignette.intensity.value = Mathf.Lerp(0f, 0.4f, increaseElapsedTime / 0.2f);
+            yield return null;
+        }
+
+        vignette.intensity.value = 0.4f;
+        
+        float decreaseElapsedTime = 0f;
+        while (decreaseElapsedTime < 0.2f)
+        {
+            decreaseElapsedTime += Time.deltaTime;
+            vignette.intensity.value = Mathf.Lerp(0.4f, 0f, decreaseElapsedTime / 0.2f);
+            yield return null;
+        }
+
+        vignette.intensity.value = 0f;
+    }
+    
     private void Update()
     {
-        ApplyMeshLocalRotation();
-        float targetY = 25f - moveInput.y * 30f;
+        float targetY = 25f - moveInput.y * 20f;
         cmOrbitalFollow.VerticalAxis.Value = FInterpTo(cmOrbitalFollow.VerticalAxis.Value , targetY, Time.deltaTime, 3f);
 
         float speedRatio = capyRigidBody.linearVelocity.magnitude / capyRigidBody.maxLinearVelocity;
-        targetEffectAlpha = 0.3f * Mathf.Clamp01(1f / (1f- 0.8f) * (speedRatio - 0.8f));
+        targetEffectAlpha = 0.2f * Mathf.Clamp01(1f / (1f- 0.8f) * (speedRatio - 0.8f));
         speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
+
+        if (DodgedLightning)
+        {
+            DodgedLightning = false;
+            Time.timeScale = 0.3f;
+            dodgedLightningTime = Time.unscaledTime;
+            dodgedLightningSlowmo = true;
+            PlayLightningDodgeAnimation();
+            StartCoroutine(PlayVignetteEffect());
+        }
+
+        if (dodgedLightningSlowmo)
+        {
+            if (Time.unscaledTime - dodgedLightningTime > 0.2f)
+            {
+                Time.timeScale = 1f;
+                dodgedLightningSlowmo = false;
+            }
+                
+        }
+    }
+
+    private void LateUpdate()
+    {
+        ApplyMeshLocalRotation();
     }
 
     private void FixedUpdate()
     {
-        
-        Debug.Log($"Speed: {capyRigidBody.linearVelocity.magnitude}, Max Speed: {capyRigidBody.maxLinearVelocity}");
         switch (state)
         {
             case FlyModeState.Normal:
@@ -111,6 +190,8 @@ public class FlyModeController : MonoBehaviour
             case FlyModeState.ObstacleHit:
                 ObstacleHitStateFixedUpdate();
                 break;
+            case FlyModeState.LightningHit:
+                break;
             default:
                 break;
         }
@@ -118,10 +199,6 @@ public class FlyModeController : MonoBehaviour
 
     void NormalStateFixedUpdate()
     {
-        if (targetEffectAlpha > 0f)
-        {
-            DualSenseInputManager.Instance.RumbleControllerForDuration(0.1f, 0.1f);
-        }
         
         Vector3 rbYawForward = capyRigidBody.transform.forward;
         rbYawForward.y = 0;
@@ -157,7 +234,20 @@ public class FlyModeController : MonoBehaviour
         yield return new WaitForSeconds(camShakeDuration);
         cmPerlin.AmplitudeGain = 0f;
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out LoadingTrigger loadingTrigger))
+        {
+            GetComponentInChildren<BirdWingSound>().BlockSound = true;
+        }
+
+        if (other.TryGetComponent<CozyVolume>(out CozyVolume cozyVolume))
+        {
+            OnWeatherVolumeTriggerEnter?.Invoke();
+        }
+    }
+
     private void OnCollisionEnter(Collision other)
     {
         if (other.contactCount == 0) return;
@@ -195,6 +285,7 @@ public class FlyModeController : MonoBehaviour
             capyRigidBody.AddForce(meanNormal * bounceStrength, ForceMode.Impulse);
         }
         
+        
     }
 
     private void NormalStateEnter()
@@ -213,6 +304,13 @@ public class FlyModeController : MonoBehaviour
         currentHitRotationSpeed = obstacleHitRotationSpeed;
         obstacleHitEnterTime = Time.time;
     }
+
+    private void PlayLightningDodgeAnimation()
+    {
+        int animHash = dodgeAnimLeft ? leftDodgeRoll : rightDodgeRoll;
+        dodgeAnimLeft = !dodgeAnimLeft;
+        meshAnimator.CrossFadeInFixedTime(animHash, 0.15f);
+    }
     private void ApplyMeshLocalRotation()
     {
         switch (state)
@@ -224,7 +322,7 @@ public class FlyModeController : MonoBehaviour
                 Quaternion rollRotation = Quaternion.AngleAxis(targetRoll, Vector3.forward);
                 Quaternion pitchRotation = Quaternion.AngleAxis(targetPitch, Vector3.right);
                 Quaternion targetMeshRotation = pitchRotation * rollRotation;
-                meshTransform.localRotation = QInterpTo(meshTransform.localRotation, targetMeshRotation,
+                meshRoot.localRotation = QInterpTo(meshRoot.localRotation, targetMeshRotation,
                     Time.deltaTime, 3f);
                 break;
             }
@@ -233,11 +331,11 @@ public class FlyModeController : MonoBehaviour
                 currentHitRotationSpeed = FInterpTo(currentHitRotationSpeed, 150f, Time.deltaTime, 0.5f);
                 if (shouldSpinLeft)
                 {
-                    meshTransform.Rotate(0, currentHitRotationSpeed * Time.deltaTime, 0, Space.Self);
+                    meshRoot.Rotate(0, currentHitRotationSpeed * Time.deltaTime, 0, Space.Self);
                 }
                 else
                 {
-                    meshTransform.Rotate(0, -currentHitRotationSpeed * Time.deltaTime, 0, Space.Self);
+                    meshRoot.Rotate(0, -currentHitRotationSpeed * Time.deltaTime, 0, Space.Self);
                 }
                 break;
             }
@@ -289,6 +387,8 @@ public class FlyModeController : MonoBehaviour
         state = newState;
         OnStateEnter(newState);
     }
+    
+    public FlyModeState GetCurrentState() => state;
 
     private Quaternion QInterpTo(Quaternion current, Quaternion target, float deltaTime, float interpSpeed)
     {

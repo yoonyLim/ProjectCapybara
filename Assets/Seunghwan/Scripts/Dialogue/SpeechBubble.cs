@@ -5,16 +5,41 @@ public class SpeechBubble : MonoBehaviour
 {
     private Camera mainCamera;
     
+    [SerializeField] private Canvas speechBubbleCanvas;
+
+    private void OnEnable()
+    {
+        // InteractionComponent.OnDialogStart += DisableSpeechBubble();
+        // InteractionComponent.OnDialogEnd += EnableSpeechBubble;
+    }
+
+    private void OnDisable()
+    {
+        // InteractionComponent.OnDialogStart -= DisableSpeechBubble();
+        // InteractionComponent.OnDialogEnd -= EnableSpeechBubble;
+    }
+
     private void Awake()
     {
         mainCamera = Camera.main;
     }
-
     
-    void LateUpdate()
+    void Update()
     {
-        // Maybe optimize this behavior to be called once upon initialization? (If the camera does not move during dialogue)
-        Quaternion cameraRotation = mainCamera.transform.rotation;
-        transform.rotation = cameraRotation;
+        if (speechBubbleCanvas.enabled)
+        {
+            Quaternion cameraRotation = mainCamera.transform.rotation;
+            speechBubbleCanvas.transform.rotation = cameraRotation;
+        }
+    }
+
+    public void EnableSpeechBubble()
+    {
+        speechBubbleCanvas.enabled = true;
+    }
+
+    public void DisableSpeechBubble()
+    {
+        speechBubbleCanvas.enabled = false;
     }
 }

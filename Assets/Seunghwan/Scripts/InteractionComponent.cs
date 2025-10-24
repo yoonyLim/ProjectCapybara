@@ -8,7 +8,7 @@ public class InteractionComponent : MonoBehaviour
 
     private IInteractable closestInteractable;
     
-    private static bool IsInteracting = false;
+    public static bool IsInteracting = false;
 
     private Collider[] colliders = new Collider[10];
 
