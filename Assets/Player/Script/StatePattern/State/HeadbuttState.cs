@@ -19,13 +19,8 @@ public class HeadbuttState : IPlayerState
         timer = 0f;
 
         player.animator.SetTrigger("Headbutt");
-        //player.rb.linearVelocity = Vector3.zero;
 
-        Vector3 fwd = player.transform.forward;
-        Vector3 v = player.rb.linearVelocity;
-        v.x = fwd.x * dashSpeed;
-        v.z = fwd.z * dashSpeed;
-        player.rb.linearVelocity = v;
+
     }
 
     public void Update(PlayerController player)
@@ -36,6 +31,15 @@ public class HeadbuttState : IPlayerState
 
     public void FixedUpdate(PlayerController player)
     {
+        float verticalVelocity = player.rb.linearVelocity.y;
+        verticalVelocity -= player.gravity * Time.fixedDeltaTime;
+        Vector3 fwd = player.playerForward;
+        Vector3 v = player.rb.linearVelocity;
+        v.x = fwd.x * dashSpeed;
+        v.y = verticalVelocity;
+        v.z = fwd.z * dashSpeed;
+        player.rb.linearVelocity = v;
+
         if (!hitPerformed)
         {
             hitPerformed = true;

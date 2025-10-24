@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve animCurve;
     [SerializeField] private float timer = 0.25f;
     [HideInInspector] public RaycastHit slopeHit;
+    public Vector3 playerForward;
     #endregion
 
     #region 점프 관련 변수
@@ -243,6 +244,8 @@ public class PlayerController : MonoBehaviour
 
     private void HandleHeadbutt()
     {
+        //if (!isGrounded)
+        //    return;
         //박치기 State ㄱㄱ혓
         ChangeState(new HeadbuttState());
     }
@@ -512,7 +515,7 @@ public class PlayerController : MonoBehaviour
 
             // 2. 전방 벡터를 경사면 법선(normal)에 투영하여 경사면에 평행한 방향 계산
             Vector3 adjustedForward = Vector3.ProjectOnPlane(forwardToUse, slopeHit.normal).normalized;
-
+            
             // 3. 만약 정면이 경사면과 거의 수직이라 계산이 0에 가까워지면(드문 경우), transform.up을 대신 사용
             if (adjustedForward.sqrMagnitude < 0.01f)
             {
@@ -521,6 +524,7 @@ public class PlayerController : MonoBehaviour
 
             // 4. 경사면에 맞춘 최종 목표 회전값 계산 (바라볼 방향: adjustedForward, 위쪽: slopeHit.normal)
             targetRotation = Quaternion.LookRotation(adjustedForward, slopeHit.normal);
+            playerForward = adjustedForward;
         }
         else
         {
@@ -545,6 +549,7 @@ public class PlayerController : MonoBehaviour
         // 5. 현재 회전에서 목표 회전으로 부드럽게 보간 (Slerp 사용)
         // 이 함수는 FixedUpdate에서 호출될 것이므로 Time.fixedDeltaTime 사용
         return Quaternion.Slerp(transform.rotation, targetRotation, 8f * Time.fixedDeltaTime);
+        
     }
 
     //이거 뭐더라 기억안남
