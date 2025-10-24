@@ -157,6 +157,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 259da2b5a2e829949babfea7403be932, type: 2}
+  - {fileID: 2100000, guid: 84f042d0bbcc8e146addaf4d4967abe3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1076,6 +1077,9 @@ MonoBehaviour:
   capybaraInputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
   speedEffectMaterial: {fileID: 2100000, guid: 0e3da0f1f9adf47408912fedc724a9f1, type: 2}
   hitSoundComponent: {fileID: 7915315385705596705}
+  meshRenderers:
+  - {fileID: 5670032782100016260}
+  - {fileID: 6549625029781418320}
 --- !u!114 &4026415458043603430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1089,7 +1093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   preSound: {fileID: 8300000, guid: 0b6d04b74695963469536b633c3024e7, type: 3}
-  strikeSound: {fileID: 0}
+  strikeSound: {fileID: 8300000, guid: 670811b20fdfa8341b28d4d8d044ea3e, type: 3}
   audioSource: {fileID: 7627746224310092566}
   lightningEffect: {fileID: 4841737372317580237}
 --- !u!1 &5253941383591097977
@@ -1400,6 +1404,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 7196711859029634eb7e95399e17a3bf, type: 2}
+  - {fileID: 2100000, guid: 84f042d0bbcc8e146addaf4d4967abe3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2111,7 +2116,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4970093927959234992, guid: 6b801d5b1a2c4884ba75d76e102e4dde, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.083
+      value: -0.177
       objectReference: {fileID: 0}
     - target: {fileID: 4970093927959234992, guid: 6b801d5b1a2c4884ba75d76e102e4dde, type: 3}
       propertyPath: m_LocalRotation.w

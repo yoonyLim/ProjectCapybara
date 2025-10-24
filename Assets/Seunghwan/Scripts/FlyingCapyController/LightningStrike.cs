@@ -22,6 +22,8 @@ public class LightningStrike : MonoBehaviour
     private bool checkInput = false;
     private ColorAdjustments colorAdjustments;
     private float defaultPostExposure;
+
+    private float actualImpactTime;
     private void Awake()
     {
         flyModeController = GetComponent<FlyModeController>();
@@ -60,9 +62,13 @@ public class LightningStrike : MonoBehaviour
                 StartCoroutine(PlayStrikeSound());
                 effectStartTime = Time.time;
                 checkInput = true;
-                
+                actualImpactTime = effectStartTime + strikeDelayTime;
+                flyModeController.ActualImpactTime = actualImpactTime;
+                flyModeController.CheckLightning = true;
             }
         }
+        
+        
         
     }
 
@@ -74,7 +80,7 @@ public class LightningStrike : MonoBehaviour
     IEnumerator PlayStrikeSound()
     {
         yield return new WaitForSeconds(strikeDelayTime);
-        colorAdjustments.postExposure.value = 3f;
+        colorAdjustments.postExposure.value = 4f;
         StartCoroutine(RestorePostExposure());
         DualSenseInputManager.Instance.RumbleControllerForDuration(0.6f, 0.15f);
         audioSource.pitch = Random.Range(0.8f, 1.2f);
@@ -94,15 +100,9 @@ public class LightningStrike : MonoBehaviour
         
         checkInput = false;
         
-        float actualImpactTime = effectStartTime + strikeDelayTime;
         if (Time.time < actualImpactTime && Time.time > actualImpactTime - dodgeTimeWindow)
         {
             flyModeController.DodgedLightning = true;
-            
-        }
-        else
-        {
-            flyModeController.HitLightning = true;
         }
     }
     
