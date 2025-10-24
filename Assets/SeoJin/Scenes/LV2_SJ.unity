@@ -1623,7 +1623,7 @@ GameObject:
   m_Component:
   - component: {fileID: 73273537}
   - component: {fileID: 73273538}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (2)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -2003,63 +2003,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c4c7d029c9d8a048a66eee71cc80264, type: 3}
---- !u!1001 &97247533
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -763.4999
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 70.34619
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -371.4654
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
-      propertyPath: m_Name
-      value: crystal_stone01
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 132b2fd5db205104d84709b7270a51b3, type: 3}
 --- !u!1001 &97703586
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3162,7 +3105,7 @@ GameObject:
   m_Component:
   - component: {fileID: 159984172}
   - component: {fileID: 159984173}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (3)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -4145,8 +4088,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 203191804}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08675374, y: 4.534105e-11, z: -7.100574e-12, w: 0.9962298}
-  m_LocalPosition: {x: 255.68658, y: -40.008484, z: 94.9794}
+  m_LocalRotation: {x: 0.08675368, y: -2.1663194e-11, z: 1.6646865e-12, w: 0.9962298}
+  m_LocalPosition: {x: 7.1254067, y: 8.190449, z: -14.980011}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -81007,8 +80950,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883452439}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08675375, y: 4.5064456e-11, z: -3.9243058e-12, w: 0.9962298}
-  m_LocalPosition: {x: -456.1273, y: 23.14152, z: -279.4106}
+  m_LocalRotation: {x: 0.08675368, y: -2.1682656e-11, z: 1.888169e-12, w: 0.9962298}
+  m_LocalPosition: {x: -768.9913, y: 71.340454, z: -389.37003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -93952,6 +93895,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.421
       objectReference: {fileID: 0}
+    - target: {fileID: 2261631080309859769, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 2414896572502093439, guid: 288ee7215d31eaa4c9c64be6645d6737, type: 2}
     - target: {fileID: 2765412235151557475, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.421
@@ -93962,15 +93909,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -456.1273
+      value: -768.9913
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 17.630932
+      value: 65.829865
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -265.10486
+      value: -375.06427
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalRotation.w
@@ -94168,7 +94115,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 51.877117, y: 51.877117, z: 51.877117}
+  m_LocalScale: {x: 12.809786, y: 12.809786, z: 12.809786}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1300985806}
@@ -96933,9 +96880,15 @@ MonoBehaviour:
   middleSpawner: {fileID: 3798429}
   rightSpawner: {fileID: 1202698392}
   rockPrefabs:
-  - {fileID: 3976570260861976046, guid: 43ad05fe72c2d8346906c42f765fd5e2, type: 3}
+  - {fileID: 3976570260861976046, guid: f6ffab7d3daae0548ac1657e299b107b, type: 3}
+  - {fileID: 3976570260861976046, guid: 5b03abe7ab99f60469e91b7f298cab55, type: 3}
+  - {fileID: 3976570260861976046, guid: 6894af2ed42c97f418e78fb81a2e052d, type: 3}
+  - {fileID: 3976570260861976046, guid: b983a23a1e5eda74a826c9d577a38f21, type: 3}
   breakableRockPrefabs:
   - {fileID: 3976570260861976046, guid: a80cb7b639d27d94b8c15aef1640eef6, type: 3}
+  - {fileID: 3976570260861976046, guid: a7e00366627dd44428b5f25b0bbc53bb, type: 3}
+  - {fileID: 3976570260861976046, guid: 1f6b4903daa7a1144ae262819e16eca1, type: 3}
+  - {fileID: 3976570260861976046, guid: 9c933c1763ef05243bc5b4b10818169b, type: 3}
   spawnInterval: 1.5
 --- !u!4 &1138154480
 Transform:
@@ -106517,7 +106470,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1270683443}
   - component: {fileID: 1270683444}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (1)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -112602,7 +112555,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1299257948}
   - component: {fileID: 1299257949}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (4)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -113043,15 +112996,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 158a940d0618b554b83e0f1f34615616, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 42.49
+      value: 42.48
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 158a940d0618b554b83e0f1f34615616, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.85
+      value: 0.29
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 158a940d0618b554b83e0f1f34615616, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.58
+      value: 16.7
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 158a940d0618b554b83e0f1f34615616, type: 3}
       propertyPath: m_LocalRotation.w
@@ -128863,7 +128816,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1502553182}
   - component: {fileID: 1502553181}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -129576,8 +129529,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1523454374}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.016700713, y: -0.7532651, z: 0.019141143, w: 0.6572264}
-  m_LocalPosition: {x: -308.27402, y: 25.22, z: -244.87675}
+  m_LocalRotation: {x: -0.025582504, y: -0.7953293, z: -0.03364716, w: 0.6047023}
+  m_LocalPosition: {x: -307.33664, y: 25.22, z: -246.9726}
   m_LocalScale: {x: 18.891138, y: 17.828861, z: 14.047598}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -129597,7 +129550,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SplineSettings:
     Spline: {fileID: 244666531}
-    Position: 0.9730176
+    Position: 0.95219177
     Units: 1
   SplineOffset: {x: -6, y: 5.22, z: -2.5}
   CameraRotation: 0
@@ -137216,7 +137169,7 @@ Transform:
   m_GameObject: {fileID: 1610982109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -453.90063, y: 22.24993, z: -255.78366}
+  m_LocalPosition: {x: 8.613134, y: 16.111757, z: 49.073826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -149386,7 +149339,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1722411462}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176024,4 +175977,3 @@ SceneRoots:
   - {fileID: 2043164647}
   - {fileID: 803247722}
   - {fileID: 1035285776}
-  - {fileID: 97247533}

@@ -24709,7 +24709,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 12.727922, y: 12.727922, z: 12.727922}
+  m_LocalScale: {x: 12.809786, y: 12.809786, z: 12.809786}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1109416063}
@@ -26510,7 +26510,7 @@ Transform:
   m_GameObject: {fileID: 566655435}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.3945093, y: -0.012561321, z: 49.003944}
+  m_LocalPosition: {x: 7.821398, y: 12.045544, z: 50.240444}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -83148,17 +83148,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3760446635963301269, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
   m_PrefabInstance: {fileID: 1595029556}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1595029558 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
-  m_PrefabInstance: {fileID: 1595029556}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1595029559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a7d9d106b0ee834ba10bcb0697558c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1595029559 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9086152306701362361, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
@@ -83180,7 +83169,8 @@ MonoBehaviour:
   dustLandPrefab: {fileID: 4864117026307715271, guid: 79f62ac6d9fd2f54f9858d0092bd052d, type: 3}
   dustTrailSpawnPoint: {fileID: 1386422724}
   dustLandSpawnPoint: {fileID: 473856489}
-  playerController: {fileID: 1595029558}
+  motor: {fileID: 0}
+  yVelThreshold: 0
 --- !u!114 &1595029568
 MonoBehaviour:
   m_ObjectHideFlags: 0
