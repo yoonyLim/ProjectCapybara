@@ -70,7 +70,6 @@ public class RunningState : IPlayerState
             player.transform.rotation = player.SurfaceAlignment();
 
             Vector3 velocity = player.CalculateNextFrameGroundAngle(speed) < 60f ? player.moveDirection : Vector3.zero;
-            //Vector3 gravity = Vector3.down * Mathf.Abs(player.rb.linearVelocity.y);
             
 
             //------------------------------------
