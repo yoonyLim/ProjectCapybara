@@ -38,10 +38,22 @@ namespace Moko
         [SerializeField] private LayerMask groundLayerMask;
 
         [Header("Wall Detection Properties")]
-        [SerializeField] private float playerHeight = 2f;
-        [SerializeField] private float playerRadius = 0.5f;
+        [SerializeField] private float playerHeight = 1f;
+        [SerializeField] private float playerRadius = 0.2f;
         [SerializeField] private float wallCheckDistance = 0.5f;
         [SerializeField] private LayerMask wallLayerMask;
+
+        private Vector3[] wallCheckDirections =
+        {
+            new Vector3(0, 0, 1),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 0, -1),
+            new Vector3(0, 0, -1),
+            new Vector3(-1, 0, -1),
+            new Vector3(-1, 0, 0),
+            new Vector3(-1, 0, 1)
+        };
 
         public bool doGroundCheck = true;
         public Vector3 ApproximatedGroundNormal { get; private set; }
@@ -195,7 +207,29 @@ namespace Moko
 
             if (RawMoveDirection.sqrMagnitude > float.Epsilon)
             {
-                if (Physics.CapsuleCast(
+                float minDistance = float.MaxValue;
+                RaycastHit closestHit = new RaycastHit();
+                
+                foreach (var dir in wallCheckDirections)
+                {
+                    if (Physics.Raycast(transform.position + Vector3.up * playerHeight, dir.normalized,
+                            out RaycastHit wallHit, wallCheckDistance, groundLayerMask))
+                    {
+                        if (wallHit.distance < minDistance)
+                        {
+                            minDistance = wallHit.distance;
+                            closestHit = wallHit;
+                        }
+                    }
+                }
+
+                if (Vector3.Angle(Vector3.up, closestHit.normal) > MovementData.wallAngle)
+                {
+                    IsAgainstWall = true;
+                    WallHit = closestHit;
+                }
+                
+                /*if (Physics.CapsuleCast(
                         transform.position,
                         transform.position + (Vector3.up * playerHeight),
                         playerRadius,
@@ -210,7 +244,7 @@ namespace Moko
                         IsAgainstWall = true;
                         WallHit = hit;
                     }
-                }
+                }*/
             }
         }
 

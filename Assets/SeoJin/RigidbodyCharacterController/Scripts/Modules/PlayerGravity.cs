@@ -36,6 +36,7 @@ namespace Moko
 
         public void SetVerticalVelocity(float velocity)
         {
+            Debug.Log("IT DID!");
             verticalVelocity = velocity;
         }
 

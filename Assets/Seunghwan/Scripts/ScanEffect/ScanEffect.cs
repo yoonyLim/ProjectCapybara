@@ -53,16 +53,6 @@ public class ScanEffect : MonoBehaviour
         Shader.SetGlobalFloat("_ScanRadius", 0.0f);
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Execute();
-        }
-        
-    }
-
-   
 
     public IEnumerator ScanCoroutine()
     {
