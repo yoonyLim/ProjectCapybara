@@ -15,11 +15,6 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private Slider brightnessSlider;
     [SerializeField] private PostProcessVolume postProcessVolume;
 
-    [Header("GRAPHIC")]
-    [SerializeField] private TextMeshProUGUI pixelFilterText;
-    [SerializeField] private Button prevPixelFilterButton;
-    [SerializeField] private Button nextPixelFilterButton;
-
     [Header("AUDIO")]
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider bgmVolumeSlider;
@@ -45,7 +40,7 @@ public class SettingsUI : MonoBehaviour
             postProcessVolume.profile = Instantiate(postProcessVolume.profile);
             if (!postProcessVolume.profile.TryGetSettings(out colorGrading))
             {
-                Debug.LogError("Color Grading ¼³Á¤À» Ã£Áö ¸øÇß½À´Ï´Ù!");
+                Debug.LogError("Color Grading ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½!");
             }
         }
     }
@@ -67,8 +62,6 @@ public class SettingsUI : MonoBehaviour
         nextResolutionButton.onClick.AddListener(OnNextResolutionClicked);
         prevScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
         nextScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
-        prevPixelFilterButton.onClick.AddListener(OnPixelFilterButtonClicked);
-        nextPixelFilterButton.onClick.AddListener(OnPixelFilterButtonClicked);
         brightnessSlider.onValueChanged.AddListener(OnBrightnessChanged);
         masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
         bgmVolumeSlider.onValueChanged.AddListener(OnBgmVolumeChanged);
@@ -81,8 +74,6 @@ public class SettingsUI : MonoBehaviour
         nextResolutionButton.onClick.RemoveAllListeners();
         prevScreenModeButton.onClick.RemoveAllListeners();
         nextScreenModeButton.onClick.RemoveAllListeners();
-        prevPixelFilterButton.onClick.RemoveAllListeners();
-        nextPixelFilterButton.onClick.RemoveAllListeners();
         brightnessSlider.onValueChanged.RemoveAllListeners();
         masterVolumeSlider.onValueChanged.RemoveAllListeners();
         bgmVolumeSlider.onValueChanged.RemoveAllListeners();
@@ -106,7 +97,6 @@ public class SettingsUI : MonoBehaviour
 
         UpdateResolutionUI();
         UpdateScreenModeUI();
-        UpdatePixelFilterUI();
         UpdateBrightness();
     }
 
@@ -127,19 +117,6 @@ public class SettingsUI : MonoBehaviour
         else
         {
             screenModeText.text = "Windowed";
-        }
-    }
-
-    private void UpdatePixelFilterUI()
-    {
-        if (SettingsManager.instance == null) return;
-        if (SettingsManager.instance.PixelFilter)
-        {
-            pixelFilterText.text = "ON";
-        }
-        else
-        {
-            pixelFilterText.text = "OFF";
         }
     }
 
@@ -168,13 +145,6 @@ public class SettingsUI : MonoBehaviour
     {
         SettingsManager.instance.ToggleFullscreen();
         UpdateScreenModeUI();
-    }
-
-    public void OnPixelFilterButtonClicked()
-    {
-        if (SettingsManager.instance == null) return;
-        SettingsManager.instance.TogglePixelFilter();
-        UpdatePixelFilterUI();
     }
 
     public void OnBrightnessChanged(float value)

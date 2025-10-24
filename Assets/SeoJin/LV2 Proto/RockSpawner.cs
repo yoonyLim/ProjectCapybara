@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,10 +13,10 @@ public class RockSpawner : MonoBehaviour
     private Vector3 leftSpawnPoint;
     private Vector3 middleSpawnPoint;
     private Vector3 rightSpawnPoint;
-    
 
-    [SerializeField] private GameObject rockPrefab;
-    [SerializeField] private GameObject rockPrefab_SOON;
+
+    public List<GameObject> rockPrefabs;
+    public List<GameObject> breakableRockPrefabs;
     [SerializeField] private float spawnInterval = 1.5f;
     
     
@@ -96,9 +97,9 @@ public class RockSpawner : MonoBehaviour
 
         if (rockSet != 7)
         {
-            if (spawnLeft) Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
-            if (spawnMiddle) Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
-            if (spawnRight) Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+            if (spawnLeft) Instantiate(GetRandomRockPrefab(false), leftSpawnPoint, GetRandomQuat());
+            if (spawnMiddle) Instantiate(GetRandomRockPrefab(false), middleSpawnPoint, GetRandomQuat());
+            if (spawnRight) Instantiate(GetRandomRockPrefab(false), rightSpawnPoint, GetRandomQuat());
         }
         else
         {
@@ -106,22 +107,28 @@ public class RockSpawner : MonoBehaviour
             switch (breakableRockSpawnPos)
             {
                 case 1:
-                    Instantiate(rockPrefab_SOON, leftSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(true), leftSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), middleSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), rightSpawnPoint, GetRandomQuat());
                     break;
                 case 2:
-                    Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab_SOON, middleSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), leftSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(true), middleSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), rightSpawnPoint, GetRandomQuat());
                     break;
                 case 3:
-                    Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
-                    Instantiate(rockPrefab_SOON, rightSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), leftSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(false), middleSpawnPoint, GetRandomQuat());
+                    Instantiate(GetRandomRockPrefab(true), rightSpawnPoint, GetRandomQuat());
                     break;
             }
         }
+    }
+
+    private GameObject GetRandomRockPrefab(bool isBreakableRock)
+    {
+        if (isBreakableRock) return breakableRockPrefabs[Random.Range(0, breakableRockPrefabs.Count)];
+        else return rockPrefabs[Random.Range(0, rockPrefabs.Count)];
     }
 
 

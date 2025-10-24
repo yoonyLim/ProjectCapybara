@@ -1,4 +1,5 @@
 using Gamekit3D;
+using Moko;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.VFX;
@@ -11,12 +12,14 @@ public class DustSpawner : MonoBehaviour
     private IObjectPool<VisualEffect> dustLandPool;
     [SerializeField] private Transform dustTrailSpawnPoint;
     [SerializeField] private Transform dustLandSpawnPoint;
-    [SerializeField] private PlayerController playerController;
+    [SerializeField] private CharacterMotor motor;
+
+    [SerializeField, Range(0f, 50f)] private float yVelThreshold;
 
     private void Awake()
     {
-        if (playerController == null)
-            playerController = GetComponent<PlayerController>();
+        if (motor == null)
+            motor = GetComponent<CharacterMotor>();
 
         dustTrailPool = new ObjectPool<VisualEffect>(CreateDustTrail, OnDustTrailGet,
             OnDustTrailRelease, OnDustTrailDestroy, true, 10, 20);
@@ -72,12 +75,11 @@ public class DustSpawner : MonoBehaviour
 
     private void OnDustLandGet(VisualEffect dust)
     {
-
         dust.transform.position = dustLandSpawnPoint.position;
+        dust.transform.rotation = dustLandSpawnPoint.rotation;
         dust.gameObject.SetActive(true);
         dust.Play();
         dust.GetComponent<DustLand>().Pool = dustLandPool;
-
     }
 
     private void OnDustLandRelease(VisualEffect dust)
@@ -95,15 +97,9 @@ public class DustSpawner : MonoBehaviour
     /// </summary>
     public void SpawnDustLand()
     {
-        if (!playerController.canSpawnDustLand)
-            return;
+        if (motor.Rb.linearVelocity.y > -yVelThreshold) return;
 
-        playerController.canSpawnDustLand = false;
         dustLandPool.Get();
     }
     #endregion Dust Land
-    
-    
-    
-    
 }

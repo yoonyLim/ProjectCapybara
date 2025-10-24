@@ -3,8 +3,8 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// [·ÎÁ÷ Àü¿ë] NPC¿¡ ºÎÂøµÇ¾î ´ëÈ­ÀÇ 'Èå¸§' (¾î¶² ³ëµåÀÎÁö)¸¸ °ü¸®ÇÕ´Ï´Ù.
-/// ½ÇÁ¦ Ç¥Çö(UI, ¿Àµð¿À)Àº DialogUI.cs¿¡ À§ÀÓÇÕ´Ï´Ù.
+/// [ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½] NPCï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½È­ï¿½ï¿½ 'ï¿½å¸§' (ï¿½î¶² ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+/// ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½(UI, ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ DialogUI.csï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class Dialogue : MonoBehaviour, IInteractable
 {
@@ -14,22 +14,24 @@ public class Dialogue : MonoBehaviour, IInteractable
         Normal
     }
 
+    private bool blockInteraction = false;
+
     public event Action OnDialogueStart;
     public event Action OnDialogueEnd;
     public event Action OnDialogueAdvance;
 
     [Header("NPC Info")]
-    [Tooltip("ÀÌ NPCÀÇ ÀÌ¸§ÀÔ´Ï´Ù. DialogUI¿¡ Ç¥½ÃµË´Ï´Ù.")]
+    [Tooltip("ï¿½ï¿½ NPCï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½Ô´Ï´ï¿½. DialogUIï¿½ï¿½ Ç¥ï¿½ÃµË´Ï´ï¿½.")]
     [SerializeField] private string npcName;
 
     [Header("Dialogue Content")]
-    [Tooltip("ÀÌ NPC°¡ ½ÃÀÛÇÒ Ã¹ ¹øÂ° ´ëÈ­ ³ëµå(DialogueNode)ÀÔ´Ï´Ù.")]
+    [Tooltip("ï¿½ï¿½ NPCï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¹ ï¿½ï¿½Â° ï¿½ï¿½È­ ï¿½ï¿½ï¿½(DialogueNode)ï¿½Ô´Ï´ï¿½.")]
     [SerializeField]
     private DialogueNode startingNode;
 
     [Header("Tutorial Trigger")]
-    [Tooltip("´ëÈ­ Á¾·á ½Ã ¶ç¿ï Æ©Åä¸®¾ó ·¹º§ (0 = ¾øÀ½, 1 = 1·¹º§, 2 = 2·¹º§, 3 = 3·¹º§)")]
-    [SerializeField] private int tutorialLevelToShow = 0; // [¼öÁ¤µÊ]
+    [Tooltip("ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ Æ©ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (0 = ï¿½ï¿½ï¿½ï¿½, 1 = 1ï¿½ï¿½ï¿½ï¿½, 2 = 2ï¿½ï¿½ï¿½ï¿½, 3 = 3ï¿½ï¿½ï¿½ï¿½)")]
+    [SerializeField] private int tutorialLevelToShow = 0; // [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]
 
     private DialogueNode currentNode;
     [SerializeField]
@@ -43,15 +45,16 @@ public class Dialogue : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// InteractionComponent°¡ È£ÃâÇÏ´Â ÀÎÅÍÆäÀÌ½º ±¸Çö
+    /// InteractionComponentï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void Interact()
     {
+        if (blockInteraction) return;
         StartDialogue();
     }
 
     /// <summary>
-    /// ´ëÈ­¸¦ ½ÃÀÛÇÕ´Ï´Ù.
+    /// ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void StartDialogue()
     {
@@ -66,14 +69,14 @@ public class Dialogue : MonoBehaviour, IInteractable
         }
         else
         {
-            Debug.LogWarning("DialogUI ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø¾î ÀÌ¸§À» ¼³Á¤ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("DialogUI ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         }
 
         OnDialogueStart?.Invoke();
 
         if (startingNode == null)
         {
-            Debug.LogError($"{gameObject.name}¿¡ startingNode°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError($"{gameObject.name}ï¿½ï¿½ startingNodeï¿½ï¿½ ï¿½Ò´ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò½ï¿½ï¿½Ï´ï¿½!");
             StartCoroutine(EndInteractionCoroutine());
             return;
         }
@@ -85,7 +88,7 @@ public class Dialogue : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// ÇöÀç ³ëµå¸¦ Ã³¸®ÇÏ°í, DialogUI¿¡ ÅØ½ºÆ® Ç¥½Ã¸¦ '¿äÃ»'ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å¸¦ Ã³ï¿½ï¿½ï¿½Ï°ï¿½, DialogUIï¿½ï¿½ ï¿½Ø½ï¿½Æ® Ç¥ï¿½Ã¸ï¿½ 'ï¿½ï¿½Ã»'ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public IEnumerator ProcessDialogue()
     {
@@ -100,7 +103,7 @@ public class Dialogue : MonoBehaviour, IInteractable
             }
             else
             {
-                Debug.LogError("DialogUI ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("DialogUI ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
                 yield return null;
             }
 
@@ -108,7 +111,7 @@ public class Dialogue : MonoBehaviour, IInteractable
         }
         else
         {
-            // ´ëÈ­ Á¾·á
+            // ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½
             currentState = DialogueState.Inactive;
             StartCoroutine(EndInteractionCoroutine());
             OnDialogueEnd?.Invoke();
@@ -118,7 +121,7 @@ public class Dialogue : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// UIManager°¡ '´ÙÀ½' ÀÔ·ÂÀ» ¹Þ¾ÒÀ» ¶§ È£ÃâÇÒ °ø¿ë ÇÔ¼öÀÔ´Ï´Ù.
+    /// UIManagerï¿½ï¿½ 'ï¿½ï¿½ï¿½ï¿½' ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½Þ¾ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½Ô´Ï´ï¿½.
     /// </summary>
     public void AdvanceDialogue()
     {
@@ -129,23 +132,39 @@ public class Dialogue : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// [¼öÁ¤µÊ] ´ëÈ­°¡ ¿ÏÀüÈ÷ Á¾·áµÉ ¶§ UIManager¿¡°Ô »óÅÂ º¹±¸¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+    /// [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ UIManagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private IEnumerator EndInteractionCoroutine()
     {
         if (UIManager.instance != null)
         {
-            // [¼öÁ¤] Æ©Åä¸®¾ó ·¹º§ ¹øÈ£¸¦ UIManager¿¡°Ô Àü´Þ
+            // [ï¿½ï¿½ï¿½ï¿½] Æ©ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ UIManagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             UIManager.instance.EndDialogue(tutorialLevelToShow);
         }
 
         yield return new WaitForEndOfFrame();
 
-        // [¼öÁ¤] ·¹º§º° Æ©Åä¸®¾óÀÌ ¶ã °æ¿ì, »óÈ£ÀÛ¿ë Á¾·á¸¦ ¹Ì·ì´Ï´Ù.
-        // (Æ©Åä¸®¾óÀÌ ´ÝÈú ¶§ UIManager°¡ ´ë½Å È£ÃâÇØÁÝ´Ï´Ù)
+        // [ï¿½ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Æ©ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½È£ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½á¸¦ ï¿½Ì·ï¿½Ï´ï¿½.
+        // (Æ©ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ UIManagerï¿½ï¿½ ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ï¿½Ý´Ï´ï¿½)
         if (tutorialLevelToShow == 0)
         {
             InteractionComponent.EndInteraction();
         }
+        
+        StartCoroutine(BlockInteractionCoroutine(0.5f));
+    }
+
+    IEnumerator BlockInteractionCoroutine(float duration)
+    {
+        blockInteraction = true;
+        
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        blockInteraction = false;
     }
 }

@@ -20,6 +20,7 @@ namespace Moko
         private PlayerInput _playerInput;
         public PlayerAnimator playerAnimator { get; private set; }
         public PlayerStateMachine stateMachine { get; private set; }
+        private DustSpawner dustSpawner;
         
         public Camera playerCamera;
 
@@ -37,11 +38,24 @@ namespace Moko
         [SerializeField] private LayerMask groundLayerMask;
 
         [Header("Wall Detection Properties")]
-        [SerializeField] private float playerHeight = 2f;
-        [SerializeField] private float playerRadius = 0.5f;
+        [SerializeField] private float playerHeight = 1f;
+        [SerializeField] private float playerRadius = 0.2f;
         [SerializeField] private float wallCheckDistance = 0.5f;
         [SerializeField] private LayerMask wallLayerMask;
 
+        private Vector3[] wallCheckDirections =
+        {
+            new Vector3(0, 0, 1),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 0, -1),
+            new Vector3(0, 0, -1),
+            new Vector3(-1, 0, -1),
+            new Vector3(-1, 0, 0),
+            new Vector3(-1, 0, 1)
+        };
+
+        public bool doGroundCheck = true;
         public Vector3 ApproximatedGroundNormal { get; private set; }
         public RaycastHit GroundHit { get; private set; }
         public RaycastHit WallHit { get; private set; }
@@ -52,6 +66,7 @@ namespace Moko
         private bool IsFrontGrounded;
         private bool IsMiddleGrounded;
         private bool IsBackGrounded;
+        private bool prevIsGrounded;
         public bool IsGrounded { get; private set; }
         public bool IsAgainstWall { get; private set; }
         public bool IsDashing { get; set; }
@@ -86,6 +101,9 @@ namespace Moko
             _modules = GetComponents<IPlayerModule>();
             playerAnimator = GetComponent<PlayerAnimator>();
             stateMachine = GetComponent<PlayerStateMachine>();
+            dustSpawner = GetComponent<DustSpawner>();
+
+            prevIsGrounded = true;
         }
 
 
@@ -97,7 +115,10 @@ namespace Moko
         private void FixedUpdate()
         {
             CalculateRawMoveDirection();
-            CheckGrounded();
+            
+            if(doGroundCheck)
+                CheckGrounded();
+            
             CheckWall();
 
             if (IsOnValidGround && RetainAirMovement == true)
@@ -151,6 +172,16 @@ namespace Moko
             int groundedCounter = (IsFrontGrounded?1:0) + (IsMiddleGrounded?1:0) + (IsBackGrounded?1:0);
             IsGrounded = groundedCounter >= 1;
 
+            if (prevIsGrounded == false && IsGrounded == true)
+            {
+                dustSpawner.SpawnDustLand();
+                
+                if (!stateMachine.audioSourceHolder.landSound.landAudioSource.isPlaying)
+                    stateMachine.audioSourceHolder.landSound.PlayLandSound();
+            }
+            
+            prevIsGrounded = IsGrounded;
+
             if (IsGrounded)
             {
                 ApproximatedGroundNormal = Vector3.up;
@@ -176,7 +207,29 @@ namespace Moko
 
             if (RawMoveDirection.sqrMagnitude > float.Epsilon)
             {
-                if (Physics.CapsuleCast(
+                float minDistance = float.MaxValue;
+                RaycastHit closestHit = new RaycastHit();
+                
+                foreach (var dir in wallCheckDirections)
+                {
+                    if (Physics.Raycast(transform.position + Vector3.up * playerHeight, dir.normalized,
+                            out RaycastHit wallHit, wallCheckDistance, groundLayerMask))
+                    {
+                        if (wallHit.distance < minDistance)
+                        {
+                            minDistance = wallHit.distance;
+                            closestHit = wallHit;
+                        }
+                    }
+                }
+
+                if (Vector3.Angle(Vector3.up, closestHit.normal) > MovementData.wallAngle)
+                {
+                    IsAgainstWall = true;
+                    WallHit = closestHit;
+                }
+                
+                /*if (Physics.CapsuleCast(
                         transform.position,
                         transform.position + (Vector3.up * playerHeight),
                         playerRadius,
@@ -191,7 +244,7 @@ namespace Moko
                         IsAgainstWall = true;
                         WallHit = hit;
                     }
-                }
+                }*/
             }
         }
 

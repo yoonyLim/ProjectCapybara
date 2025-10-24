@@ -1,4 +1,5 @@
-﻿using Capybara;
+﻿using System;
+using Capybara;
 using Unity.Cinemachine;
 using DG.Tweening;
 using System.Collections;
@@ -11,6 +12,8 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class UIManager : MonoBehaviour
 {
+    public event Action OnCloseLevelTutorial;
+    
     public static UIManager instance;
 
     #region Fields and Properties
@@ -279,6 +282,8 @@ public class UIManager : MonoBehaviour
 
     public void StartGame()
     {
+        Time.timeScale = 1f;
+        
         CloseAllUI();
         inputReader.EnableGamePlayActionInputs();
 
@@ -322,12 +327,12 @@ public class UIManager : MonoBehaviour
     public void EndDialogue(int tutorialLevel)
     {
         currentActiveDialogue = null;
-
+        
         GameObject tutorialToOpen = null;
         if (tutorialLevel == 1) tutorialToOpen = level1TutorialUI;
         else if (tutorialLevel == 2) tutorialToOpen = level2TutorialUI;
         else if (tutorialLevel == 3) tutorialToOpen = level3TutorialUI;
-
+        
         if (tutorialToOpen != null)
         {
             ReplaceUI(tutorialToOpen);
@@ -365,6 +370,8 @@ public class UIManager : MonoBehaviour
         CloseAllUI();
         inputReader.EnableGamePlayActionInputs();
         InteractionComponent.EndInteraction();
+        
+        OnCloseLevelTutorial?.Invoke();
     }
 
     #endregion
