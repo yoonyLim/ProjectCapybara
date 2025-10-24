@@ -10,10 +10,12 @@ public class PlayerStateMachine : MonoBehaviour
     public BaseState currentState;
 
     public PlayerAnimator playerAnimator { get; private set; }
+    public PlayerAudioSourceHolder audioSourceHolder { get; private set; }
     public PlayerInput playerInput { get; private set; }
     public CharacterMotor motor { get; private set; }
     public Animator animator { get; private set; }
     public Rigidbody rb { get; private set; }
+    public HeadbuttVFXPlayer headbuttVFXPlayer { get; private set; }
     
     public bool canMove;
 
@@ -32,6 +34,8 @@ public class PlayerStateMachine : MonoBehaviour
         motor = GetComponent<CharacterMotor>();
         playerInput = GetComponent<PlayerInput>();
         rb = GetComponent<Rigidbody>();
+        audioSourceHolder = GetComponentInChildren<PlayerAudioSourceHolder>();
+        headbuttVFXPlayer = GetComponentInChildren<HeadbuttVFXPlayer>();
     }
 
     private void Start()
@@ -90,5 +94,10 @@ public class PlayerStateMachine : MonoBehaviour
             ChangeState(squashState);
         else
             squashState.AddSquashDuration();
+    }
+
+    public void PlayFootStepSound()
+    {
+            audioSourceHolder.footStepSound.PlayFootStepSound();
     }
 }

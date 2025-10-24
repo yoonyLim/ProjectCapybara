@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Moko
 {
     public class PlayerJump : MonoBehaviour, IPlayerModule
     {
         private PlayerInput _playerInput;
+        private CharacterMotor motor;
 
         private float coyoteTimeCounter;
         private float jumpBufferCounter;
@@ -14,6 +17,7 @@ namespace Moko
         private void Awake()
         {
             _playerInput = GetComponent<PlayerInput>();
+            motor = GetComponent<CharacterMotor>();
         }
 
         public Vector3 CalculateVelocity(CharacterMotor motor)
@@ -32,9 +36,11 @@ namespace Moko
             bool jumpPressed = _playerInput.JumpInput;
             if (jumpPressed)
             {
+                StartCoroutine(DisableGroundCheckForSeconds(0.2f));
                 motor.playerAnimator.TriggerJumpInputParam();
                 _playerInput.ClearJumpInput();
                 jumpBufferCounter = motor.JumpData.JumpBufferTime;
+                motor.stateMachine.audioSourceHolder.jumpSound.PlayJumpSound();
             }
             else
             {
@@ -60,6 +66,13 @@ namespace Moko
             }
             
             return Vector3.zero;
+        }
+
+        private IEnumerator DisableGroundCheckForSeconds(float seconds)
+        {
+            motor.doGroundCheck = false;
+            yield return new WaitForSeconds(seconds);
+            motor.doGroundCheck = true;
         }
 
         //----------------------------------------------------------------

@@ -8,22 +8,37 @@ public class DestructibleRock : MonoBehaviour, IDestructible
     private ParticleSystem rockParticleSystem;
     private Collider rockCollider;
     private Rigidbody rockRigidbody;
-    private MeshRenderer rockMeshRenderer;
+    private MeshRenderer[] meshRenderers;
+
+    private bool gotHit = false;
 
     private void Awake()
     {
         rockParticleSystem = GetComponent<ParticleSystem>();
         rockCollider = GetComponent<Collider>();
-        rockMeshRenderer = GetComponent<MeshRenderer>();
+        meshRenderers = GetComponentsInChildren<MeshRenderer>();
         rockRigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
+        if (!rockParticleSystem.isPlaying && gotHit)
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void Hit()
     {
+        gotHit = true;
+        
         rockRigidbody.isKinematic = true;
         rockParticleSystem.Play();
         rockCollider.enabled = false;
-        rockMeshRenderer.enabled = false;
+        foreach (var meshRenderer in meshRenderers)
+        {
+            meshRenderer.enabled = false;
+        }
     }
 
     

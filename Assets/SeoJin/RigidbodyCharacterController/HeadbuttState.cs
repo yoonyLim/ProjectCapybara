@@ -10,6 +10,8 @@ public class RCC_HeadbuttState : BaseState
         
         stateMachine.lastheadbuttUsagetime = Time.time;
         stateMachine.playerAnimator.TriggerHeadbuttInputParam();
+        stateMachine.headbuttVFXPlayer.PlayHeadbuttVFX();
+        stateMachine.audioSourceHolder.headbuttWhooshSound.PlayHeadbuttWhooshSound();
 
         stateMachine.rockBreaker.SetActive(true);
         
