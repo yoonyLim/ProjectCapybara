@@ -107,10 +107,10 @@ namespace Moko
         }
 
 
-        private void Update()
+        /*private void Update()
         {
             CheckLog();
-        }
+        }*/
 
         private void FixedUpdate()
         {
@@ -266,7 +266,7 @@ namespace Moko
 
         //------------------------------------------------------------------------------------------------------------------
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
         private void CheckLog()
         {
             DebugExtension.ColorLog($"IsGrounded : {IsOnValidGround}", "cyan");
@@ -445,6 +445,6 @@ namespace Moko
             Gizmos.DrawLine(start + right, end + right);
             Gizmos.DrawLine(start - right, end - right);
         }
-#endif
+#endif*/
     }
 }

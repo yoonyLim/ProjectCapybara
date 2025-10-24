@@ -4844,6 +4844,7 @@ GameObject:
   - component: {fileID: 5871799328713693259}
   - component: {fileID: 4655834672456386416}
   - component: {fileID: 4606588536386387307}
+  - component: {fileID: 6766809220620618876}
   m_Layer: 0
   m_Name: Cliff Island 5
   m_TagString: Untagged
@@ -4920,6 +4921,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6766809220620618876
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3107167839448397554}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300010, guid: 0c166b3475d819d43914a5b26e39335a, type: 3}
 --- !u!1 &3116581197892436976
 GameObject:
   m_ObjectHideFlags: 0
@@ -4975,6 +4998,7 @@ GameObject:
   - component: {fileID: 7912001719387198175}
   - component: {fileID: 4945017949117141007}
   - component: {fileID: 8996974592281609623}
+  - component: {fileID: 4428028138504820101}
   m_Layer: 0
   m_Name: Cliff Island 3
   m_TagString: Untagged
@@ -5051,6 +5075,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &4428028138504820101
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716517437497430260}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300006, guid: 0c166b3475d819d43914a5b26e39335a, type: 3}
 --- !u!1 &5152837064626231470
 GameObject:
   m_ObjectHideFlags: 0
@@ -5062,6 +5108,7 @@ GameObject:
   - component: {fileID: 6065251480286090664}
   - component: {fileID: 4682682926214041046}
   - component: {fileID: 580415637403695182}
+  - component: {fileID: 3740702763678499594}
   m_Layer: 0
   m_Name: Cliff Island 4
   m_TagString: Untagged
@@ -5138,6 +5185,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &3740702763678499594
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5152837064626231470}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300008, guid: 0c166b3475d819d43914a5b26e39335a, type: 3}
 --- !u!1 &5868462261848604209
 GameObject:
   m_ObjectHideFlags: 0
@@ -5149,6 +5218,7 @@ GameObject:
   - component: {fileID: 2575794557856044426}
   - component: {fileID: 394164939222685828}
   - component: {fileID: 6543945909681361527}
+  - component: {fileID: 6688037926458587909}
   m_Layer: 0
   m_Name: Cliff Island 1
   m_TagString: Untagged
@@ -5225,6 +5295,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6688037926458587909
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5868462261848604209}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300004, guid: eb41ec69c280e134a9e41a079b65b479, type: 3}
 --- !u!1 &8038199803953506742
 GameObject:
   m_ObjectHideFlags: 0
@@ -5236,6 +5328,7 @@ GameObject:
   - component: {fileID: 1411009190639348051}
   - component: {fileID: 771866881095106287}
   - component: {fileID: 712923090116111259}
+  - component: {fileID: 6580450971564226860}
   m_Layer: 0
   m_Name: Cliff Island 2
   m_TagString: Untagged
@@ -5312,6 +5405,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6580450971564226860
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8038199803953506742}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300004, guid: 0c166b3475d819d43914a5b26e39335a, type: 3}
 --- !u!1 &9148724356435909995
 GameObject:
   m_ObjectHideFlags: 0
