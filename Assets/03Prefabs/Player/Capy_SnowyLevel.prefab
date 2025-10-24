@@ -388,7 +388,7 @@ Animator:
   m_GameObject: {fileID: 3702451084219607114}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0ea9a87c34c3c0b4a8092a453f623c83, type: 2}
+  m_Controller: {fileID: 9100000, guid: 8f2392efc053b9d4e98051c21bf5fbd5, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -465,6 +465,7 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: 09e05c216a82a6146b076b749d1377a6, type: 2}
   cameraTransform: {fileID: 0}
   windSpeedParticles: {fileID: 0}
+  collectOrbsWindSpeedParticles: {fileID: 0}
   Clouds: {fileID: 3116581197892436976, guid: 49547230d06d39f4cab29735111a08b4, type: 3}
   breakDistance: 1000
   acceleration: 30
@@ -481,7 +482,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   constGroundRaycastDistance: 0.4
-  constGravity: 9.81
+  mainCineCam: {fileID: 0}
+  collectOrbCineCam: {fileID: 0}
+  finalCineCam: {fileID: 0}
+  collectOrbsTimeline: {fileID: 0}
+  finalRamp: {fileID: 0}
+  flashUIAnim: {fileID: 0}
 --- !u!114 &2389531717837984836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,6 +527,7 @@ MonoBehaviour:
   walkSpeed: 3
   sprintSpeed: 7
   gravity: 9.81
+  fallGravity: 20
   moveDirection: {x: 0, y: 0, z: 0}
   isRunning: 0
   groundLayer:
@@ -582,6 +589,11 @@ MonoBehaviour:
   canSpawnDustLand: 0
   fallDeathYLevel: -30
   obstacleTag: Obstacle
+  playerModelTransform: {fileID: 0}
+  squashDuration: 2
+  squashAmount: 0.2
+  squashWidenAmount: 1.5
+  squashAnimSpeed: 10
 --- !u!114 &8567395690160405000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,9 +673,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7860760f60d70de4ca14a661b4f8ac56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputReader: {fileID: 0}
   interactLayer:
     serializedVersion: 2
     m_Bits: 131072
+  interactRadius: 5
 --- !u!114 &3716466491889281152
 MonoBehaviour:
   m_ObjectHideFlags: 0

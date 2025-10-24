@@ -23,19 +23,19 @@ public class PenguinController : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponentInChildren<Rigidbody>();
     }
 
     private void Update()
     {
         if (shouldFlyWithCapy)
         {
-            transform.position = playerTransform.position + Vector3.up * 10;
+            transform.position = playerTransform.position + Vector3.up * 15;
         }
 
         if (shouldFlyAway)
         {
-            rb.linearVelocity = Vector3.forward * 50;
+            rb.linearVelocity = Vector3.up * 500;
         }
     }
 }

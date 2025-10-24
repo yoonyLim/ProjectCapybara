@@ -22,8 +22,8 @@ public class PlayerController : MonoBehaviour
     // input reader
     [SerializeField] private CapybaraInputReader inputReader;
     [SerializeField] private PlayerHapticEvent playerHapticEvent;
-    [SerializeField] private SoundManager soundManager;
-    [SerializeField] private string[] footstepSoundNames;
+    // [SerializeField] private SoundManager soundManager;
+    // [SerializeField] private string[] footstepSoundNames;
     // State 관련
     private IPlayerState currentState;
 
@@ -275,7 +275,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void FootStepSoundPlay()
+    /*public void FootStepSoundPlay()
     {
         //string soundToPlay = footstepSoundNames[Random.Range(0, footstepSoundNames.Length)];
         //soundManager.PlaySFX(soundToPlay);
@@ -288,7 +288,7 @@ public class PlayerController : MonoBehaviour
     public void LandSoundPlay()
     {
         soundManager.PlaySFX("LandSound");
-    }
+    }*/
 
     // 글라이드 
     private void HandleGlide()
