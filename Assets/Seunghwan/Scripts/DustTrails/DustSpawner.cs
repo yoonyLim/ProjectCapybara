@@ -87,6 +87,7 @@ public class DustSpawner : MonoBehaviour
 
     private void OnDustLandDestroy(VisualEffect dust)
     {
+        if (dust == null) return;
         Destroy(dust.gameObject);
     }
     /// <summary>

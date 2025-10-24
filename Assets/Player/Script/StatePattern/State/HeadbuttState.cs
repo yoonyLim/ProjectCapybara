@@ -3,33 +3,43 @@ using UnityEngine;
 
 public class HeadbuttState : IPlayerState
 {
-    private float stateDuration = 0.6f; // ¹ÚÄ¡±â ¾Ö´Ï¸ÞÀÌ¼Ç ±æÀÌ ¶Ç´Â »óÅÂ À¯Áö ½Ã°£
+    private float stateDuration = 0.6f; // ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
     private float timer;
 
-    private string obstacleTag = "Obstacle";  // ¡ç ÀÌ ÅÂ±×¸¸ Å¸°Ý ÆÇÁ¤
-    private float hitRange = 2f;          // ·¹ÀÌ ±æÀÌ
-    private float headHeight = 0.8f;          // ·¹ÀÌ ½ÃÀÛ ³ôÀÌ
-    private float hitDelay = 0.08f;         // ¾Ö´Ï Å¸ÀÌ¹Ö¿¡ ¸ÂÃç 1È¸¸¸ Ã¼Å©
+    private string obstacleTag = "BreakableRock";  // ï¿½ï¿½ ï¿½ï¿½ ï¿½Â±×¸ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float hitRange = 3f;          // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float headHeight = 0.8f;          // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float hitDelay = 0.08f;         // ï¿½Ö´ï¿½ Å¸ï¿½Ì¹Ö¿ï¿½ ï¿½ï¿½ï¿½ï¿½ 1È¸ï¿½ï¿½ Ã¼Å©
     private bool hitPerformed = false;
-    private float dashSpeed = 7f; // dash ¼Óµµ
+    private float dashSpeed = 7f; // dash ï¿½Óµï¿½
 
     public void Enter(PlayerController player)
     {
-        Debug.Log("HeadbuttState ÁøÀÔ");
+        Debug.Log("HeadbuttState ï¿½ï¿½ï¿½ï¿½");
         timer = 0f;
 
         player.animator.SetTrigger("Headbutt");
-        //player.rb.linearVelocity = Vector3.zero;
 
-        Vector3 fwd = player.transform.forward;
-        Vector3 v = player.rb.linearVelocity;
-        v.x = fwd.x * dashSpeed;
-        v.z = fwd.z * dashSpeed;
-        player.rb.linearVelocity = v;
+
     }
 
     public void Update(PlayerController player)
     {
+
+
+    }
+
+    public void FixedUpdate(PlayerController player)
+    {
+        float verticalVelocity = player.rb.linearVelocity.y;
+        verticalVelocity -= player.gravity * Time.fixedDeltaTime;
+        Vector3 fwd = player.playerForward;
+        Vector3 v = player.rb.linearVelocity;
+        v.x = fwd.x * dashSpeed;
+        v.y = verticalVelocity;
+        v.z = fwd.z * dashSpeed;
+        player.rb.linearVelocity = v;
+
         if (!hitPerformed)
         {
             hitPerformed = true;
@@ -39,32 +49,25 @@ public class HeadbuttState : IPlayerState
 
             if (Physics.Raycast(origin, dir, out RaycastHit hit, hitRange, ~0, QueryTriggerInteraction.Ignore))
             {
-                // Tag = Obstacle ÀÎ °Í¸¸ Å¸°Ý
                 if (hit.collider.CompareTag(obstacleTag))
                 {
                     if (hit.collider.TryGetComponent<DestructibleRock>(out var rock))
                     {
-                        rock.brokenPosition = hit.point; // ¡Ú ¸ÕÀú ¼¼ÆÃ
-                        rock.Hit();                      // ¡Ú ±× ´ÙÀ½¿¡ ÅÍ¶ß¸®±â
+                        rock.Hit();                      // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Í¶ß¸ï¿½ï¿½ï¿½
                     }
                 }
             }
 
-            // µð¹ö±×¿ë ·¹ÀÌ
+            // ï¿½ï¿½ï¿½ï¿½×¿ï¿½ ï¿½ï¿½ï¿½ï¿½
             Debug.DrawRay(origin, dir * hitRange, Color.red, 0.3f);
         }
 
-        timer += Time.deltaTime;
-        // Á¤ÇØÁø ½Ã°£ÀÌ Áö³ª¸é ±âº» »óÅÂ(RunningState)·Î
+        timer += Time.fixedDeltaTime;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½(RunningState)ï¿½ï¿½
         if (timer >= stateDuration)
         {
             player.ChangeState(new RunningState());
         }
-
-    }
-
-    public void FixedUpdate(PlayerController player)
-    {
     }
 
     public void HandleInput(PlayerController player, InputAction.CallbackContext context)

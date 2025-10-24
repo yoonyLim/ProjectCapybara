@@ -530,7 +530,7 @@ namespace Capybara
                 {
                     ""name"": """",
                     ""id"": ""b7d262b6-a156-4e5b-b272-1aa7f0b25c51"",
-                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""path"": ""<Gamepad>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -541,7 +541,7 @@ namespace Capybara
                 {
                     ""name"": """",
                     ""id"": ""c789139f-8b03-4200-a45f-b292c1ccfca7"",
-                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

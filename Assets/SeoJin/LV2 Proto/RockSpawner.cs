@@ -15,7 +15,9 @@ public class RockSpawner : MonoBehaviour
     
 
     [SerializeField] private GameObject rockPrefab;
+    [SerializeField] private GameObject rockPrefab_SOON;
     [SerializeField] private float spawnInterval = 1.5f;
+    
     
     private enum RockSet {
         Left,                //OXX
@@ -44,6 +46,7 @@ public class RockSpawner : MonoBehaviour
     private int GetRandomRockSet()
     {
         return Random.Range(1,8);
+        //return Random.Range(7,8);
     }
 
     private IEnumerator SpawnRocks()
@@ -90,11 +93,35 @@ public class RockSpawner : MonoBehaviour
                 spawnRight = true;
                 break;
         }
-        
-        
-        if (spawnLeft) Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
-        if (spawnMiddle) Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
-        if (spawnRight) Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+
+        if (rockSet != 7)
+        {
+            if (spawnLeft) Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
+            if (spawnMiddle) Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
+            if (spawnRight) Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+        }
+        else
+        {
+            int breakableRockSpawnPos = Random.Range(1, 3);
+            switch (breakableRockSpawnPos)
+            {
+                case 1:
+                    Instantiate(rockPrefab_SOON, leftSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+                    break;
+                case 2:
+                    Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab_SOON, middleSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab, rightSpawnPoint, GetRandomQuat());
+                    break;
+                case 3:
+                    Instantiate(rockPrefab, leftSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab, middleSpawnPoint, GetRandomQuat());
+                    Instantiate(rockPrefab_SOON, rightSpawnPoint, GetRandomQuat());
+                    break;
+            }
+        }
     }
 
 
