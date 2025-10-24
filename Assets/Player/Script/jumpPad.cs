@@ -23,6 +23,8 @@ public class jumPad : MonoBehaviour
 
             playerJump.DisableGroundCheck(0.2f);
             playerGravity.SetVerticalVelocity(strength);
+            
+            DualSenseInputManager.Instance.RumbleControllerShort(1);
 
             jumpPadAnimator.SetTrigger(springAnimTrigger);
         }
