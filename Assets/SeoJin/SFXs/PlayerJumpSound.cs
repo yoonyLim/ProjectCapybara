@@ -11,7 +11,7 @@ public class PlayerJumpSound : MonoBehaviour
         jumpAudioSource = GetComponent<AudioSource>();
     }
 
-    public void PlayFootStepSound()
+    public void PlayJumpSound()
     {
         float randomPitch = 1f + Random.Range(-pitchRandomDeviation, pitchRandomDeviation);
         jumpAudioSource.pitch = randomPitch;

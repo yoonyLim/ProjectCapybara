@@ -40,7 +40,7 @@ namespace Moko
                 motor.playerAnimator.TriggerJumpInputParam();
                 _playerInput.ClearJumpInput();
                 jumpBufferCounter = motor.JumpData.JumpBufferTime;
-                motor.stateMachine.audioSourceHolder.audioSources["Jump"].Play();
+                motor.stateMachine.audioSourceHolder.jumpSound.PlayJumpSound();
             }
             else
             {

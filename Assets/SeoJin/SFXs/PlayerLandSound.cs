@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerLandSound : MonoBehaviour
 {
     [SerializeField] private AudioClip landSound;
-    private AudioSource landAudioSource;
+    public AudioSource landAudioSource;
     [SerializeField] private float pitchRandomDeviation = 0.1f;
 
     private void Awake()
@@ -11,7 +11,7 @@ public class PlayerLandSound : MonoBehaviour
         landAudioSource = GetComponent<AudioSource>();
     }
 
-    public void PlayFootStepSound()
+    public void PlayLandSound()
     {
         float randomPitch = 1f + Random.Range(-pitchRandomDeviation, pitchRandomDeviation);
         landAudioSource.pitch = randomPitch;

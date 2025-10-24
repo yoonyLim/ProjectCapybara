@@ -164,8 +164,8 @@ namespace Moko
             {
                 dustSpawner.SpawnDustLand();
                 
-                if (!stateMachine.audioSourceHolder.audioSources["Land"].isPlaying)
-                    stateMachine.audioSourceHolder.audioSources["Land"].Play();
+                if (!stateMachine.audioSourceHolder.landSound.landAudioSource.isPlaying)
+                    stateMachine.audioSourceHolder.landSound.PlayLandSound();
             }
             
             prevIsGrounded = IsGrounded;

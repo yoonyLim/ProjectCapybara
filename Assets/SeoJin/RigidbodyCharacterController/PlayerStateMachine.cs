@@ -98,6 +98,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void PlayFootStepSound()
     {
-            audioSourceHolder.audioSources["FootStep"].Play();
+            audioSourceHolder.footStepSound.PlayFootStepSound();
     }
 }
