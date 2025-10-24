@@ -21,7 +21,7 @@ public class SpawnPointManager : MonoBehaviour
     
     private bool isRunning = false;
 
-    private GameObject playerGO;
+    [SerializeField] private GameObject playerGO;
 
     private Vector3 currentSpawnPoint;
     
@@ -33,7 +33,7 @@ public class SpawnPointManager : MonoBehaviour
     
     private void Awake()
     {
-        playerGO = GameObject.FindGameObjectWithTag("Player");
+        //playerGO = GameObject.FindGameObjectWithTag("Player");
         audioSource = GetComponent<AudioSource>();
         blackImage = GetComponentInChildren<Image>();
     }
