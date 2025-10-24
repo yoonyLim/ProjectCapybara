@@ -44,10 +44,10 @@ namespace Moko
 
         [Header("Rotation Speeds")]
         [Tooltip("경사면에 맞춰 정렬되는 속도")]
-        public float alignmentSpeed = 15f;
+        public float alignmentSpeed = 10f;
 
         [Tooltip("공중에서 다시 정면으로 돌아오는 속도")]
-        public float airAlignmentSpeed = 8f;
+        public float airAlignmentSpeed = 10f;
 
         private void Awake()
         {
@@ -113,7 +113,7 @@ namespace Moko
                 motor.MovementData.rotationSpeed * Time.fixedDeltaTime // FixedUpdate에서는 Time.fixedDeltaTime 사용
             );
 
-            motor.Rb.MoveRotation(smoothedRotation);
+            motor.transform.rotation = smoothedRotation;
         }
     }
 }

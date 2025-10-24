@@ -13,6 +13,7 @@ namespace Moko
         [SerializeField] private CharacterMotor motor;
         [SerializeField] private CapybaraInputReader inputReader;
         private PlayerAnimator playerAnimator;
+        private PlayerStateMachine stateMachine;
         
         #region Built-In Functions
 
@@ -20,6 +21,7 @@ namespace Moko
         {
             motor = GetComponent<CharacterMotor>();
             playerAnimator = GetComponent<PlayerAnimator>();
+            stateMachine = GetComponent<PlayerStateMachine>();
         }
 
         private void OnEnable()
@@ -91,7 +93,6 @@ namespace Moko
         {
             HeadbuttInput = true;
         }
-
         #endregion
 
         #region ClearInput
@@ -99,6 +100,11 @@ namespace Moko
         public void ClearJumpInput()
         {
             JumpInput = false;
+        }
+        
+        public void ClearHeadbuttInput()
+        {
+            HeadbuttInput = false;
         }
         #endregion
     }

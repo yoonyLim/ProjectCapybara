@@ -18,8 +18,6 @@ namespace Moko
 
         public Vector3 CalculateVelocity(CharacterMotor motor)
         {
-            Debug.Log(jumpCount);
-            
             if (motor.IsOnValidGround)
             {
                 coyoteTimeCounter = motor.JumpData.CoyoteTime;

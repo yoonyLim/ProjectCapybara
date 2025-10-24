@@ -13,7 +13,7 @@ public class PlayerFollower : MonoBehaviour
     private void Awake()
     {
         if (follower == null) follower = gameObject;
-        if (playerTransform == null) playerTransform = FindAnyObjectByType<PlayerController>().transform;
+        if (playerTransform == null) playerTransform = FindAnyObjectByType<PlayerStateMachine>().transform;
     }
 
     private void Update()

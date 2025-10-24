@@ -19,6 +19,7 @@ namespace Moko
         private IPlayerModule[] _modules;
         private PlayerInput _playerInput;
         public PlayerAnimator playerAnimator { get; private set; }
+        public PlayerStateMachine stateMachine { get; private set; }
         
         public Camera playerCamera;
 
@@ -41,7 +42,7 @@ namespace Moko
         [SerializeField] private float wallCheckDistance = 0.5f;
         [SerializeField] private LayerMask wallLayerMask;
 
-        public Vector3 ApproximatedGroundNormal;
+        public Vector3 ApproximatedGroundNormal { get; private set; }
         public RaycastHit GroundHit { get; private set; }
         public RaycastHit WallHit { get; private set; }
         public Vector3 RawMoveDirection { get; private set; }
@@ -83,7 +84,8 @@ namespace Moko
             if (SlideComponent) PlayerSlide = transform.AddComponent<PlayerSlide>();
 
             _modules = GetComponents<IPlayerModule>();
-            playerAnimator = GetComponentInChildren<PlayerAnimator>();
+            playerAnimator = GetComponent<PlayerAnimator>();
+            stateMachine = GetComponent<PlayerStateMachine>();
         }
 
 
@@ -103,7 +105,7 @@ namespace Moko
                 RetainAirMovement = false;
             }
 
-            Move();
+            if (stateMachine.canMove) Move();
         }
 
         private void CalculateRawMoveDirection()

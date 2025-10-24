@@ -20,8 +20,6 @@ public class DestructibleRock : MonoBehaviour, IDestructible
 
     public void Hit()
     {
-        
-        Debug.Log("Hit");
         rockRigidbody.isKinematic = true;
         rockParticleSystem.Play();
         rockCollider.enabled = false;
