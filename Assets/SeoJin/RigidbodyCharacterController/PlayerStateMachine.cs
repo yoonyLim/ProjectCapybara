@@ -52,6 +52,8 @@ public class PlayerStateMachine : MonoBehaviour
 
         if (playerInput.SoundWaveInput)
         {
+            DualSenseInputManager.Instance.RumbleControllerForDuration(0.3f, 0.2f);
+            
             playerInput.ClearSoundwaveInput();
             Debug.Log($"scanEffect is Null ? {scanEffect == null}");
             scanEffect.Execute();            

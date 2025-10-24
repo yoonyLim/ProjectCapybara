@@ -45,6 +45,8 @@ public class RCC_SquashState : BaseState
     
     public void AddSquashDuration()
     {
+        DualSenseInputManager.Instance.RumbleControllerForDuration(1, squashDuration);
+        
         remainingSquashDuration += squashDuration;
     }
 

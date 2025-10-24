@@ -24,6 +24,7 @@ public class RCC_HeadbuttState : BaseState
 
         if (stateInfo.IsName("Headbutt") && stateInfo.normalizedTime >= 1.0f)
         {
+            DualSenseInputManager.Instance.RumbleControllerForDuration(0.7f, 0.1f);
             stateMachine.ChangeState(stateMachine.basicMoveState);
         }
     }
