@@ -617,7 +617,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4339344827236851740}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.8743577, z: -0, w: 0.485282}
+  m_LocalRotation: {x: 0, y: 0.8743573, z: 0, w: 0.4852828}
   m_LocalPosition: {x: -6.39, y: -2.6, z: 50.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -749,6 +749,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcName: BIRD
   startingNode: {fileID: 11400000, guid: f8f905209b16cdf49b149227abc1c9f9, type: 2}
+  tutorialLevelToShow: 1
   currentState: 0
 --- !u!1 &4958457736669147207
 GameObject:
@@ -865,6 +866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9991f989f06923b488218c66fc15747b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speechBubbleCanvas: {fileID: 8851131429244010422}
 --- !u!1 &5194209451605042565
 GameObject:
   m_ObjectHideFlags: 0
