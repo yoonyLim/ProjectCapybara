@@ -9,6 +9,7 @@ namespace Moko
         public bool SprintInput { get; private set; }
         public bool JumpInput { get; private set; }
         public bool HeadbuttInput { get; private set; }
+        public bool SoundWaveInput { get; private set; }
 
         [SerializeField] private CharacterMotor motor;
         [SerializeField] private CapybaraInputReader inputReader;
@@ -38,6 +39,8 @@ namespace Moko
                 
                 inputReader.HeadbuttEvent += OnHeadbutt;
 
+                inputReader.SoundwaveEvent += OnSoundWave;
+
                 inputReader.EnableGamePlayActionInputs();
             }
         }
@@ -55,6 +58,8 @@ namespace Moko
                 inputReader.JumpEvent -= OnJump;
                 
                 inputReader.HeadbuttEvent -= OnHeadbutt;
+
+                inputReader.SoundwaveEvent -= OnSoundWave;
             }
         }
 
@@ -93,6 +98,11 @@ namespace Moko
         {
             HeadbuttInput = true;
         }
+
+        private void OnSoundWave()
+        {
+            SoundWaveInput = true;
+        }
         #endregion
 
         #region ClearInput
@@ -105,6 +115,11 @@ namespace Moko
         public void ClearHeadbuttInput()
         {
             HeadbuttInput = false;
+        }
+
+        public void ClearSoundwaveInput()
+        {
+            SoundWaveInput = false;
         }
         #endregion
     }

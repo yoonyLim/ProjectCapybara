@@ -113,7 +113,7 @@ namespace Moko
                 motor.MovementData.rotationSpeed * Time.fixedDeltaTime // FixedUpdate에서는 Time.fixedDeltaTime 사용
             );
 
-            motor.transform.rotation = smoothedRotation;
+            motor.Rb.MoveRotation(smoothedRotation);
         }
     }
 }

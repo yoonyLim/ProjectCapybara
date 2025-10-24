@@ -68,6 +68,11 @@ namespace Moko
             return Vector3.zero;
         }
 
+        public void DisableGroundCheck(float seconds)
+        {
+            StartCoroutine(DisableGroundCheckForSeconds(seconds));
+        }
+        
         private IEnumerator DisableGroundCheckForSeconds(float seconds)
         {
             motor.doGroundCheck = false;

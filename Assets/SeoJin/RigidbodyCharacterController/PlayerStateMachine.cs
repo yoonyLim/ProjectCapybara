@@ -16,6 +16,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Animator animator { get; private set; }
     public Rigidbody rb { get; private set; }
     public HeadbuttVFXPlayer headbuttVFXPlayer { get; private set; }
+    public ScanEffect scanEffect { get; private set; }
     
     public bool canMove;
 
@@ -36,6 +37,7 @@ public class PlayerStateMachine : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         audioSourceHolder = GetComponentInChildren<PlayerAudioSourceHolder>();
         headbuttVFXPlayer = GetComponentInChildren<HeadbuttVFXPlayer>();
+        scanEffect = GetComponent<ScanEffect>();
     }
 
     private void Start()
@@ -48,6 +50,12 @@ public class PlayerStateMachine : MonoBehaviour
     {
         currentState.OnUpdateState();
 
+        if (playerInput.SoundWaveInput)
+        {
+            playerInput.ClearSoundwaveInput();
+            scanEffect.Execute();            
+        }
+        
         if (Time.time - lastheadbuttUsagetime > headbuttCoolTime)
         {
             canHeadbutt = true;
