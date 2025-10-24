@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Capybara;
 using DistantLands.Cozy;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Random = System.Random;
 
 public class FlyModeController : MonoBehaviour
 {
@@ -60,20 +62,25 @@ public class FlyModeController : MonoBehaviour
     [SerializeField] private Material speedEffectMaterial;
 
     [SerializeField] private BirdHitSound hitSoundComponent;
+    
+    [SerializeField] private List<SkinnedMeshRenderer> meshRenderers;
 
     private float targetEffectAlpha = 0f;
 
     public bool DodgedLightning { get; set; }
-    public bool HitLightning { get; set; }
 
     private float dodgedLightningTime = 0f;
     private bool dodgedLightningSlowmo = false;
 
+    public Volume globalVolume;
     private Vignette vignette;
 
     private float lightningHitTime;
     private float lightningHitStateDuration = 2f;
-    
+
+    public float ActualImpactTime { get; set; }
+    public bool CheckLightning { get; set; }
+
     public enum FlyModeState
     {
         Normal,
@@ -86,11 +93,10 @@ public class FlyModeController : MonoBehaviour
         capyRigidBody = GetComponent<Rigidbody>();
         capyRigidBody.maxLinearVelocity = maxSpeed;
         capyRigidBody.linearDamping = normalLinearDamping;
-        
-        Volume volume = FindFirstObjectByType<Volume>();
-        volume.profile.TryGet<Vignette>(out vignette);
-        
-        
+
+        globalVolume.profile.TryGet(out vignette);
+
+
     }
 
     private void OnEnable()
@@ -131,7 +137,7 @@ public class FlyModeController : MonoBehaviour
         while (increaseElapsedTime < 0.2f)
         {
             increaseElapsedTime += Time.deltaTime;
-            vignette.intensity.value = Mathf.Lerp(0f, 0.4f, increaseElapsedTime / 0.2f);
+            vignette.intensity.value = Mathf.Lerp(0f, 0.6f, increaseElapsedTime / 0.2f);
             yield return null;
         }
 
@@ -141,7 +147,7 @@ public class FlyModeController : MonoBehaviour
         while (decreaseElapsedTime < 0.2f)
         {
             decreaseElapsedTime += Time.deltaTime;
-            vignette.intensity.value = Mathf.Lerp(0.4f, 0f, decreaseElapsedTime / 0.2f);
+            vignette.intensity.value = Mathf.Lerp(0.6f, 0f, decreaseElapsedTime / 0.2f);
             yield return null;
         }
 
@@ -157,15 +163,7 @@ public class FlyModeController : MonoBehaviour
         targetEffectAlpha = 0.2f * Mathf.Clamp01(1f / (1f- 0.8f) * (speedRatio - 0.8f));
         speedEffectMaterial.SetFloat(Alpha, targetEffectAlpha);
 
-        if (DodgedLightning)
-        {
-            DodgedLightning = false;
-            Time.timeScale = 0.3f;
-            dodgedLightningTime = Time.unscaledTime;
-            dodgedLightningSlowmo = true;
-            PlayLightningDodgeAnimation();
-            StartCoroutine(PlayVignetteEffect());
-        }
+        
 
         if (dodgedLightningSlowmo)
         {
@@ -184,11 +182,27 @@ public class FlyModeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (HitLightning)
+        if (CheckLightning)
         {
-            HitLightning = false;
-            lightningHitTime = Time.fixedTime;
-            ChangeState(FlyModeState.LightningHit);
+            if (ActualImpactTime - Time.fixedTime < 0f)
+            {
+                CheckLightning = false;
+
+                if (DodgedLightning)
+                {
+                    DodgedLightning = false;
+                    Time.timeScale = 0.3f;
+                    dodgedLightningTime = Time.fixedUnscaledTime;
+                    dodgedLightningSlowmo = true;
+                    PlayLightningDodgeAnimation();
+                    StartCoroutine(PlayVignetteEffect());
+                }
+                else
+                {
+                    ChangeState(FlyModeState.LightningHit);
+                }
+            }
+
         }
         
         switch (state)
@@ -239,12 +253,20 @@ public class FlyModeController : MonoBehaviour
 
     void LightningHitFixedUpdate()
     {
-        if (Time.fixedTime - lightningHitTime > lightningHitStateDuration)
+        float elapsedTime = Time.fixedTime - lightningHitTime;
+        if (elapsedTime > lightningHitStateDuration)
         {
             ChangeState(FlyModeState.Normal);
         }
-        
-        
+
+        float magnitude = Mathf.Lerp(0.2f, 0f, elapsedTime / lightningHitStateDuration);
+        meshRoot.localPosition = UnityEngine.Random.insideUnitSphere * magnitude;
+
+        float targetAlpha = Mathf.Lerp(1f, 0f, elapsedTime / lightningHitStateDuration);
+        foreach (var renderer in meshRenderers)
+        {
+            renderer.materials[1].SetFloat("_Alpha", targetAlpha);
+        }
     }
 
     IEnumerator ShakeCameraCoroutine()
@@ -253,17 +275,7 @@ public class FlyModeController : MonoBehaviour
         yield return new WaitForSeconds(camShakeDuration);
         cmPerlin.AmplitudeGain = 0f;
     }
-
-    // IEnumerator MeshShakeCoroutine(float duration)
-    // {
-    //     float elapsedTime = 0f;
-    //
-    //     while (elapsedTime < duration)
-    //     {
-    //         elapsedTime += Time.deltaTime;
-    //         // meshRoot.transform.localPosition = 
-    //     }
-    // }
+    
 
     private void OnTriggerEnter(Collider other)
     {
@@ -337,7 +349,12 @@ public class FlyModeController : MonoBehaviour
 
     private void LightningHitStateEnter()
     {
-        
+        lightningHitTime = Time.time;
+
+        foreach (var renderer in meshRenderers)
+        {
+            renderer.materials[1].SetFloat("_Alpha", 1f);
+        }
     }
 
     private void PlayLightningDodgeAnimation()
@@ -413,6 +430,15 @@ public class FlyModeController : MonoBehaviour
                 break;
             case FlyModeState.ObstacleHit:
                 break;
+            case FlyModeState.LightningHit:
+            {
+                meshRoot.localPosition = Vector3.zero;
+                foreach (var renderer in meshRenderers)
+                {
+                    renderer.materials[1].SetFloat("_Alpha", 0f);
+                }
+                break;
+            }
             default:
                 break;
         }
