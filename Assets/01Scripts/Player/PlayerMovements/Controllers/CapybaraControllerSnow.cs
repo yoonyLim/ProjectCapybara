@@ -60,6 +60,7 @@ namespace Capybara
         [SerializeField] PlayableDirector collectOrbsTimeline;
         [SerializeField] private GameObject finalRamp;
         [SerializeField] PlayableDirector orbCollectionFailedTimeline;
+        [SerializeField] private LoadingManager loadingManager;
         
         [Header("UI Anim Settings")]
         [SerializeField] private Animator flashUIAnim;
@@ -82,8 +83,9 @@ namespace Capybara
         private GameObject finalFall;
         
         // Animation Cached Property Index
-        // private static readonly int Walk = Animator.StringToHash("Walk");
+        private static readonly int Walk = Animator.StringToHash("Walk");
         private static readonly int IsInAir = Animator.StringToHash("isFly");
+        private static readonly int IsOnGround = Animator.StringToHash("isGrounded");
         private static readonly int IsOnIce = Animator.StringToHash("isIced");
         private static readonly int FlashIn = Animator.StringToHash("FlashIn");
         private static readonly int FlashOut = Animator.StringToHash("FlashOut");
@@ -97,6 +99,14 @@ namespace Capybara
             inputReader.MoveEvent += HandleMove;
             inputReader.MoveCanceledEvent += HandleMoveCanceled;
             inputReader.JumpEvent += HandleJump;
+
+            SpawnPointManager.OnPlayerRespawned += ResetController;
+        }
+
+        private void ResetController()
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         private void Awake()
@@ -119,11 +129,12 @@ namespace Capybara
                 Quaternion targetRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.linearVelocity, slopeNormal).normalized, slopeNormal);
                 rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f));
             }
-                
         }
         
         private void Update()
         {
+            anim.SetInteger(Walk, 0);
+            
             // Ground Check
             RaycastHit hit;
             if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, constGroundRaycastDistance, groundLayer))
@@ -131,14 +142,18 @@ namespace Capybara
                 isGrounded = true;
                 slopeNormal = hit.normal;
                 anim.SetBool(IsInAir, false);
+                anim.SetBool(IsOnGround, true);
             }
             else
             {
                 isGrounded = false;
                 slopeNormal = Vector3.up; // Assume flat when airborne
-                
-                if (!isLevelSuccessful) 
+
+                if (!isLevelSuccessful)
+                {
+                    anim.SetBool(IsOnGround, false);
                     anim.SetBool(IsInAir, true);
+                }
             }
             
             // Animation: Set speed based on the rigidbody's actual velocity magnitude.
@@ -344,10 +359,15 @@ namespace Capybara
 
         public void LevelCompleted()
         {
-            Debug.Log("Level Completed");
             rb.useGravity = false;
             finalCineCam.Follow = null;
             Invoke(nameof(PlayFlashIn), 0.5f);
+            Invoke(nameof(NextLevel), 1.0f);
+        }
+
+        private void NextLevel()
+        {
+            loadingManager.LoadScene(4);
         }
 
         public void OrbCollectionFailed()

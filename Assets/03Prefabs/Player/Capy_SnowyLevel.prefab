@@ -311,8 +311,6 @@ GameObject:
   - component: {fileID: 6532797307014902446}
   - component: {fileID: 5108938071256839049}
   - component: {fileID: 6541344766148251037}
-  - component: {fileID: 3716466491889281152}
-  - component: {fileID: 4839707528481259751}
   - component: {fileID: 3303812663063716169}
   - component: {fileID: 1011717938326663016}
   - component: {fileID: 4418722021323753366}
@@ -487,7 +485,9 @@ MonoBehaviour:
   finalCineCam: {fileID: 0}
   collectOrbsTimeline: {fileID: 0}
   finalRamp: {fileID: 0}
+  orbCollectionFailedTimeline: {fileID: 0}
   flashUIAnim: {fileID: 0}
+  fadeUIAnim: {fileID: 0}
 --- !u!114 &2389531717837984836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -567,6 +567,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   timer: 0.25
+  playerForward: {x: 0, y: 0, z: 0}
   jumpForce: 7
   isJumping: 0
   airSpeed: 5
@@ -678,30 +679,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 131072
   interactRadius: 5
---- !u!114 &3716466491889281152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3702451084219607114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cf1fade91c9ff4439a6b12cbb1a38cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4839707528481259751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3702451084219607114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6d40919ca9b5484ba2cf174831c0873, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3303812663063716169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -719,7 +696,7 @@ MonoBehaviour:
     onEventTriggered:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 4839707528481259751}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: DualSenseFeedbackHandler, Assembly-CSharp
           m_MethodName: OnPlayerJumped
           m_Mode: 1
@@ -735,7 +712,7 @@ MonoBehaviour:
     onEventTriggered:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 4839707528481259751}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: DualSenseFeedbackHandler, Assembly-CSharp
           m_MethodName: OnPlayerLanded
           m_Mode: 1
