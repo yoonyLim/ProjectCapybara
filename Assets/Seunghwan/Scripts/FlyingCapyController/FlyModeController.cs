@@ -70,6 +70,9 @@ public class FlyModeController : MonoBehaviour
     private bool dodgedLightningSlowmo = false;
 
     private Vignette vignette;
+
+    private float lightningHitTime;
+    private float lightningHitStateDuration = 2f;
     
     public enum FlyModeState
     {
@@ -171,7 +174,6 @@ public class FlyModeController : MonoBehaviour
                 Time.timeScale = 1f;
                 dodgedLightningSlowmo = false;
             }
-                
         }
     }
 
@@ -182,6 +184,13 @@ public class FlyModeController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (HitLightning)
+        {
+            HitLightning = false;
+            lightningHitTime = Time.fixedTime;
+            ChangeState(FlyModeState.LightningHit);
+        }
+        
         switch (state)
         {
             case FlyModeState.Normal:
@@ -191,6 +200,7 @@ public class FlyModeController : MonoBehaviour
                 ObstacleHitStateFixedUpdate();
                 break;
             case FlyModeState.LightningHit:
+                LightningHitFixedUpdate();
                 break;
             default:
                 break;
@@ -221,11 +231,20 @@ public class FlyModeController : MonoBehaviour
 
     void ObstacleHitStateFixedUpdate()
     {
-        
-        if (Time.time - obstacleHitEnterTime > obstacleHitDuration)
+        if (Time.fixedTime - obstacleHitEnterTime > obstacleHitDuration)
         {
             ChangeState(FlyModeState.Normal);
         }
+    }
+
+    void LightningHitFixedUpdate()
+    {
+        if (Time.fixedTime - lightningHitTime > lightningHitStateDuration)
+        {
+            ChangeState(FlyModeState.Normal);
+        }
+        
+        
     }
 
     IEnumerator ShakeCameraCoroutine()
@@ -235,6 +254,17 @@ public class FlyModeController : MonoBehaviour
         cmPerlin.AmplitudeGain = 0f;
     }
 
+    // IEnumerator MeshShakeCoroutine(float duration)
+    // {
+    //     float elapsedTime = 0f;
+    //
+    //     while (elapsedTime < duration)
+    //     {
+    //         elapsedTime += Time.deltaTime;
+    //         // meshRoot.transform.localPosition = 
+    //     }
+    // }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out LoadingTrigger loadingTrigger))
@@ -242,7 +272,7 @@ public class FlyModeController : MonoBehaviour
             GetComponentInChildren<BirdWingSound>().BlockSound = true;
         }
 
-        if (other.TryGetComponent<CozyVolume>(out CozyVolume cozyVolume))
+        if (other.TryGetComponent(out CozyVolume cozyVolume))
         {
             OnWeatherVolumeTriggerEnter?.Invoke();
         }
@@ -305,6 +335,11 @@ public class FlyModeController : MonoBehaviour
         obstacleHitEnterTime = Time.time;
     }
 
+    private void LightningHitStateEnter()
+    {
+        
+    }
+
     private void PlayLightningDodgeAnimation()
     {
         int animHash = dodgeAnimLeft ? leftDodgeRoll : rightDodgeRoll;
@@ -361,6 +396,9 @@ public class FlyModeController : MonoBehaviour
                 break;
             case FlyModeState.ObstacleHit:
                 ObstacleHitStateEnter();
+                break;
+            case FlyModeState.LightningHit:
+                LightningHitStateEnter();
                 break;
             default:
                 break;
