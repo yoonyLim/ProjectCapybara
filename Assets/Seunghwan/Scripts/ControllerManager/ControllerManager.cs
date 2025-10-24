@@ -10,53 +10,51 @@ public class ControllerManager : MonoBehaviour
     [SerializeField] private CinemachineCamera walkCamera;
     [SerializeField] private FlyModeController flyController;
     [SerializeField] private CinemachineCamera flyCamera;
-    
-
-    [SerializeField] private Dialogue birdDialogue;
 
     [SerializeField] private Image blackImage;
 
-    private void OnEnable()
+    private CinemachineBrain cinemachineBrain;
+
+    private void Start()
     {
-        birdDialogue.OnDialogueEnd += OnBirdDialogueEnd;
+        cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        UIManager.instance.OnCloseLevelTutorial += HandleCloseLevelTutorial;
     }
 
     private void OnDisable()
     {
-        birdDialogue.OnDialogueEnd -= OnBirdDialogueEnd;
+        UIManager.instance.OnCloseLevelTutorial -= HandleCloseLevelTutorial;
     }
 
-    private void OnBirdDialogueEnd()
+    private void HandleCloseLevelTutorial()
     {
-        StartCoroutine(FadeOutIn());
+        StartCoroutine(FadeInOut());
     }
 
-    IEnumerator FadeOutIn()
+    IEnumerator FadeInOut()
     {
+        
+        
         Color transparentColor = new Color(0, 0, 0, 0);
         Color blackColor = new Color(0, 0, 0, 1f);
         float fadeOutElapsedTime = 0f;
-        while (fadeOutElapsedTime < 0.5f)
+        while (fadeOutElapsedTime < 0.75f)
         {
             fadeOutElapsedTime += Time.deltaTime;
             blackImage.color = Color.Lerp(transparentColor, blackColor, fadeOutElapsedTime / 1f);
             yield return null;
         }
         blackImage.color = blackColor;
-        
-        Time.timeScale = 0f;
-        
-        yield return new WaitForReconds(0.5f);
 
+        flyCamera.Priority = 40;
+        yield return new WaitForSeconds(1f);
         
         walkController.gameObject.SetActive(false);
-        walkCamera.enabled = false;
-        flyCamera.enabled = true;
         flyController.gameObject.SetActive(true);
         
         
         float fadeInElapsedTime = 0f;
-        while (fadeInElapsedTime < 0.5f)
+        while (fadeInElapsedTime < 0.75f)
         {
             fadeInElapsedTime += Time.deltaTime;
             blackImage.color = Color.Lerp(blackColor, transparentColor, fadeInElapsedTime / 1f);
@@ -64,4 +62,5 @@ public class ControllerManager : MonoBehaviour
         }
         blackImage.color = transparentColor;
     }
+    
 }
