@@ -46,7 +46,7 @@ public class ControllerManager : MonoBehaviour
         
         Time.timeScale = 0f;
         
-        yield return new WaitForReconds(0.5f);
+        yield return new WaitForSeconds(0.5f);
 
         
         walkController.gameObject.SetActive(false);
