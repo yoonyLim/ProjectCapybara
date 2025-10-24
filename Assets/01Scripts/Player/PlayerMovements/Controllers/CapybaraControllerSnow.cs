@@ -2,8 +2,14 @@ using System;
 using System;
 using System.Runtime.CompilerServices;
 using System.Collections;
+using System.Numerics;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Capybara
 {
@@ -15,6 +21,7 @@ namespace Capybara
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
         [SerializeField] private ParticleSystem windSpeedParticles;
+        [SerializeField] private ParticleSystem collectOrbsWindSpeedParticles;
         [SerializeField] private GameObject Clouds;
 
         [Header("Snow Level Specifics")] [SerializeField]
@@ -39,26 +46,49 @@ namespace Capybara
         
         [Header("Default Settings")]
         [SerializeField] private float constGroundRaycastDistance = 0.4f;
-        [SerializeField] private float constGravity = 9.81f;
         
         private Rigidbody rb;
         private Animator anim;
+        private OrbCollectionCheckTrigger orbCollectionTrigger;
+        
+        [Header("Camera Settings")]
+        [SerializeField] private CinemachineCamera mainCineCam;
+        [SerializeField] private CinemachineCamera collectOrbCineCam;
+        [SerializeField] private CinemachineCamera finalCineCam;
+        
+        [Header("Cinematic Settings")]
+        [SerializeField] PlayableDirector collectOrbsTimeline;
+        [SerializeField] private GameObject finalRamp;
+        [SerializeField] PlayableDirector orbCollectionFailedTimeline;
+        
+        [Header("UI Anim Settings")]
+        [SerializeField] private Animator flashUIAnim;
+        [SerializeField] private Animator fadeUIAnim;
         
         // Current State Values
         private bool isGrounded = true;
         private bool isSwimming = false;
         private bool isWindZoned = false;
         private bool isOverBreakDistance = false;
+        private bool isLevelSuccessful = false;
         
         private Vector2 moveInput;
-
         private Vector3 slopeNormal;
         // private Vector3 slopeForward;
+        
+        // for orbs collection failure
+        private Vector3 lastKnownPos;
+        private Quaternion lastKnownRot;
+        private GameObject finalFall;
         
         // Animation Cached Property Index
         // private static readonly int Walk = Animator.StringToHash("Walk");
         private static readonly int IsInAir = Animator.StringToHash("isFly");
         private static readonly int IsOnIce = Animator.StringToHash("isIced");
+        private static readonly int FlashIn = Animator.StringToHash("FlashIn");
+        private static readonly int FlashOut = Animator.StringToHash("FlashOut");
+        private static readonly int FadeIn = Animator.StringToHash("FadeIn");
+        private static readonly int FadeOut = Animator.StringToHash("FadeOut");
 
         private void OnEnable()
         {
@@ -106,7 +136,9 @@ namespace Capybara
             {
                 isGrounded = false;
                 slopeNormal = Vector3.up; // Assume flat when airborne
-                anim.SetBool(IsInAir, true);
+                
+                if (!isLevelSuccessful) 
+                    anim.SetBool(IsInAir, true);
             }
             
             // Animation: Set speed based on the rigidbody's actual velocity magnitude.
@@ -116,6 +148,10 @@ namespace Capybara
             if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, constGroundRaycastDistance, snowRampLayer))
             {
                 DualSenseInputManager.Instance.RumbleControllerForDuration(0.1f, 0.1f);
+                
+                if (!rb.useGravity)
+                    rb.useGravity = true;
+                
                 var mainParticleSystem = windSpeedParticles.main;
                 mainParticleSystem.startSpeed = rb.linearVelocity.magnitude;
                 anim.SetBool(IsOnIce, true);
@@ -123,24 +159,55 @@ namespace Capybara
             }
             else
             {
-                var mainParticleSystem = windSpeedParticles.main;
-                mainParticleSystem.startSpeed = 0f;
-                anim.SetBool(IsOnIce, false);
-
-                if (!isGrounded)
+                if (!isLevelSuccessful)
                 {
-                    anim.SetBool(IsInAir, true);
+                    var mainParticleSystem = windSpeedParticles.main;
+                    mainParticleSystem.startSpeed = 0f;
+                    anim.SetBool(IsOnIce, false);
+
+                    if (!isGrounded && !isLevelSuccessful)
+                    {
+                        anim.SetBool(IsInAir, true);
+                    }
                 }
             }
-
+            
+            // collect orbs
             if (transform.position.z >= breakDistance && !isOverBreakDistance)
             {
-                Debug.Log("BreakPoint over " + breakDistance);
-
+                rb.linearVelocity = Vector3.zero;
+                
+                lastKnownPos = transform.position;
+                lastKnownRot = transform.rotation;
+                
+                mainCineCam.enabled = false;
+                collectOrbCineCam.enabled = true;
+                
                 isOverBreakDistance = true;
                 isWindZoned = false;
-                Instantiate(Clouds, transform.position + Vector3.down * 100, Quaternion.identity);
-                rb.linearVelocity = Vector3.zero;
+                finalFall = Instantiate(Clouds, transform.position + Vector3.down * 100 + Vector3.back * 100, Quaternion.identity);
+                orbCollectionTrigger = finalFall.GetComponentInChildren<OrbCollectionCheckTrigger>();
+
+                if (finalFall && orbCollectionTrigger)
+                {
+                    orbCollectionTrigger.OnOrbsCollected += OrbsCollectedSuccessfully;
+                }
+                
+                rb.useGravity = false;
+                // rb.linearVelocity = new Vector3(0f, -20f, 0f);
+                collectOrbsTimeline.Play();
+            }
+
+            if (isOverBreakDistance)
+            {
+                // set particles
+                var mainParticleSystem = collectOrbsWindSpeedParticles.main;
+                mainParticleSystem.startSpeed = rb.linearVelocity.magnitude;
+            }
+            else
+            {
+                var mainParticleSystem = collectOrbsWindSpeedParticles.main;
+                mainParticleSystem.startSpeed = 0;
             }
         }
 
@@ -151,6 +218,20 @@ namespace Capybara
 
         private void FixedUpdate()
         {
+            if (isLevelSuccessful)
+            {
+                // rb.linearVelocity = Vector3.forward * 25 + Vector3.down * 50;
+                rb.useGravity = true;
+                rb.AddForce(Vector3.forward, ForceMode.Acceleration);
+                
+                Vector3 currentSlidingVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                if (currentSlidingVelocity.magnitude > 20)
+                {
+                    Vector3 cappedVelocity = currentSlidingVelocity.normalized * maxSpeed;
+                    rb.linearVelocity = new Vector3(cappedVelocity.x, rb.linearVelocity.y, cappedVelocity.z);
+                }
+            }
+            
             // --- WINDZONED MOVEMENT ---
             if (isWindZoned)
                 return;
@@ -165,28 +246,11 @@ namespace Capybara
             // 2. APPLY FORCES
             if (isGrounded)
             {
-                /*// GRAVITY FORCE: The main force pushing us down the slope.
-                Vector3 gravityForce = Vector3.ProjectOnPlane(new Vector3(0, -constGravity, 0), slopeNormal);
-                rb.AddForce(gravityForce, ForceMode.Acceleration);
-                
-                // STEERING FORCE: Apply force based on player input to turn.
-                float turnAngle = Vector3.SignedAngle(slopeForward, worldInputDirection, Vector3.up);
-                Vector3 steeringForce = transform.right * turnAngle * turnSpeed;
-                rb.AddForce(steeringForce, ForceMode.Acceleration);
-
-                // BRAKING & FRICTION: Slow down if turning uphill or on flat ground.
-                float angleToDownhill = Vector3.Angle(slopeForward, gravityForce.normalized);
-                if (angleToDownhill > 90f) // We are facing uphill
-                {
-                    float brakingForceMagnitude = (angleToDownhill - 90f) / 90f;
-                    rb.AddForce(-rb.velocity.normalized * brakingPower * brakingForceMagnitude, ForceMode.Acceleration);
-                }
-                rb.AddForce(-rb.velocity * friction, ForceMode.Acceleration);*/
-                
                 rb.AddForce(worldInputDirection * acceleration, ForceMode.Acceleration);
             }
             else // Air Control
             {
+                worldInputDirection = (Vector3.forward * moveInput.y + Vector3.right * moveInput.x).normalized;
                 rb.AddForce(worldInputDirection * acceleration * airControl, ForceMode.Acceleration);
             }
             
@@ -211,6 +275,9 @@ namespace Capybara
             inputReader.MoveEvent -= HandleMove;
             inputReader.MoveCanceledEvent -= HandleMoveCanceled;
             inputReader.JumpEvent -= HandleJump;
+            
+            if (orbCollectionTrigger)
+                orbCollectionTrigger.OnOrbsCollected -= OrbsCollectedSuccessfully;
         }
 
         private void HandleMove(Vector2 direction)
@@ -229,6 +296,93 @@ namespace Capybara
             {
                 rb.AddForce(Vector3.up * constJumpSpeed, ForceMode.Impulse);
             }
+        }
+
+        public void SetOrbCollectionLinearVelocity()
+        {
+            rb.linearVelocity = new Vector3(0f, -20f, 0f);
+        }
+
+        public void OrbsCollectedSuccessfully()
+        {
+            rb.linearVelocity = Vector3.zero;
+            finalRamp.SetActive(true);
+            PlayFlashIn();
+            Invoke(nameof(MoveToSceneTransitionRamp), 0.5f);
+        }
+
+        private void MoveToSceneTransitionRamp()
+        {
+            transform.position = new Vector3(1041f, 151f, 2521f);
+            transform.rotation = Quaternion.identity;
+            collectOrbCineCam.enabled = false;
+            finalCineCam.enabled = true;
+            isLevelSuccessful = true;
+            anim.SetBool(IsOnIce, true);
+            Invoke(nameof(PlayFlashOut), 1.0f);
+        }
+
+        private void PlayFlashIn()
+        {
+            flashUIAnim.SetTrigger(FlashIn);
+        }
+
+        private void PlayFlashOut()
+        {
+            flashUIAnim.SetTrigger(FlashOut);
+        }
+
+        private void PlayFadeIn()
+        {
+            fadeUIAnim.SetTrigger(FadeIn);
+        }
+
+        private void PlayFadeOut()
+        {
+            fadeUIAnim.SetTrigger(FadeOut);
+        }
+
+        public void LevelCompleted()
+        {
+            Debug.Log("Level Completed");
+            rb.useGravity = false;
+            finalCineCam.Follow = null;
+            Invoke(nameof(PlayFlashIn), 0.5f);
+        }
+
+        public void OrbCollectionFailed()
+        {
+            PlayFadeIn();
+            
+            Invoke(nameof(ResetOnOrbCollectionFailure), 0.5f);
+        }
+
+        private void ResetOnOrbCollectionFailure()
+        {
+            PlayFadeOut();
+            
+            rb.linearVelocity = Vector3.zero;
+            
+            transform.position = lastKnownPos;
+            transform.rotation = lastKnownRot;
+            
+            mainCineCam.enabled = false;
+            collectOrbCineCam.enabled = true;
+            
+            orbCollectionTrigger.OnOrbsCollected -= OrbsCollectedSuccessfully;
+            Destroy(finalFall);
+            
+            finalFall = Instantiate(Clouds, transform.position + Vector3.down * 100, Quaternion.identity);
+            orbCollectionTrigger = finalFall.GetComponentInChildren<OrbCollectionCheckTrigger>();
+            
+            if (finalFall && orbCollectionTrigger)
+            {
+                orbCollectionTrigger.OnOrbsCollected += OrbsCollectedSuccessfully;
+            }
+            
+            rb.useGravity = false;
+            
+            orbCollectionFailedTimeline.Play();
         }
     }
 }

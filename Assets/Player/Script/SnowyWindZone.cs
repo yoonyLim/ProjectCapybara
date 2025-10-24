@@ -30,7 +30,6 @@ public class SnowyWindZone : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-
         if (other.CompareTag("Player"))
         {
             isWindZone = false;
