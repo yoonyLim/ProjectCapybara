@@ -27,7 +27,7 @@ public class LightningStrike : MonoBehaviour
     private void Awake()
     {
         flyModeController = GetComponent<FlyModeController>();
-        FindFirstObjectByType<Volume>().profile.TryGet<ColorAdjustments>(out colorAdjustments);
+        flyModeController.globalVolume.profile.TryGet<ColorAdjustments>(out colorAdjustments);
         defaultPostExposure = colorAdjustments.postExposure.value;
 
         

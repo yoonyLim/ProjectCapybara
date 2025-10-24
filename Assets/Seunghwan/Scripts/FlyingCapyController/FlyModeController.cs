@@ -72,6 +72,7 @@ public class FlyModeController : MonoBehaviour
     private float dodgedLightningTime = 0f;
     private bool dodgedLightningSlowmo = false;
 
+    public Volume globalVolume;
     private Vignette vignette;
 
     private float lightningHitTime;
@@ -92,11 +93,10 @@ public class FlyModeController : MonoBehaviour
         capyRigidBody = GetComponent<Rigidbody>();
         capyRigidBody.maxLinearVelocity = maxSpeed;
         capyRigidBody.linearDamping = normalLinearDamping;
-        
-        Volume volume = FindFirstObjectByType<Volume>();
-        volume.profile.TryGet<Vignette>(out vignette);
-        
-        
+
+        globalVolume.profile.TryGet(out vignette);
+
+
     }
 
     private void OnEnable()
