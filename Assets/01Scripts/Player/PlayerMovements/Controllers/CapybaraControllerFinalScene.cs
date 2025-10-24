@@ -1,11 +1,9 @@
 using System;
-using System;
 using System.Runtime.CompilerServices;
 using System.Collections;
 using System.Numerics;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
-using UnityEditor.XR;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
@@ -18,9 +16,6 @@ namespace Capybara
     public class CapybaraControllerFinalScene : MonoBehaviour
     {
         [SerializeField] private CapybaraInputReader inputReader;
-
-        [Header("Jump Settings")]
-        [SerializeField] private float constJumpSpeed = 6f;
         
         [Header("Layer Detection Settings")]
         public LayerMask groundLayer;
@@ -43,13 +38,16 @@ namespace Capybara
         [SerializeField] private Image blackoutImg;
         
         private Vector3 originalPosition;
-        private Vector3 destinationPosition = new Vector3(1040.1431f, 110.729973f, 2588f);
+        private Vector3 destinationPosition = new Vector3(1040.1431f, 110.729973f, 2560f);
         private float totalDistance;
         
         // Current State Values
         private bool isGrounded = true;
         private float speed = 5f;
         private bool isMovable = true;
+        private bool shouldFloat = false;
+        private bool shouldFall = false;
+        private bool isDuringCinematic = false;
         
         private Vector2 moveInput;
         
@@ -61,6 +59,7 @@ namespace Capybara
         private static readonly int FlashOut = Animator.StringToHash("FlashOut");
         private static readonly int FadeIn = Animator.StringToHash("FadeIn");
         private static readonly int FadeOut = Animator.StringToHash("FadeOut");
+        private static readonly int HappyCapy = Animator.StringToHash("HappyCapy");
 
         private void OnEnable()
         {
@@ -103,12 +102,21 @@ namespace Capybara
                 anim.SetBool(IsInAir, false);
                 anim.SetBool(IsOnGround, true);
             }
-            
-            // blackout img
-            float curDistance = Vector3.Distance(originalPosition, transform.position);
-            Color tempColor = blackoutImg.color;
-            tempColor.a = Mathf.Clamp01(curDistance / totalDistance);
-            blackoutImg.color = new Color(tempColor.r, tempColor.g, tempColor.b, tempColor.a);
+
+            if (shouldFloat && transform.position.y < 113)
+            {
+                float yPos = CapyHelperLibrary.FInterpTo(transform.position.y, 113, Time.deltaTime, 1f);
+                transform.position = new Vector3(transform.position.x, yPos, transform.position.z);
+            }
+
+            if (!isDuringCinematic)
+            {
+                // blackout img
+                float curDistance = Vector3.Distance(originalPosition, transform.position);
+                Color tempColor = blackoutImg.color;
+                tempColor.a = Mathf.Clamp01(curDistance / totalDistance);
+                blackoutImg.color = new Color(tempColor.r, tempColor.g, tempColor.b, tempColor.a);
+            }
         }
 
         private void FixedUpdate()
@@ -164,11 +172,43 @@ namespace Capybara
         public void SetSpeed(float newSpeed)
         {
             speed = newSpeed;
+
+            if (newSpeed <= 0.3f)
+            {
+                Invoke(nameof(SetIsDuringCinematic), 5.5f);
+            }
+        }
+
+        private void SetIsDuringCinematic()
+        {
+            isDuringCinematic = true;
+            blackoutImg.color = new Color(blackoutImg.color.r, blackoutImg.color.g, blackoutImg.color.b, 0);
         }
 
         public void SetMoveable(bool val)
         {
             isMovable = val;
+        }
+
+        public void FloatAndFall()
+        {
+            shouldFloat = true;
+            rb.useGravity = false;
+            
+            Invoke(nameof(ShouldFall), 5f);
+        }
+
+        private void ShouldFall()
+        {
+            shouldFloat = false;
+            rb.useGravity = true;
+        }
+
+        public void MeetGrandma()
+        {
+            speed = 15f;
+            anim.SetTrigger(HappyCapy);
+            isMovable = true;
         }
     }
 }

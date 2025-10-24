@@ -13,6 +13,7 @@ public class PenguinController : MonoBehaviour
     public void FlyWithCapy()
     {
         shouldFlyWithCapy = true;
+        rb.isKinematic = false;
     }
 
     public void FlyAway()

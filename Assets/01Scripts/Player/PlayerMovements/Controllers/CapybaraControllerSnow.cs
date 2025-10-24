@@ -326,6 +326,8 @@ namespace Capybara
             Invoke(nameof(MoveToSceneTransitionRamp), 0.5f);
         }
 
+        [SerializeField] private SoundHandler bgmHandler;
+
         private void MoveToSceneTransitionRamp()
         {
             transform.position = new Vector3(1041f, 151f, 2521f);
@@ -334,6 +336,12 @@ namespace Capybara
             finalCineCam.enabled = true;
             isLevelSuccessful = true;
             anim.SetBool(IsOnIce, true);
+
+            if (bgmHandler)
+            {
+                bgmHandler.FadeOutSong(10f);
+            }
+            
             Invoke(nameof(PlayFlashOut), 1.0f);
         }
 

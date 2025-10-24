@@ -7,13 +7,23 @@ using UnityEngine.Events;
 public class OrbCollectionCheckTrigger : MonoBehaviour
 {
     [SerializeField] List<CollectGlowingOrb> collectGlowingOrbs;
+    [SerializeField] AudioClip collectSound;
 
     private int collectedOrbNum = 0;
+    private AudioSource audioSource;
     
     public UnityAction OnOrbsCollected;
     
     private void Start()
     {
+        GameObject audioManager = GameObject.FindWithTag($"SFX");
+
+        if (audioManager)
+        {
+            Debug.Log("yay sound!");
+            audioSource = audioManager.GetComponent<AudioSource>();
+        }
+        
         foreach (var orb in collectGlowingOrbs)
         {
             orb.OnCollected += IncreaseCollectedOrbNum;
@@ -24,18 +34,6 @@ public class OrbCollectionCheckTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            /*if (collectedOrbNum >= 3)
-            {
-                Debug.Log("success");
-                CapybaraControllerSnow Capy = other.GetComponent<CapybaraControllerSnow>();
-                Capy.OrbsCollectedSuccessfully();
-            }
-            else
-            {
-                Debug.Log("fail");
-                
-            }*/
-            
             other.GetComponent<CapybaraControllerSnow>().OrbCollectionFailed();
         }
     }
@@ -43,6 +41,10 @@ public class OrbCollectionCheckTrigger : MonoBehaviour
     private void IncreaseCollectedOrbNum()
     {
         collectedOrbNum++;
+        audioSource.clip = collectSound;
+        audioSource.Play();
+        
+        // play sound
         
         if (collectedOrbNum >= 3)
             OnOrbsCollected?.Invoke();

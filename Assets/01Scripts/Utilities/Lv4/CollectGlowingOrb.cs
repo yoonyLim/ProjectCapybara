@@ -17,6 +17,8 @@ public class CollectGlowingOrb : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            DualSenseInputManager.Instance.RumbleControllerShort(0.1f);
+            
             OnCollected?.Invoke();
             shouldBeDestroyed = true;
             puffEffectInstance = Instantiate(puffEffect, transform.position, Quaternion.identity);
