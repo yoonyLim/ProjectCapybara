@@ -35868,8 +35868,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 655929148}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.19759911, y: 0.38111117, z: -0.08377633, w: -0.8992722}
-  m_LocalPosition: {x: 8.56, y: 3.9, z: -9.02}
+  m_LocalRotation: {x: 0.056160804, y: 0.04733285, z: -0.0026654594, w: 0.9972956}
+  m_LocalPosition: {x: 5.516551, y: -7.0986853, z: 71.6637}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35907,8 +35907,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 2000
-  field of view: 60.000004
+  far clip plane: 1000
+  field of view: 80
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -47959,7 +47959,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4784832555563742573, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4945733660293684241, guid: ca72330ea68cab246917f9d126ab5c3a, type: 3}
       propertyPath: m_LocalScale.x
@@ -49814,7 +49814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2653215083969983028, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5394991931679757765, guid: 1924a3758c5cb0949adac2381d07eb81, type: 3}
       propertyPath: ScanRecursively
@@ -78659,7 +78659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1288551965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84484,7 +84484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9086152306701362361, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -85107,7 +85107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1637246630
 MonoBehaviour:
   m_ObjectHideFlags: 0
