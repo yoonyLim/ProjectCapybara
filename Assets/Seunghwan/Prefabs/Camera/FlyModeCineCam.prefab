@@ -29,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2653215083969983028}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.056224007, y: 0.000000015646709, z: -8.8111435e-10, w: 0.9984182}
+  m_LocalRotation: {x: 0.056222327, y: 0, z: 0, w: 0.9984183}
   m_LocalPosition: {x: 3.8339252, y: 1.5886879, z: 41.91194}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -14.036, z: 0}
+  m_LocalEulerAnglesHint: {x: 6.446, y: 0, z: 0}
 --- !u!114 &314277337075623871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
     Range: {x: -20, y: 60}
     Wrap: 0
     Recentering:
-      Enabled: 0
+      Enabled: 1
       Wait: 0
       Time: 1.3
     Restrictions: 0
@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScanRecursively: 0
-  SuppressInputWhileBlending: 0
+  SuppressInputWhileBlending: 1
   IgnoreTimeScale: 0
   m_ControllerManager:
     Controllers:
