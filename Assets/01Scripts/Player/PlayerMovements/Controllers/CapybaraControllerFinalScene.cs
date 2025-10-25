@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using Quaternion = UnityEngine.Quaternion;
+using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -61,6 +62,16 @@ namespace Capybara
         private static readonly int FadeOut = Animator.StringToHash("FadeOut");
         private static readonly int HappyCapy = Animator.StringToHash("HappyCapy");
 
+        [SerializeField] AudioSource footstepSource;
+        [SerializeField] AudioClip footstepClip;
+
+        public void PlayFootstepSound()
+        {
+            float randomPitch = 1f + Random.Range(-0.3f, 0.3f);
+            footstepSource.pitch = randomPitch;
+            footstepSource.PlayOneShot(footstepClip);
+        }
+        
         private void OnEnable()
         {
             inputReader.EnableGamePlayActionInputs();
@@ -172,6 +183,7 @@ namespace Capybara
         public void SetSpeed(float newSpeed)
         {
             speed = newSpeed;
+            anim.speed = newSpeed / 5;
 
             if (newSpeed <= 0.3f)
             {
