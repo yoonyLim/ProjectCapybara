@@ -3,12 +3,12 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-
+    
     public bool IsPaused { get; private set; } = false;
-
+    
     void Awake()
     {
-        // Singleton ÆÐÅÏ
+        // Singleton ï¿½ï¿½ï¿½ï¿½
         if (instance == null)
         {
             instance = this;
@@ -20,23 +20,48 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            FindLoadingManager(0);
+        } 
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            FindLoadingManager(1);
+        } 
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            FindLoadingManager(2);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            FindLoadingManager(3);
+        }
+    }
+
+    void FindLoadingManager(int sceneIndex)
+    { 
+        FindFirstObjectByType<LoadingManager>().LoadScene(sceneIndex);
+    }
+
     /// <summary>
-    /// °ÔÀÓ ÀÏ½Ã Á¤Áö
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void PauseGame()
     {
         IsPaused = true;
-        Time.timeScale = 0f; // °ÔÀÓÀÇ ½Ã°£À» ¸ØÃä´Ï´Ù.
+        Time.timeScale = 0f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
         Debug.Log("Game Paused. TimeScale: 0");
     }
 
     /// <summary>
-    /// °ÔÀÓ Àç°³
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ç°³
     /// </summary>
     public void ResumeGame()
     {
         IsPaused = false;
-        Time.timeScale = 1f; // °ÔÀÓÀÇ ½Ã°£À» ´Ù½Ã Èå¸£°Ô ÇÕ´Ï´Ù.
+        Time.timeScale = 1f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½å¸£ï¿½ï¿½ ï¿½Õ´Ï´ï¿½.
         Debug.Log("Game Resumed. TimeScale: 1");
     }
 }
