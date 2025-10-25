@@ -22,9 +22,11 @@ public class GuidelineVisualizer : MonoBehaviour
     
     [SerializeField] private CanvasGroup indicatorCanvasGroup; 
     [SerializeField] private SplineContainer guideLine;
+
+    [SerializeField] private Transform flymodeTranform;
     private void Awake()
     {
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        playerTransform = flymodeTranform;
         mainCamera = Camera.main;
         indicatorCanvasGroup = directionIndicator.GetComponent<CanvasGroup>();
         indicatorCanvasGroup.alpha = 0f;

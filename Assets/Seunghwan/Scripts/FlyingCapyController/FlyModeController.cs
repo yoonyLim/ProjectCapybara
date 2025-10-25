@@ -101,6 +101,7 @@ public class FlyModeController : MonoBehaviour
 
     private void OnEnable()
     {
+        BirdLevelMusic.instance.PlayFirstPartMusic();
         capybaraInputReader.EnableGamePlayActionInputs();
         capybaraInputReader.MoveEvent += OnMove;
         capybaraInputReader.MoveCanceledEvent += OnMoveCanceled;
@@ -286,6 +287,7 @@ public class FlyModeController : MonoBehaviour
 
         if (other.TryGetComponent(out CozyVolume cozyVolume))
         {
+            BirdLevelMusic.instance.PlaySecondPartMusic();
             OnWeatherVolumeTriggerEnter?.Invoke();
         }
     }

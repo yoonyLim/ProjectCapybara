@@ -12,7 +12,7 @@ public class LightningStrike : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     
     private float strikeCooldown = 7f;
-    private float dodgeTimeWindow = 0.2f;
+    private float dodgeTimeWindow = 0.4f;
     private bool inCooldown = false;
     private float cooldownTimer = 0f;
     private FlyModeController flyModeController;
