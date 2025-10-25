@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Audio;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class SettingsManager : MonoBehaviour
     private float brightness = 0.5f;
     private bool pixelFilter = true;
     private Resolution[] resolutions;
+    
+    [SerializeField] private AudioMixer capyAudioMixer;
 
     void Awake()
     {
@@ -49,18 +52,21 @@ public class SettingsManager : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        AudioListener.volume = masterVolume;
+        // AudioListener.volume = masterVolume;
+        capyAudioMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20f);
     }
 
     public void SetBgmVolume(float volume)
     {
         bgmVolume = volume;
+        capyAudioMixer.SetFloat("BGMVolume", Mathf.Log10(volume) * 20f);
         // if (SoundManager.instance != null) SoundManager.instance.SetBGMVolume(bgmVolume);
     }
 
     public void SetSfxVolume(float volume)
     {
         sfxVolume = volume;
+        capyAudioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
         // if (SoundManager.instance != null) SoundManager.instance.SetSFXVolume(sfxVolume);
     }
 
