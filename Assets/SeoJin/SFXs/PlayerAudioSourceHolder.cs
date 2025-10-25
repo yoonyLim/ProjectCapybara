@@ -8,4 +8,5 @@ public class PlayerAudioSourceHolder : MonoBehaviour
     public PlayerJumpSound jumpSound;
     public PlayerLandSound landSound;
     public PlayerFootStepSound footStepSound;
+    public PlayerSquashSound squashSound;
 }

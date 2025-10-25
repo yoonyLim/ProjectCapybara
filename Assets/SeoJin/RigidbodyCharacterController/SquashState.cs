@@ -1,4 +1,5 @@
 using System.Collections;
+using Moko;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -45,6 +46,7 @@ public class RCC_SquashState : BaseState
     
     public void AddSquashDuration()
     {
+        stateMachine.audioSourceHolder.squashSound.PlaySquashSound();
         DualSenseInputManager.Instance.RumbleControllerForDuration(1, squashDuration);
         
         remainingSquashDuration += squashDuration;
