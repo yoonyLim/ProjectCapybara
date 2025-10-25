@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ControllerManager : MonoBehaviour
 {
-    [SerializeField] private PlayerController walkController;
+    [SerializeField] private PlayerStateMachine walkController;
     [SerializeField] private CinemachineCamera walkCamera;
     [SerializeField] private FlyModeController flyController;
     [SerializeField] private CinemachineCamera flyCamera;
