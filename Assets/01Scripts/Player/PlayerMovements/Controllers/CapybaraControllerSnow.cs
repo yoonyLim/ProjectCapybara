@@ -196,6 +196,28 @@ namespace Capybara
                     }
                 }
             }
+        }
+
+        public void SetIsWindZoned(bool val)
+        {
+            isWindZoned = val;
+        }
+
+        private void FixedUpdate()
+        {
+            if (isLevelSuccessful)
+            {
+                // rb.linearVelocity = Vector3.forward * 25 + Vector3.down * 50;
+                rb.useGravity = true;
+                rb.AddForce(Vector3.forward, ForceMode.Acceleration);
+                
+                Vector3 currentSlidingVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                if (currentSlidingVelocity.magnitude > 20)
+                {
+                    Vector3 cappedVelocity = currentSlidingVelocity.normalized * maxSpeed;
+                    rb.linearVelocity = new Vector3(cappedVelocity.x, rb.linearVelocity.y, cappedVelocity.z);
+                }
+            }
             
             // collect orbs
             if (transform.position.z >= breakDistance && !isOverBreakDistance)
@@ -233,28 +255,6 @@ namespace Capybara
             {
                 var mainParticleSystem = collectOrbsWindSpeedParticles.main;
                 mainParticleSystem.startSpeed = 0;
-            }
-        }
-
-        public void SetIsWindZoned(bool val)
-        {
-            isWindZoned = val;
-        }
-
-        private void FixedUpdate()
-        {
-            if (isLevelSuccessful)
-            {
-                // rb.linearVelocity = Vector3.forward * 25 + Vector3.down * 50;
-                rb.useGravity = true;
-                rb.AddForce(Vector3.forward, ForceMode.Acceleration);
-                
-                Vector3 currentSlidingVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-                if (currentSlidingVelocity.magnitude > 20)
-                {
-                    Vector3 cappedVelocity = currentSlidingVelocity.normalized * maxSpeed;
-                    rb.linearVelocity = new Vector3(cappedVelocity.x, rb.linearVelocity.y, cappedVelocity.z);
-                }
             }
             
             // --- WINDZONED MOVEMENT ---
@@ -387,7 +387,7 @@ namespace Capybara
 
         private void NextLevel()
         {
-            loadingManager.LoadScene(1);
+            loadingManager.LoadScene(3);
         }
 
         public void OrbCollectionFailed()
