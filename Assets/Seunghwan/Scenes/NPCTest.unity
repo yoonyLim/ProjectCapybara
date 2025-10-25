@@ -584,18 +584,8 @@ MonoBehaviour:
   dustLandPrefab: {fileID: 4864117026307715271, guid: 79f62ac6d9fd2f54f9858d0092bd052d, type: 3}
   dustTrailSpawnPoint: {fileID: 1562499795}
   dustLandSpawnPoint: {fileID: 965650824}
-  playerController: {fileID: 521704657}
---- !u!114 &521704657 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6986465247500084549, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
-  m_PrefabInstance: {fileID: 1777095792}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 521704654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a7d9d106b0ee834ba10bcb0697558c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  motor: {fileID: 0}
+  yVelThreshold: 0
 --- !u!1 &635336578
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +644,7 @@ Camera:
   far clip plane: 1000
   field of view: 40
   orthographic: 0
-  orthographic size: 5
+  orthographic size: 9.259259
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1808,6 +1798,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BirdNPC
       objectReference: {fileID: 0}
+    - target: {fileID: 590713115070247468, guid: 87f09f0fbbd23cc4da7a3d95a0413b80, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2597579104994011546, guid: 87f09f0fbbd23cc4da7a3d95a0413b80, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
@@ -1999,14 +1993,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 495774580491616527, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1319750684113093578, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 4.33
-      objectReference: {fileID: 0}
     - target: {fileID: 5146309970376682773, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.3
@@ -2050,14 +2036,6 @@ PrefabInstance:
     - target: {fileID: 7702151517163400173, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
       propertyPath: m_Name
       value: BatNPC
-      objectReference: {fileID: 0}
-    - target: {fileID: 7702151517163400173, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7781659702480188423, guid: 4b3beee3e55967442af26f5d08868fe4, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
