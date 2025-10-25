@@ -387,7 +387,7 @@ namespace Capybara
 
         private void NextLevel()
         {
-            loadingManager.LoadScene(1);
+            loadingManager.LoadScene(3);
         }
 
         public void OrbCollectionFailed()
