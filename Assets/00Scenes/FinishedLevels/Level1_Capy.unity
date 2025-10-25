@@ -12018,7 +12018,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4142135, y: 1.4142135, z: 1.4142135}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1782597560}
@@ -88403,7 +88403,8 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1143199871953527958, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
     m_RemovedGameObjects:
     - {fileID: 4065783222756675821, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
     - {fileID: 654361035458500106, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
@@ -88418,9 +88419,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9086152306701362361, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
       insertIndex: 6
       addedObject: {fileID: 1595029560}
-    - targetCorrespondingSourceObject: {fileID: 9086152306701362361, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1595029568}
   m_SourcePrefab: {fileID: 100100000, guid: 07e4e9bff2ffbf043900e919ea774c93, type: 3}
 --- !u!4 &1595029557 stripped
 Transform:
@@ -88459,19 +88457,8 @@ MonoBehaviour:
   dustLandPrefab: {fileID: 4864117026307715271, guid: 79f62ac6d9fd2f54f9858d0092bd052d, type: 3}
   dustTrailSpawnPoint: {fileID: 1386422724}
   dustLandSpawnPoint: {fileID: 473856489}
-  playerController: {fileID: 1595029558}
---- !u!114 &1595029568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1595029559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cf1fade91c9ff4439a6b12cbb1a38cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  motor: {fileID: 0}
+  yVelThreshold: 0
 --- !u!1001 &1602444439
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106508,7 +106495,7 @@ Transform:
   m_GameObject: {fileID: 1837791971}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.72287166, y: -0.89150184, z: 47.643692}
+  m_LocalPosition: {x: 9.382216, y: 1.6139306, z: -5.454107}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -122519,6 +122506,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4172069267342918755, guid: aba62aa803b9f8b47b49bd8b6861f3af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4210078301470123911, guid: aba62aa803b9f8b47b49bd8b6861f3af, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -122625,7 +122616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5644695033683109584, guid: aba62aa803b9f8b47b49bd8b6861f3af, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5786226151906284657, guid: aba62aa803b9f8b47b49bd8b6861f3af, type: 3}
       propertyPath: m_LocalPosition.x
