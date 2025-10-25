@@ -167,6 +167,16 @@ public class PlayerController : MonoBehaviour
             inputReader.EnableGamePlayActionInputs();
         }
     }
+    
+    [SerializeField] AudioSource footstepSource;
+    [SerializeField] AudioClip footstepClip;
+
+    public void PlayFootstepSound()
+    {
+        float randomPitch = 1f + Random.Range(-0.3f, 0.3f);
+        footstepSource.pitch = randomPitch;
+        footstepSource.PlayOneShot(footstepClip);
+    }
 
     void OnDisable()
     {

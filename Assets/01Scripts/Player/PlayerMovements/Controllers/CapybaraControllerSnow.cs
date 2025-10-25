@@ -92,6 +92,13 @@ namespace Capybara
         private static readonly int FadeIn = Animator.StringToHash("FadeIn");
         private static readonly int FadeOut = Animator.StringToHash("FadeOut");
 
+        [SerializeField] AudioSource footstepSource;
+        [SerializeField] AudioClip snowSlideClip;
+        public void PlaySnowSlideSound()
+        {
+            footstepSource.PlayOneShot(snowSlideClip);
+        }
+        
         private void OnEnable()
         {
             inputReader.EnableGamePlayActionInputs();
@@ -178,7 +185,10 @@ namespace Capybara
                 {
                     var mainParticleSystem = windSpeedParticles.main;
                     mainParticleSystem.startSpeed = 0f;
+                    
                     anim.SetBool(IsOnIce, false);
+                    
+                    footstepSource.Stop();
 
                     if (!isGrounded && !isLevelSuccessful)
                     {
@@ -320,6 +330,8 @@ namespace Capybara
 
         public void OrbsCollectedSuccessfully()
         {
+            footstepSource.enabled = false;
+            
             rb.linearVelocity = Vector3.zero;
             finalRamp.SetActive(true);
             PlayFlashIn();
