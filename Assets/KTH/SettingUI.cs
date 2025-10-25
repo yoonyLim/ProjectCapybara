@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -62,7 +63,7 @@ public class SettingsUI : MonoBehaviour
         nextResolutionButton.onClick.AddListener(OnNextResolutionClicked);
         prevScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
         nextScreenModeButton.onClick.AddListener(OnScreenModeButtonClicked);
-        brightnessSlider.onValueChanged.AddListener(OnBrightnessChanged);
+        // brightnessSlider.onValueChanged.AddListener(OnBrightnessChanged);
         masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
         bgmVolumeSlider.onValueChanged.AddListener(OnBgmVolumeChanged);
         sfxVolumeSlider.onValueChanged.AddListener(OnSfxVolumeChanged);

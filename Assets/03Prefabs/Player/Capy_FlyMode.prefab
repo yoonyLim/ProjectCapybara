@@ -1065,6 +1065,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b969fbb64a05ddf4eab88517f4686aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dodgeAudioSource: {fileID: 0}
+  dodgeSounds:
+  - {fileID: 8300000, guid: cced6c605edf23348a789ca66cf7813f, type: 3}
+  - {fileID: 8300000, guid: 8714d2bda79b0e94692f5de05f53441f, type: 3}
+  - {fileID: 8300000, guid: 040ee5ba408b2ad4490cd69fa535c425, type: 3}
   meshRoot: {fileID: 7712284891540747133}
   capyAnimator: {fileID: 6844136529938749793}
   birdAnimator: {fileID: 2467879016728466631}
@@ -1080,6 +1085,7 @@ MonoBehaviour:
   meshRenderers:
   - {fileID: 5670032782100016260}
   - {fileID: 6549625029781418320}
+  globalVolume: {fileID: 0}
 --- !u!114 &4026415458043603430
 MonoBehaviour:
   m_ObjectHideFlags: 0
