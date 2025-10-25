@@ -1596,7 +1596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 73273537}
   - component: {fileID: 73273538}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (2)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -1683,6 +1683,7 @@ Transform:
   - {fileID: 58044354}
   - {fileID: 1206023683}
   - {fileID: 1057606662}
+  - {fileID: 1976364459}
   m_Father: {fileID: 397894849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &76398967
@@ -1701,6 +1702,7 @@ MonoBehaviour:
   jumpSound: {fileID: 58044356}
   landSound: {fileID: 1206023685}
   footStepSound: {fileID: 1147259581}
+  squashSound: {fileID: 1976364460}
 --- !u!1 &76584419 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 158a940d0618b554b83e0f1f34615616, type: 3}
@@ -3078,7 +3080,7 @@ GameObject:
   m_Component:
   - component: {fileID: 159984172}
   - component: {fileID: 159984173}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (3)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -4133,7 +4135,7 @@ Transform:
   m_GameObject: {fileID: 203191804}
   serializedVersion: 2
   m_LocalRotation: {x: 0.08678387, y: -2.0140502e-11, z: 4.9030387e-13, w: 0.9962272}
-  m_LocalPosition: {x: 226.13808, y: -6.7194214, z: 51.904266}
+  m_LocalPosition: {x: 12.814812, y: 6.120579, z: -16.115753}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23468,6 +23470,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpawnPointPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 103719301775122381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 337894888845085381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 493420644399851761, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.0698
@@ -23527,6 +23537,10 @@ PrefabInstance:
     - target: {fileID: 3945677773927581304, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8306879872336303981, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -81186,7 +81200,7 @@ Transform:
   m_GameObject: {fileID: 883452439}
   serializedVersion: 2
   m_LocalRotation: {x: 0.08678387, y: 0, z: 0, w: 0.9962272}
-  m_LocalPosition: {x: -493.32, y: 56.430584, z: -322.48575}
+  m_LocalPosition: {x: -761.83, y: 69.270584, z: -390.50577}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -94284,15 +94298,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -493.32
+      value: -761.83
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 50.92
+      value: 63.76
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -308.18
+      value: -376.2
       objectReference: {fileID: 0}
     - target: {fileID: 5374833266861097675, guid: 264a73c07d5e2634396f5071371d9862, type: 3}
       propertyPath: m_LocalRotation.w
@@ -94598,7 +94612,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalScale: {x: 14.2472515, y: 14.2472515, z: 14.2472515}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1300985806}
@@ -96834,6 +96848,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpawnPointPrefab (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 103719301775122381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 337894888845085381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 493420644399851761, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24.840038
@@ -96889,6 +96911,10 @@ PrefabInstance:
     - target: {fileID: 3945677773927581304, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8306879872336303981, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -107236,7 +107262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1270683443}
   - component: {fileID: 1270683444}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (1)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -113210,7 +113236,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1299257948}
   - component: {fileID: 1299257949}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer (4)
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -128385,6 +128411,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpawnPointPrefab (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 103719301775122381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 337894888845085381, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 493420644399851761, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -28.58001
@@ -128444,6 +128478,10 @@ PrefabInstance:
     - target: {fileID: 3945677773927581304, guid: a401b7b41677287458508101f79fc54f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8306879872336303981, guid: a401b7b41677287458508101f79fc54f, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -129615,7 +129653,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1502553182}
   - component: {fileID: 1502553181}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyer
   m_TagString: RockDestroyer
   m_Icon: {fileID: 0}
@@ -138042,7 +138080,7 @@ Transform:
   m_GameObject: {fileID: 1610982109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -58.359585, y: 131.231, z: -223.59875}
+  m_LocalPosition: {x: -744.75104, y: 72.03134, z: -387.73892}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -150226,7 +150264,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1722411462}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: RockDestroyers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173166,6 +173204,151 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: d6defc44e0ae49e4a93a4c4386b5ca2f, type: 3}
+--- !u!1 &1976364458
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1976364459}
+  - component: {fileID: 1976364460}
+  - component: {fileID: 1976364461}
+  m_Layer: 2
+  m_Name: Squash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1976364459
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976364458}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 76398966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1976364460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976364458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d7f945349bdc224f80add64ff2a95f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  squashSound: {fileID: 8300000, guid: 5c47bdb63aca69a469d0b5fbfafa88c9, type: 3}
+  squashAudioSource: {fileID: 0}
+  pitchRandomDeviation: 0.1
+--- !u!82 &1976364461
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976364458}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 2414896572502093439, guid: 288ee7215d31eaa4c9c64be6645d6737, type: 2}
+  m_audioClip: {fileID: 8300000, guid: 5c47bdb63aca69a469d0b5fbfafa88c9, type: 3}
+  m_Resource: {fileID: 8300000, guid: 5c47bdb63aca69a469d0b5fbfafa88c9, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &1976593598
 PrefabInstance:
   m_ObjectHideFlags: 0
