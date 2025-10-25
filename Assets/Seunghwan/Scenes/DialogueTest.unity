@@ -464,6 +464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   invisibleGlowMaterial: {fileID: 2100000, guid: 7c051a056a268064d9041b4f0b4c0bed, type: 2}
+  invisibleGlowMaterialForChain: {fileID: 2100000, guid: d2e68c7478459414d8f4809e390a4397, type: 2}
   highlightGlowMaterial: {fileID: 2100000, guid: 1fcb2302cc426da459151ffab58ac405, type: 2}
   endScale: 70
   startScale: 0
@@ -546,6 +547,9 @@ MonoBehaviour:
   transparentLayerMask:
     serializedVersion: 2
     m_Bits: 262144
+  breakableRockMaterial: {fileID: 2100000, guid: 770af564b53d8d048a2002804ba52570, type: 2}
+  breakableRockEmissionColor: {r: 0, g: 0, b: 0, a: 0}
+  breakableRockNormalColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!82 &118909900
 AudioSource:
   m_ObjectHideFlags: 0

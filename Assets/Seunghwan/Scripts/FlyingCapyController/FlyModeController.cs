@@ -194,6 +194,7 @@ public class FlyModeController : MonoBehaviour
                     Time.timeScale = 0.3f;
                     dodgedLightningTime = Time.fixedUnscaledTime;
                     dodgedLightningSlowmo = true;
+                    dodgeAudioSource.PlayOneShot(dodgeSounds[UnityEngine.Random.Range(0, dodgeSounds.Length)]);
                     PlayLightningDodgeAnimation();
                     StartCoroutine(PlayVignetteEffect());
                 }

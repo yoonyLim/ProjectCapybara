@@ -244,10 +244,11 @@ public class UIManager : MonoBehaviour
         CanvasGroup canvasGroup = uiObject.GetComponent<CanvasGroup>() ?? uiObject.AddComponent<CanvasGroup>();
         uiObject.SetActive(true);
         canvasGroup.alpha = 0f;
-        uiObject.transform.localScale = Vector3.one * 0.9f;
+        Vector3 originalLocalScale = uiObject.transform.localScale;
+        uiObject.transform.localScale = originalLocalScale * 0.9f;
 
         canvasGroup.DOFade(1f, animationDuration).SetUpdate(true);
-        uiObject.transform.DOScale(1f, animationDuration).SetEase(openEase).SetUpdate(true);
+        uiObject.transform.DOScale(originalLocalScale, animationDuration).SetEase(openEase).SetUpdate(true);
 
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
@@ -260,9 +261,11 @@ public class UIManager : MonoBehaviour
 
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+        
+        Vector3 originalLocalScale = uiObject.transform.localScale;
 
         canvasGroup.DOFade(0f, animationDuration).SetUpdate(true);
-        uiObject.transform.DOScale(0.9f, animationDuration).SetEase(closeEase).SetUpdate(true)
+        uiObject.transform.DOScale(originalLocalScale * 0.9f, animationDuration).SetEase(closeEase).SetUpdate(true)
             .OnComplete(() => uiObject.SetActive(false));
     }
 
