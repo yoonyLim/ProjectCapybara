@@ -207,6 +207,7 @@ namespace Capybara
         {
             if (isLevelSuccessful)
             {
+                isWindZoned = true;
                 // rb.linearVelocity = Vector3.forward * 25 + Vector3.down * 50;
                 rb.useGravity = true;
                 rb.AddForce(Vector3.forward, ForceMode.Acceleration);
