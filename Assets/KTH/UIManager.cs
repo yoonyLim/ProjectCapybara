@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 /// <summary>
 /// UI 패널과 대화 상태, 그리고 Cinemachine 카메라 전환을 총괄하는 매니저입니다.
@@ -76,6 +78,10 @@ public class UIManager : MonoBehaviour
 
     // [신규] 입력 겹침 방지용 쿨다운 변수
     private bool isInputProcessing = false;
+    private bool hasStartedGame;
+
+    internal bool IsStartScreenActive => !hasStartedGame && startMenuUI != null &&
+        startMenuUI.activeInHierarchy && uiStack.Count == 1 && uiStack.Peek() == startMenuUI;
 
     #endregion
 
@@ -89,6 +95,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        LogStartInputDevices();
         if (vcam_Title != null) vcam_Title.Priority = 20;
         else Debug.LogError("UIManager: vcam_Title이(가) 할당되지 않았습니다!", this);
 
@@ -133,6 +140,7 @@ public class UIManager : MonoBehaviour
     #region Event Subscription
     private void OnEnable()
     {
+        InputSystem.onDeviceChange += HandleInputDeviceChange;
         if (inputReader != null)
         {
             inputReader.PauseEvent += HandlePauseEvent;
@@ -144,6 +152,7 @@ public class UIManager : MonoBehaviour
 
     private void OnDisable()
     {
+        InputSystem.onDeviceChange -= HandleInputDeviceChange;
         if (inputReader != null)
         {
             inputReader.PauseEvent -= HandlePauseEvent;
@@ -220,7 +229,7 @@ public class UIManager : MonoBehaviour
         {
             AnimateClose(uiStack.Pop());
         }
-        EventSystem.current.SetSelectedGameObject(null);
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
     }
     #endregion
 
@@ -230,8 +239,10 @@ public class UIManager : MonoBehaviour
     private IEnumerator SelectFirstButtonAfterFrame(GameObject firstSelected)
     {
         yield return null;
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelected);
+        var system = EventSystem.current;
+        if (system == null) yield break;
+        system.SetSelectedGameObject(null);
+        system.SetSelectedGameObject(firstSelected);
     }
 
     // [신규] 입력 겹침 방지용 쿨다운 코루틴
@@ -288,6 +299,7 @@ public class UIManager : MonoBehaviour
 
     public void StartGame()
     {
+        hasStartedGame = true;
         Time.timeScale = 1f;
         
         CloseAllUI();
@@ -383,6 +395,65 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Input Event Handlers
+
+    private void LateUpdate()
+    {
+        if (!IsStartScreenActive) return;
+
+        // Accept a key on the title without depending on a selected Button or
+        // on the UI action maps being enabled/resolved for a particular device.
+        foreach (var device in InputSystem.devices)
+        {
+            if (device is Keyboard keyboard)
+            {
+                if (!keyboard.anyKey.wasPressedThisFrame) continue;
+                Debug.Log($"[TitleInput] Starting from keyboard: {device.name}");
+                StartGame();
+                return;
+            }
+            if (device is Pointer ||
+                (!(device is Gamepad) && !(device is Joystick) && device.description.interfaceName != "HID")) continue;
+            foreach (var control in device.allControls)
+            {
+                // Ignore derived stick-direction buttons: moving an analog
+                // stick while connecting a controller must not start a game.
+                if (control.synthetic || !(control is ButtonControl button) || !button.wasPressedThisFrame) continue;
+                Debug.Log($"[TitleInput] Starting from controller: {device.name}; layout={device.layout}; control={control.name}");
+                StartGame();
+                return;
+            }
+        }
+
+        // This project enables both input backends. Some wireless controllers
+        // may only expose usable buttons through the legacy joystick backend.
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Return) ||
+            Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("[TitleInput] Starting from legacy keyboard input.");
+            StartGame();
+            return;
+        }
+        for (int i = 0; i < 20; i++)
+        {
+            if (!Input.GetKeyDown((KeyCode)((int)KeyCode.JoystickButton0 + i))) continue;
+            Debug.Log($"[TitleInput] Starting from legacy joystick button {i}.");
+            StartGame();
+            return;
+        }
+    }
+
+    private void HandleInputDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (!IsStartScreenActive) return;
+        Debug.Log($"[TitleInput] Device {change}: name={device.name}; layout={device.layout}; interface={device.description.interfaceName}; product={device.description.product}");
+    }
+
+    private void LogStartInputDevices()
+    {
+        Debug.Log($"[TitleInput] Startup: focused={Application.isFocused}; legacyJoysticks={string.Join(",", Input.GetJoystickNames())}");
+        foreach (var device in InputSystem.devices)
+            Debug.Log($"[TitleInput] Device: name={device.name}; layout={device.layout}; interface={device.description.interfaceName}; product={device.description.product}");
+    }
 
     private void HandleNavigateEvent(Vector2 direction)
     {

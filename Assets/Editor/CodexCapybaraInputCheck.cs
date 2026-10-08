@@ -5,9 +5,31 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public static class CodexCapybaraInputCheck
 {
+    public static void InspectRain()
+    {
+        EditorSceneManager.OpenScene("Assets/00Scenes/FinishedLevels/Level1_Capy.unity");
+        var renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        Debug.Log($"CAPY_RAIN_COUNTS: renderers={renderers.Length}; shadowCasters={renderers.Count(r => r.shadowCastingMode != ShadowCastingMode.Off)}; realtimeLights={lights.Count(l => l.lightmapBakeType != LightmapBakeType.Baked)}; shadowLights={lights.Count(l => l.shadows != LightShadows.None)}");
+        foreach (var camera in Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            var data = camera.GetUniversalAdditionalCameraData();
+            Debug.Log($"CAPY_RAIN_CAMERA: {camera.name}; enabled={camera.enabled}; depth={camera.depth}; post={data.renderPostProcessing}; shadows={data.renderShadows}; target={camera.targetTexture?.name}; renderType={data.renderType}; far={camera.farClipPlane}");
+        }
+        foreach (var ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            Debug.Log($"CAPY_RAIN_PARTICLES: {ps.name}; active={ps.gameObject.activeInHierarchy}; max={ps.main.maxParticles}; rate={ps.emission.rateOverTime.constantMax}; collision={ps.collision.enabled}; noise={ps.noise.enabled}; collisionQuality={ps.collision.quality}");
+        foreach (var component in Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None).Where(c => c != null && c.GetType().Name == "CozyWeather"))
+        {
+            Debug.Log("CAPY_RAIN_WEATHER: " + JsonUtility.ToJson(component));
+        }
+        Debug.Log("CAPY_RAIN_INSPECT: complete (static scene configuration; no GPU timing)");
+    }
+
     public static void Play()
     {
         EditorSceneManager.OpenScene("Assets/00Scenes/FinishedLevels/Level1_Capy.unity");

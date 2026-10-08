@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.XInput;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Layouts;
+using System.Reflection;
 
 // Explicit opt-in test. Normal launches do not create a virtual controller.
 public class CodexCapybaraPadProbe : MonoBehaviour
@@ -13,7 +16,9 @@ public class CodexCapybaraPadProbe : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
-        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraPadProbe") < 0) return;
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraPadProbe") < 0 &&
+            Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraKeyboardProbe") < 0 &&
+            Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraTitleProbe") < 0) return;
         var probe = new GameObject("Capybara controller diagnostic");
         DontDestroyOnLoad(probe);
         probe.AddComponent<CodexCapybaraPadProbe>();
@@ -34,6 +39,25 @@ public class CodexCapybaraPadProbe : MonoBehaviour
         if (menu == null || system == null || module == null)
         { Finish(false, "Menu input components missing"); yield break; }
         Debug.Log($"CAPY_PAD_INITIAL: selected={system.currentSelectedGameObject?.name}; focused={system.isFocused}; moveEnabled={module.move.action.enabled}; submitEnabled={module.submit.action.enabled}; devices={string.Join(",", InputSystem.devices)}");
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraTitleProbe") >= 0)
+        {
+            yield return ProbeTitleInput(menu, system, module);
+            yield break;
+        }
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-capybaraKeyboardProbe") >= 0)
+        {
+            var keyboard = InputSystem.AddDevice<Keyboard>("Capybara diagnostic keyboard");
+            try
+            {
+                system.SetSelectedGameObject(null);
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
+                yield return new WaitForSecondsRealtime(0.4f);
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+                Finish(!menu.IsMenuUIOpen, "keyboard E start; selected=" + system.currentSelectedGameObject?.name);
+            }
+            finally { InputSystem.RemoveDevice(keyboard); }
+            yield break;
+        }
         var originalSelection = system.currentSelectedGameObject;
         var controller = InputSystem.AddDevice<XInputController>("Capybara diagnostic Xbox controller");
         try
@@ -73,6 +97,86 @@ public class CodexCapybaraPadProbe : MonoBehaviour
             Finish(true, expectOriginalBug ? "original bug reproduced; selected button accepts Xbox B" : "selection recovery and Xbox B start passed");
         }
         finally { InputSystem.RemoveDevice(controller); }
+    }
+
+    private IEnumerator ProbeTitleInput(UIManager menu, EventSystem system, InputSystemUIInputModule module)
+    {
+        var args = Environment.GetCommandLineArgs();
+        int index = Array.IndexOf(args, "-capybaraTitleCase");
+        string scenario = index >= 0 && index + 1 < args.Length ? args[index + 1] : "e";
+        if (!menu.IsStartScreenActive) { Finish(false, "Title was not active"); yield break; }
+
+        // Reproduce a missing/disabled UI input path and no selected button.
+        // The new title fallback must work independently of both UI assets.
+        module.actionsAsset.Disable();
+        var reader = (Capybara.CapybaraInputReader)typeof(UIManager).GetField("inputReader", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(menu);
+        var actions = (Capybara.CapybaraInput)typeof(Capybara.CapybaraInputReader).GetField("capybaraInput", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(reader);
+        actions.Disable();
+        system.SetSelectedGameObject(null);
+
+        InputDevice device = null;
+        InputDevice connectedPad = null;
+        ButtonControl control = null;
+        bool expectStart = true;
+        if (scenario == "e" || scenario == "enter" || scenario == "space" || scenario == "submenu" || scenario == "connected-keyboard")
+        {
+            var keyboard = InputSystem.AddDevice<Keyboard>("Capybara title keyboard");
+            device = keyboard;
+            control = scenario == "e" || scenario == "connected-keyboard" ? keyboard.eKey : scenario == "space" ? keyboard.spaceKey : keyboard.enterKey;
+            if (scenario == "connected-keyboard")
+            {
+                connectedPad = InputSystem.AddDevice<XInputController>("Connected Xbox during keyboard test");
+                module.actionsAsset.devices = new[] { connectedPad };
+            }
+            if (scenario == "submenu") { menu.OpenSettingMenu(); expectStart = false; }
+        }
+        else if (scenario == "xinput")
+        {
+            var pad = InputSystem.AddDevice<XInputController>("Capybara title Xbox");
+            device = pad;
+            control = pad.buttonEast;
+        }
+        else if (scenario == "joystick")
+        {
+            var joystick = InputSystem.AddDevice<Joystick>("Capybara title joystick");
+            device = joystick;
+            control = joystick.trigger;
+        }
+        else if (scenario == "hid")
+        {
+            InputSystem.RegisterLayout(@"{""name"":""CapybaraTitleHID"",""extend"":""HID"",""format"":""CPHD"",""controls"":[{""name"":""button0"",""layout"":""Button"",""format"":""BIT"",""offset"":0,""bit"":0}]}",
+                name: "CapybaraTitleHID", matches: new InputDeviceMatcher().WithInterface("HID").WithProduct("Capybara diagnostic HID"));
+            device = InputSystem.AddDevice(new InputDeviceDescription { interfaceName = "HID", product = "Capybara diagnostic HID" });
+            control = device.GetChildControl<ButtonControl>("button0");
+        }
+        else if (scenario == "mouse")
+        {
+            var mouse = InputSystem.AddDevice<Mouse>("Capybara title mouse");
+            device = mouse;
+            control = mouse.leftButton;
+            expectStart = false;
+        }
+        else { Finish(false, "Unknown title test case: " + scenario); yield break; }
+
+        try
+        {
+            // One frame lets the newly connected layout resolve its controls.
+            yield return null;
+            using (StateEvent.From(device, out var eventPtr))
+            {
+                control.WriteValueIntoEvent(1f, eventPtr);
+                InputSystem.QueueEvent(eventPtr);
+            }
+            yield return new WaitForSecondsRealtime(0.4f);
+            bool started = !menu.IsStartScreenActive && !menu.IsMenuUIOpen;
+            Debug.Log($"CAPY_TITLE_CASE: {scenario}; layout={device.layout}; started={started}; expectStart={expectStart}; gameplayEnabled={actions.GamePlay.enabled}");
+            Finish(started == expectStart && (!expectStart || actions.GamePlay.enabled), "title input case " + scenario);
+        }
+        finally
+        {
+            InputSystem.RemoveDevice(device);
+            if (connectedPad != null) InputSystem.RemoveDevice(connectedPad);
+        }
     }
 
     private static void Finish(bool passed, string detail)
