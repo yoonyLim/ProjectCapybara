@@ -861,6 +861,14 @@ Shader "Distant Lands/Cozy/URP/Stylized Clouds (Ghibli Desktop)"
 
 				o.clipPos = positionCS;
 
+				// Clouds belong to the background, even when distant terrain lies
+				// outside the camera-following dome's physical mesh radius.
+				#if UNITY_REVERSED_Z
+					o.clipPos.z = 0.0;
+				#else
+					o.clipPos.z = o.clipPos.w;
+				#endif
+
 				return o;
 			}
 

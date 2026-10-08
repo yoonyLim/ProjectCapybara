@@ -411,6 +411,14 @@ Shader "Distant Lands/Cozy/URP/Stylized Sky Desktop"
 
 				o.clipPos = positionCS;
 
+				// The camera follows a finite dome. Draw it at background depth so
+				// terrain beyond its mesh radius remains visible up to the far clip.
+				#if UNITY_REVERSED_Z
+					o.clipPos.z = 0.0;
+				#else
+					o.clipPos.z = o.clipPos.w;
+				#endif
+
 				return o;
 			}
 
