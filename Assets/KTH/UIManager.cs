@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// UI 패널과 대화 상태, 그리고 Cinemachine 카메라 전환을 총괄하는 매니저입니다.
@@ -136,7 +137,8 @@ public class UIManager : MonoBehaviour
         {
             inputReader.PauseEvent += HandlePauseEvent;
             inputReader.CancelEvent += HandleCancelEvent;
-            inputReader.SubmitEvent += TriggerNextDialogueStep;
+            inputReader.NavigateEvent += HandleNavigateEvent;
+            inputReader.SubmitEvent += HandleSubmitEvent;
         }
     }
 
@@ -146,7 +148,8 @@ public class UIManager : MonoBehaviour
         {
             inputReader.PauseEvent -= HandlePauseEvent;
             inputReader.CancelEvent -= HandleCancelEvent;
-            inputReader.SubmitEvent -= TriggerNextDialogueStep;
+            inputReader.NavigateEvent -= HandleNavigateEvent;
+            inputReader.SubmitEvent -= HandleSubmitEvent;
         }
     }
     #endregion
@@ -380,6 +383,50 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Input Event Handlers
+
+    private void HandleNavigateEvent(Vector2 direction)
+    {
+        if (direction.sqrMagnitude > 0f) RestoreMenuSelection();
+    }
+
+    private void HandleSubmitEvent()
+    {
+        RestoreMenuSelection();
+        TriggerNextDialogueStep();
+    }
+
+    // A background click can deselect every button. The UI input module sends
+    // navigation/submit only to the selected object, so restore it before that
+    // module processes this frame's input. Keep valid selections unchanged.
+    private void RestoreMenuSelection()
+    {
+        var system = EventSystem.current;
+        if (system == null || uiStack.Count == 0) return;
+        var panel = uiStack.Peek();
+        if (panel == null || !panel.activeInHierarchy) return;
+
+        bool IsUsable(GameObject candidate)
+        {
+            if (candidate == null || !candidate.activeInHierarchy ||
+                !candidate.transform.IsChildOf(panel.transform)) return false;
+            var selectable = candidate.GetComponent<Selectable>();
+            return selectable != null && selectable.isActiveAndEnabled && selectable.IsInteractable();
+        }
+
+        if (IsUsable(system.currentSelectedGameObject)) return;
+        uiFirstButtons.TryGetValue(panel, out var firstButton);
+        if (!IsUsable(firstButton))
+        {
+            firstButton = null;
+            foreach (var selectable in panel.GetComponentsInChildren<Selectable>())
+            {
+                if (!IsUsable(selectable.gameObject)) continue;
+                firstButton = selectable.gameObject;
+                break;
+            }
+        }
+        if (firstButton != null) system.SetSelectedGameObject(firstButton);
+    }
 
     private void OpenPauseMenu(bool pauseGame)
     {
